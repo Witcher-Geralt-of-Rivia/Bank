@@ -264,6 +264,13 @@ export function TransferWizard({
     return Object.keys(next).length === 0;
   }
 
+  // An error belongs to the value it was raised for, so editing the field clears it.
+  function clearError(field: string) {
+    setErrors((current) =>
+      field in current ? Object.fromEntries(Object.entries(current).filter(([key]) => key !== field)) : current,
+    );
+  }
+
   function goToReview() {
     if (!validateAmountStep()) return;
     setFormError(null);
@@ -596,7 +603,10 @@ export function TransferWizard({
                     </span>
                     <button
                       type="button"
-                      onClick={() => setAmount(toDecimalString(BigInt(source.availableMinor), source.currency))}
+                      onClick={() => {
+                        setAmount(toDecimalString(BigInt(source.availableMinor), source.currency));
+                        clearError("amount");
+                      }}
                       className="font-medium text-accent-foreground underline-offset-4 outline-none hover:underline focus-visible:underline"
                     >
                       Usar todo el saldo
@@ -616,7 +626,10 @@ export function TransferWizard({
                       autoComplete="off"
                       placeholder="0.00"
                       value={amount}
-                      onChange={(event) => setAmount(event.target.value)}
+                      onChange={(event) => {
+                        setAmount(event.target.value);
+                        clearError("amount");
+                      }}
                       className="tabular h-16 pr-16 pl-10 text-3xl font-semibold tracking-[-0.02em] md:text-3xl"
                     />
                     <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">{source.currency}</span>
@@ -631,7 +644,10 @@ export function TransferWizard({
                     maxLength={140}
                     placeholder="p. ej., Factura 2026-041"
                     value={description}
-                    onChange={(event) => setDescription(event.target.value)}
+                    onChange={(event) => {
+                      setDescription(event.target.value);
+                      clearError("description");
+                    }}
                   />
                 )}
               </Field>
