@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { ComponentType, ReactNode } from "react";
+import type { ComponentType } from "react";
 import { AccountCard } from "@/components/banking/account-card";
 import { FundingDialog } from "@/components/banking/funding-dialog";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
-import { EmptyState, Section } from "@/components/shared/page";
+import { EmptyState, Section, StatTile } from "@/components/shared/page";
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -56,29 +56,6 @@ function Delta({ bps, upIsGood }: { bps: bigint | null; upIsGood: boolean }) {
       </span>
       vs previous 30 days
     </span>
-  );
-}
-
-function StatTile({
-  label,
-  icon: Icon,
-  value,
-  footer,
-}: {
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  value: ReactNode;
-  footer: ReactNode;
-}) {
-  return (
-    <div className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07]">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <Icon className="size-4 text-muted-foreground/70" />
-      </div>
-      <p className="heading mt-3 text-2xl">{value}</p>
-      <div className="mt-1.5 min-h-4">{footer}</div>
-    </div>
   );
 }
 
@@ -187,7 +164,7 @@ export default async function DashboardPage() {
       icon: ShieldAlert,
       title: "Blocked sign-in attempt",
       body: `Someone entered a wrong password for your profile ${formatRelative(failedSignIn.at, now).toLowerCase()}. If this wasn't you, change your password.`,
-      href: "/settings",
+      href: "/settings?tab=security",
       action: "Review",
     });
   }
@@ -198,7 +175,7 @@ export default async function DashboardPage() {
       icon: ShieldCheck,
       title: "Two-step verification is off",
       body: "Add a second layer of protection to your sign-in.",
-      href: "/settings",
+      href: "/settings?tab=security",
       action: "Turn on",
     });
   }

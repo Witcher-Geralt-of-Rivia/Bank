@@ -147,11 +147,14 @@ export type TransactionFilters = {
   type?: TransactionType;
   status?: TransactionStatus;
   accountId?: string;
+  beneficiaryId?: string;
   from?: Date;
   /** Exclusive upper bound. */
   to?: Date;
   page?: number;
   pageSize?: number;
+  /** Defaults to newest first; a work queue reads better oldest first. */
+  order?: "newest" | "oldest";
 };
 
 export type TransactionPage = {
@@ -168,6 +171,7 @@ function filterConditions(filters: TransactionFilters): SQL[] {
   if (filters.status) conditions.push(eq(transactions.status, filters.status));
   if (filters.from) conditions.push(gte(transactions.createdAt, filters.from));
   if (filters.to) conditions.push(lt(transactions.createdAt, filters.to));
+  if (filters.beneficiaryId) conditions.push(eq(transactions.beneficiaryId, filters.beneficiaryId));
   if (filters.accountId) {
     conditions.push(
       or(
@@ -211,7 +215,11 @@ async function paginate(
 
   const rows = await baseQuery(db)
     .where(where)
-    .orderBy(desc(transactions.createdAt), desc(transactions.id))
+    .orderBy(
+      ...(filters.order === "oldest"
+        ? [asc(transactions.createdAt), asc(transactions.id)]
+        : [desc(transactions.createdAt), desc(transactions.id)]),
+    )
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 

@@ -205,3 +205,27 @@ export function Callout({
     </div>
   );
 }
+
+/** A headline figure with its label and a line of context beneath. */
+export function StatTile({
+  label,
+  icon: Icon,
+  value,
+  footer,
+}: {
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  value: ReactNode;
+  footer: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07]">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <Icon className="size-4 text-muted-foreground/70" />
+      </div>
+      <p className="heading mt-3 text-2xl">{value}</p>
+      <div className="mt-1.5 min-h-4">{footer}</div>
+    </div>
+  );
+}
