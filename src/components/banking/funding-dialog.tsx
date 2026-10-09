@@ -86,13 +86,13 @@ export function FundingDialog({
     let minor: bigint;
     try {
       minor = parseAmount(amount, account.currency);
-      if (minor <= 0n) throw new MoneyError("negative", "Amount must be greater than zero.");
+      if (minor <= 0n) throw new MoneyError("negative", "El monto debe ser mayor que cero.");
     } catch (error) {
-      setErrors({ amount: error instanceof MoneyError ? error.message : "Enter a valid amount." });
+      setErrors({ amount: error instanceof MoneyError ? error.message : "Ingresa un monto válido." });
       return;
     }
     if (mode === "withdraw" && minor > BigInt(account.availableMinor)) {
-      setErrors({ amount: "This is more than the available balance." });
+      setErrors({ amount: "El monto supera el saldo disponible." });
       return;
     }
     setErrors({});
@@ -107,7 +107,7 @@ export function FundingDialog({
       }
       const text = formatMoney(minor, account.currency);
       setDone({ text, id: result.data.id });
-      toast.success(mode === "deposit" ? `${text} added to ${account.name}` : `${text} withdrawn from ${account.name}`);
+      toast.success(mode === "deposit" ? `Depósito de ${text} en ${account.name}` : `Retiro de ${text} de ${account.name}`);
       router.refresh();
     });
   }
@@ -123,9 +123,9 @@ export function FundingDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{done ? "All done" : "Add or withdraw money"}</DialogTitle>
+          <DialogTitle>{done ? "Todo listo" : "Agregar o retirar dinero"}</DialogTitle>
           <DialogDescription>
-            {done ? "The movement is posted to the ledger." : "Move money between this account and your linked bank account."}
+            {done ? "El movimiento quedó registrado en el libro mayor." : "Mueve dinero entre esta cuenta y tu cuenta bancaria vinculada."}
           </DialogDescription>
         </DialogHeader>
 
@@ -136,39 +136,39 @@ export function FundingDialog({
             </span>
             <p className="heading text-2xl">{done.text}</p>
             <p className="text-sm text-muted-foreground">
-              {mode === "deposit" ? "added to" : "withdrawn from"} {account?.name}
+              {mode === "deposit" ? "Depósito en" : "Retiro de"} {account?.name}
             </p>
             <div className="mt-5 flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={() => reset(mode)}>
-                Make another
+                Hacer otro
               </Button>
               <Button className="flex-1" onClick={() => setOpen(false)}>
-                Done
+                Listo
               </Button>
             </div>
           </div>
         ) : usable.length === 0 ? (
-          <Callout tone="warning" title="No account available">
-            None of your accounts can send or receive funds right now.
+          <Callout tone="warning" title="No hay cuentas disponibles">
+            Ninguna de tus cuentas puede enviar ni recibir fondos en este momento.
           </Callout>
         ) : (
           <form onSubmit={submit} className="grid gap-4" noValidate>
             <Tabs value={mode} onValueChange={(value) => { setMode(value as Mode); setErrors({}); setFormError(null); }}>
               <TabsList className="w-full">
                 <TabsTrigger value="deposit">
-                  <ArrowDownToLine className="size-3.5" /> Add money
+                  <ArrowDownToLine className="size-3.5" /> Agregar dinero
                 </TabsTrigger>
                 <TabsTrigger value="withdraw">
-                  <ArrowUpFromLine className="size-3.5" /> Withdraw
+                  <ArrowUpFromLine className="size-3.5" /> Retirar
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
-            <Field label="Account" hint={account ? `Available ${formatMoney(BigInt(account.availableMinor), account.currency)}` : undefined}>
+            <Field label="Cuenta" hint={account ? `Disponible: ${formatMoney(BigInt(account.availableMinor), account.currency)}` : undefined}>
               {(props) => (
                 <Select value={accountId} onValueChange={setAccountId}>
                   <SelectTrigger {...props} className="w-full">
-                    <SelectValue placeholder="Choose an account" />
+                    <SelectValue placeholder="Elige una cuenta" />
                   </SelectTrigger>
                   <SelectContent>
                     {usable.map((a) => (
@@ -181,7 +181,7 @@ export function FundingDialog({
               )}
             </Field>
 
-            <Field label="Amount" error={errors.amount}>
+            <Field label="Monto" error={errors.amount}>
               {(props) => (
                 <div className="relative">
                   <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-muted-foreground">
@@ -203,12 +203,12 @@ export function FundingDialog({
               )}
             </Field>
 
-            <Field label="Note" optional error={errors.description}>
+            <Field label="Nota" optional error={errors.description}>
               {(props) => (
                 <Input
                   {...props}
                   maxLength={140}
-                  placeholder={mode === "deposit" ? "e.g. Working capital top-up" : "e.g. Owner's draw"}
+                  placeholder={mode === "deposit" ? "p. ej., aporte de capital de trabajo" : "p. ej., retiro del propietario"}
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                 />
@@ -217,8 +217,8 @@ export function FundingDialog({
 
             {formError ? <Callout tone="danger">{formError}</Callout> : null}
 
-            <SubmitButton size="lg" pending={pending} pendingLabel="Posting…">
-              {mode === "deposit" ? "Add money" : "Withdraw"}
+            <SubmitButton size="lg" pending={pending} pendingLabel="Registrando…">
+              {mode === "deposit" ? "Agregar dinero" : "Retirar"}
             </SubmitButton>
           </form>
         )}

@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
   type Category,
   type Role,
+  TRANSACTION_STATUS_LABELS,
   type TransactionStatus,
   type TransactionType,
   TRANSFER_POLICY,
@@ -55,19 +56,19 @@ export const DEMO_ACCOUNTS: {
     role: "customer",
     email: "elena@aldera.example",
     name: "Elena Vargas",
-    description: "Business owner with four accounts and six months of activity.",
+    description: "Empresaria con cuatro cuentas y seis meses de actividad.",
   },
   {
     role: "operator",
     email: "ops@aldera.example",
     name: "Marcus Lee",
-    description: "Reviews held transfers and monitors payment settlement.",
+    description: "Revisa las transferencias retenidas y supervisa la liquidación de pagos.",
   },
   {
     role: "admin",
     email: "admin@aldera.example",
     name: "Priya Raman",
-    description: "Full oversight: users, accounts, reversals and the audit trail.",
+    description: "Supervisión completa: usuarios, cuentas, reversiones y el registro de auditoría.",
   },
 ];
 
@@ -173,15 +174,15 @@ type SeedAccount = {
 };
 
 const SEED_ACCOUNTS: SeedAccount[] = [
-  { id: A.operating, ownerId: U.elena, name: "Operating Account", type: "checking", number: "4410 0286 4821", currency: "USD", openedDaysAgo: 412 },
-  { id: A.taxReserve, ownerId: U.elena, name: "Tax Reserve", type: "reserve", number: "4410 0286 7730", currency: "USD", openedDaysAgo: 398 },
-  { id: A.payroll, ownerId: U.elena, name: "Payroll Account", type: "checking", number: "4410 0286 1094", currency: "USD", openedDaysAgo: 365 },
-  { id: A.euro, ownerId: U.elena, name: "Euro Operations", type: "checking", number: "ES12 9044 0001 2300 4455 5567", currency: "EUR", openedDaysAgo: 240 },
-  { id: A.danielChecking, ownerId: U.daniel, name: "Everyday Checking", type: "checking", number: "4410 0731 2260", currency: "USD", openedDaysAgo: 301 },
-  { id: A.danielSavings, ownerId: U.daniel, name: "Savings", type: "savings", number: "4410 0731 9015", currency: "USD", openedDaysAgo: 290 },
-  { id: A.mateoBusiness, ownerId: U.mateo, name: "Business Checking", type: "checking", number: "4410 1147 3382", currency: "USD", openedDaysAgo: 188 },
+  { id: A.operating, ownerId: U.elena, name: "Cuenta operativa", type: "checking", number: "4410 0286 4821", currency: "USD", openedDaysAgo: 412 },
+  { id: A.taxReserve, ownerId: U.elena, name: "Reserva de impuestos", type: "reserve", number: "4410 0286 7730", currency: "USD", openedDaysAgo: 398 },
+  { id: A.payroll, ownerId: U.elena, name: "Cuenta de nómina", type: "checking", number: "4410 0286 1094", currency: "USD", openedDaysAgo: 365 },
+  { id: A.euro, ownerId: U.elena, name: "Operaciones en euros", type: "checking", number: "ES12 9044 0001 2300 4455 5567", currency: "EUR", openedDaysAgo: 240 },
+  { id: A.danielChecking, ownerId: U.daniel, name: "Cuenta corriente", type: "checking", number: "4410 0731 2260", currency: "USD", openedDaysAgo: 301 },
+  { id: A.danielSavings, ownerId: U.daniel, name: "Ahorros", type: "savings", number: "4410 0731 9015", currency: "USD", openedDaysAgo: 290 },
+  { id: A.mateoBusiness, ownerId: U.mateo, name: "Cuenta empresarial", type: "checking", number: "4410 1147 3382", currency: "USD", openedDaysAgo: 188 },
   { id: A.hannahGiro, ownerId: U.hannah, name: "Geschäftskonto", type: "checking", number: "DE44 9044 0002 0071 3306 18", currency: "EUR", openedDaysAgo: 97 },
-  { id: A.lucasChecking, ownerId: U.lucas, name: "Everyday Checking", type: "checking", number: "4410 1502 6647", currency: "USD", openedDaysAgo: 64 },
+  { id: A.lucasChecking, ownerId: U.lucas, name: "Cuenta corriente", type: "checking", number: "4410 1502 6647", currency: "USD", openedDaysAgo: 64 },
 ];
 
 const B = {
@@ -215,14 +216,14 @@ type SeedBeneficiary = {
 };
 
 const SEED_BENEFICIARIES: SeedBeneficiary[] = [
-  { id: B.tomas, ownerId: U.elena, kind: "external", name: "Tomás Herrera", nickname: "Frontend contractor", email: "tomas@herrera.example", bankName: "Pinecrest National Bank", accountNumber: "7730 4418 2096", routingCode: "091 555 017", country: "US", currency: "USD", addedDaysAgo: 330 },
-  { id: B.lucia, ownerId: U.elena, kind: "external", name: "Lucía Fernández", nickname: "Illustration", email: "lucia@estudiofernandez.example", bankName: "Litoral Banca", accountNumber: "ES81 9120 0044 7100 3382 9041", routingCode: "LITOESMM", country: "ES", currency: "EUR", addedDaysAgo: 210 },
-  { id: B.greenfield, ownerId: U.elena, kind: "external", name: "Greenfield Print Co.", nickname: "Print vendor", email: "billing@greenfieldprint.example", bankName: "Harborview Trust", accountNumber: "5521 9003 6674", routingCode: "071 555 242", country: "US", currency: "USD", addedDaysAgo: 280 },
-  { id: B.harborPoint, ownerId: U.elena, kind: "external", name: "Harbor Point Properties", nickname: "Studio rent", bankName: "Pinecrest National Bank", accountNumber: "7730 1150 8823", routingCode: "091 555 017", country: "US", currency: "USD", addedDaysAgo: 400 },
-  { id: B.atlas, ownerId: U.elena, kind: "external", name: "Atlas Payroll Services", nickname: "Payroll funding", email: "funding@atlaspayroll.example", bankName: "Union Harbor Bank", accountNumber: "3308 7741 5520", routingCode: "021 555 906", country: "US", currency: "USD", addedDaysAgo: 360 },
-  { id: B.daniel, ownerId: U.elena, kind: "internal", name: "Daniel Okafor", nickname: "Strategy consultant", email: "daniel.okafor@aldera.example", bankName: "Aldera", accountNumber: "4410 0731 2260", country: "US", currency: "USD", internalAccountId: A.danielChecking, addedDaysAgo: 250 },
-  { id: B.revenue, ownerId: U.elena, kind: "external", name: "State Revenue Office", nickname: "Estimated taxes", bankName: "Capitol Reserve Bank", accountNumber: "9001 0000 4417", routingCode: "051 555 730", country: "US", currency: "USD", addedDaysAgo: 380 },
-  { id: B.northgate, ownerId: U.elena, kind: "external", name: "Northgate Logistics", nickname: "Freight", bankName: "Sierra Azul Bank", accountNumber: "6120 3377 0458", routingCode: "121 555 388", country: "US", currency: "USD", addedDaysAgo: 45 },
+  { id: B.tomas, ownerId: U.elena, kind: "external", name: "Tomás Herrera", nickname: "Contratista de frontend", email: "tomas@herrera.example", bankName: "Pinecrest National Bank", accountNumber: "7730 4418 2096", routingCode: "091 555 017", country: "US", currency: "USD", addedDaysAgo: 330 },
+  { id: B.lucia, ownerId: U.elena, kind: "external", name: "Lucía Fernández", nickname: "Ilustración", email: "lucia@estudiofernandez.example", bankName: "Litoral Banca", accountNumber: "ES81 9120 0044 7100 3382 9041", routingCode: "LITOESMM", country: "ES", currency: "EUR", addedDaysAgo: 210 },
+  { id: B.greenfield, ownerId: U.elena, kind: "external", name: "Greenfield Print Co.", nickname: "Proveedor de impresión", email: "billing@greenfieldprint.example", bankName: "Harborview Trust", accountNumber: "5521 9003 6674", routingCode: "071 555 242", country: "US", currency: "USD", addedDaysAgo: 280 },
+  { id: B.harborPoint, ownerId: U.elena, kind: "external", name: "Harbor Point Properties", nickname: "Alquiler del estudio", bankName: "Pinecrest National Bank", accountNumber: "7730 1150 8823", routingCode: "091 555 017", country: "US", currency: "USD", addedDaysAgo: 400 },
+  { id: B.atlas, ownerId: U.elena, kind: "external", name: "Atlas Payroll Services", nickname: "Fondeo de nómina", email: "funding@atlaspayroll.example", bankName: "Union Harbor Bank", accountNumber: "3308 7741 5520", routingCode: "021 555 906", country: "US", currency: "USD", addedDaysAgo: 360 },
+  { id: B.daniel, ownerId: U.elena, kind: "internal", name: "Daniel Okafor", nickname: "Consultor de estrategia", email: "daniel.okafor@aldera.example", bankName: "Aldera", accountNumber: "4410 0731 2260", country: "US", currency: "USD", internalAccountId: A.danielChecking, addedDaysAgo: 250 },
+  { id: B.revenue, ownerId: U.elena, kind: "external", name: "State Revenue Office", nickname: "Impuestos estimados", bankName: "Capitol Reserve Bank", accountNumber: "9001 0000 4417", routingCode: "051 555 730", country: "US", currency: "USD", addedDaysAgo: 380 },
+  { id: B.northgate, ownerId: U.elena, kind: "external", name: "Northgate Logistics", nickname: "Fletes", bankName: "Sierra Azul Bank", accountNumber: "6120 3377 0458", routingCode: "121 555 388", country: "US", currency: "USD", addedDaysAgo: 45 },
   { id: B.coastal, ownerId: U.daniel, kind: "external", name: "Coastal Auto Group", bankName: "Union Harbor Bank", accountNumber: "3308 2209 7761", routingCode: "021 555 906", country: "US", currency: "USD", addedDaysAgo: 5 },
   { id: B.andes, ownerId: U.mateo, kind: "external", name: "Andes Supply Co.", bankName: "Sierra Azul Bank", accountNumber: "6120 8841 0093", routingCode: "121 555 388", country: "US", currency: "USD", addedDaysAgo: 120 },
   { id: B.werkraum, ownerId: U.hannah, kind: "external", name: "Werkraum Modellbau GmbH", bankName: "Nordlicht Bank AG", accountNumber: "DE07 9330 0010 0456 7781 02", routingCode: "NOLIDEBB", country: "DE", currency: "EUR", addedDaysAgo: 60 },
@@ -253,7 +254,7 @@ type AccountState = {
 type Moment = { key: string; at: Date; actor: Person; client?: Client };
 type PlanLeg = [accountId: string, direction: "debit" | "credit", amountMinor: bigint, memo?: string];
 
-const SYSTEM: Person = { id: "", label: "System", role: "system" };
+const SYSTEM: Person = { id: "", label: "Sistema", role: "system" };
 const SYSTEM_TYPES = ["clearing", "transit", "fees", "interest"] as const;
 const systemAccount = (type: (typeof SYSTEM_TYPES)[number], currency: CurrencyCode) =>
   `acc_sys_${type}_${currency.toLowerCase()}`;
@@ -446,9 +447,9 @@ class Planner {
     this.post(tx.id, account.currency, m.at, incoming
       ? [[counter, "debit", amountMinor], [accountId, "credit", amountMinor]]
       : [[accountId, "debit", amountMinor], [counter, "credit", amountMinor]]);
-    this.event(m, tx, null, "completed", "Posted to the ledger.");
+    this.event(m, tx, null, "completed", "Registrada en el libro mayor.");
     if (type === "transfer_in") {
-      this.notify(m, account.ownerId, "transaction", "Payment received", `${counterpartyName} paid ${formatMoney(amountMinor, account.currency)} into ${account.name}.`, `/transactions/${tx.id}`);
+      this.notify(m, account.ownerId, "transaction", "Pago recibido", `Recibiste ${formatMoney(amountMinor, account.currency)} de ${counterpartyName} en ${account.name}.`, `/transactions/${tx.id}`);
     }
     return tx;
   }
@@ -470,7 +471,7 @@ class Planner {
     const destination = destinationId ? this.account(destinationId) : null;
     const route = destination ? "instant" : amountMinor >= TRANSFER_POLICY.reviewThresholdMinor ? "review" : "network";
     const status: TransactionStatus = route === "instant" ? "completed" : route === "network" ? "processing" : "pending";
-    const target = beneficiary?.name ?? destination?.name ?? "destination";
+    const target = beneficiary?.name ?? destination?.name ?? "la cuenta de destino";
 
     const tx = this.create(m, {
       type: destination ? "transfer_internal" : "transfer_out",
@@ -489,23 +490,23 @@ class Planner {
 
     if (route === "instant") {
       this.post(tx.id, source.currency, m.at, [[sourceAccountId, "debit", amountMinor], [destination!.id, "credit", amountMinor]]);
-      this.event(m, tx, null, "completed", "Settled instantly on the Aldera ledger.");
+      this.event(m, tx, null, "completed", "Liquidada al instante en el libro mayor de Aldera.");
     } else if (route === "network") {
-      this.post(tx.id, source.currency, m.at, [[sourceAccountId, "debit", amountMinor], [systemAccount("transit", source.currency), "credit", amountMinor, "Funds in transit to receiving bank"]]);
-      this.event(m, tx, null, "processing", "Submitted to the payment network.");
+      this.post(tx.id, source.currency, m.at, [[sourceAccountId, "debit", amountMinor], [systemAccount("transit", source.currency), "credit", amountMinor, "Fondos en tránsito hacia el banco receptor"]]);
+      this.event(m, tx, null, "processing", "Enviada a la red de pagos.");
     } else {
       source.held += amountMinor;
-      this.event(m, tx, null, "pending", `Held for review: at or above the ${formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)} automatic approval limit.`);
+      this.event(m, tx, null, "pending", `Retenida para revisión: alcanza o supera el límite de aprobación automática de ${formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)}.`);
     }
 
     if (beneficiary) this.beneficiaryLastUsed.set(beneficiary.id, m.at);
-    this.auditTransaction(m, "transfer.created", tx, `Transfer of ${amount} to ${target} created (${status}).`, { route, source: maskAccountNumber(source.number), destination: target });
+    this.auditTransaction(m, "transfer.created", tx, `Transferencia de ${amount} a ${target} creada (${TRANSACTION_STATUS_LABELS[status].toLowerCase()}).`, { route, source: maskAccountNumber(source.number), destination: target });
 
     if (route === "review") {
-      this.notify(m, m.actor.id, "transaction", "Transfer held for review", `Your transfer of ${amount} to ${target} is being reviewed. Funds are reserved until a decision is made.`, `/transactions/${tx.id}`);
+      this.notify(m, m.actor.id, "transaction", "Transferencia retenida para revisión", `Tu transferencia de ${amount} a ${target} está en revisión. Los fondos quedan retenidos hasta que se tome una decisión.`, `/transactions/${tx.id}`);
     }
     if (destination && destination.ownerId !== m.actor.id) {
-      this.notify(m, destination.ownerId, "transaction", "Payment received", `${m.actor.label} sent you ${amount}.`, `/transactions/${tx.id}`);
+      this.notify(m, destination.ownerId, "transaction", "Pago recibido", `${m.actor.label} te envió ${amount}.`, `/transactions/${tx.id}`);
     }
     return tx;
   }
@@ -513,32 +514,32 @@ class Planner {
   approve(m: Moment, tx: TransactionRow, note: string): void {
     const source = this.account(tx.sourceAccountId!);
     source.held -= tx.amountMinor;
-    this.post(tx.id, tx.currency, m.at, [[source.id, "debit", tx.amountMinor], [systemAccount("transit", tx.currency), "credit", tx.amountMinor, "Funds in transit to receiving bank"]]);
+    this.post(tx.id, tx.currency, m.at, [[source.id, "debit", tx.amountMinor], [systemAccount("transit", tx.currency), "credit", tx.amountMinor, "Fondos en tránsito hacia el banco receptor"]]);
     this.event(m, tx, "pending", "processing", note);
-    this.auditTransaction(m, "transfer.approved", tx, `Transfer ${tx.reference} approved.`, { note });
-    this.notify(m, tx.initiatedBy, "transaction", "Transfer approved", `Your transfer of ${formatMoney(tx.amountMinor, tx.currency)} to ${tx.counterpartyName} was approved and is on its way.`, `/transactions/${tx.id}`);
+    this.auditTransaction(m, "transfer.approved", tx, `Transferencia ${tx.reference} aprobada.`, { note });
+    this.notify(m, tx.initiatedBy, "transaction", "Transferencia aprobada", `Tu transferencia de ${formatMoney(tx.amountMinor, tx.currency)} a ${tx.counterpartyName} fue aprobada y está en camino.`, `/transactions/${tx.id}`);
   }
 
   reject(m: Moment, tx: TransactionRow, reason: string): void {
     this.account(tx.sourceAccountId!).held -= tx.amountMinor;
     tx.failureReason = reason;
     this.event(m, tx, "pending", "failed", reason);
-    this.auditTransaction(m, "transfer.rejected", tx, `Transfer ${tx.reference} rejected.`, { reason });
-    this.notify(m, tx.initiatedBy, "transaction", "Transfer not approved", `Your transfer of ${formatMoney(tx.amountMinor, tx.currency)} was not approved and the reserved funds were released. Reason: ${reason}`, `/transactions/${tx.id}`);
+    this.auditTransaction(m, "transfer.rejected", tx, `Transferencia ${tx.reference} rechazada.`, { reason });
+    this.notify(m, tx.initiatedBy, "transaction", "Transferencia no aprobada", `Tu transferencia de ${formatMoney(tx.amountMinor, tx.currency)} no fue aprobada y se liberaron los fondos retenidos. Motivo: ${reason}`, `/transactions/${tx.id}`);
   }
 
   settle(m: Moment, tx: TransactionRow): void {
-    this.post(tx.id, tx.currency, m.at, [[systemAccount("transit", tx.currency), "debit", tx.amountMinor], [systemAccount("clearing", tx.currency), "credit", tx.amountMinor, "Settled with receiving bank"]]);
-    this.event(m, tx, "processing", "completed", "Settlement confirmed by the receiving bank.");
-    this.auditTransaction(m, "transfer.settled", tx, `Transfer ${tx.reference} settled.`);
+    this.post(tx.id, tx.currency, m.at, [[systemAccount("transit", tx.currency), "debit", tx.amountMinor], [systemAccount("clearing", tx.currency), "credit", tx.amountMinor, "Liquidada con el banco receptor"]]);
+    this.event(m, tx, "processing", "completed", "Liquidación confirmada por el banco receptor.");
+    this.auditTransaction(m, "transfer.settled", tx, `Transferencia ${tx.reference} liquidada.`);
   }
 
   fail(m: Moment, tx: TransactionRow, reason: string): void {
-    this.post(tx.id, tx.currency, m.at, [[systemAccount("transit", tx.currency), "debit", tx.amountMinor], [tx.sourceAccountId!, "credit", tx.amountMinor, "Funds returned to sender"]]);
+    this.post(tx.id, tx.currency, m.at, [[systemAccount("transit", tx.currency), "debit", tx.amountMinor], [tx.sourceAccountId!, "credit", tx.amountMinor, "Fondos devueltos al remitente"]]);
     tx.failureReason = reason;
     this.event(m, tx, "processing", "failed", reason);
-    this.auditTransaction(m, "transfer.failed", tx, `Transfer ${tx.reference} failed; funds returned.`, { reason });
-    this.notify(m, tx.initiatedBy, "transaction", "Transfer returned", `Your transfer of ${formatMoney(tx.amountMinor, tx.currency)} could not be delivered and the funds are back in your account. Reason: ${reason}`, `/transactions/${tx.id}`);
+    this.auditTransaction(m, "transfer.failed", tx, `Transferencia ${tx.reference} fallida; fondos devueltos.`, { reason });
+    this.notify(m, tx.initiatedBy, "transaction", "Transferencia devuelta", `Tu transferencia de ${formatMoney(tx.amountMinor, tx.currency)} no pudo entregarse y los fondos ya están de vuelta en tu cuenta. Motivo: ${reason}`, `/transactions/${tx.id}`);
   }
 
   /** Mirrors `reverseTransaction`: a compensating transaction, never an edit. */
@@ -559,7 +560,7 @@ class Planner {
         sourceAccountId: original.destinationAccountId ?? undefined,
         destinationAccountId: original.sourceAccountId ?? undefined,
         counterpartyName: original.counterpartyName ?? undefined,
-        description: `Reversal of ${original.reference} · ${original.description}`,
+        description: `Reversión de ${original.reference} · ${original.description}`,
         category: (original.category ?? "other") as Category,
         reversalOf: original.id,
         metadata: { reason },
@@ -574,34 +575,34 @@ class Planner {
       m.at,
       [...net]
         .filter(([, amount]) => amount !== 0n)
-        .map(([accountId, amount]): PlanLeg => [accountId, amount > 0n ? "debit" : "credit", amount > 0n ? amount : -amount, `Reversal of ${original.reference}`]),
+        .map(([accountId, amount]): PlanLeg => [accountId, amount > 0n ? "debit" : "credit", amount > 0n ? amount : -amount, `Reversión de ${original.reference}`]),
     );
-    this.event(m, reversal, null, "completed", `Reverses ${original.reference}. ${reason}`);
-    this.event(m, original, "completed", "reversed", `Reversed by ${reversal.reference}. ${reason}`);
-    this.auditTransaction(m, "transaction.reversed", original, `Transaction ${original.reference} reversed by ${reversal.reference}.`, { reason, reversalId: reversal.id, reversalReference: reversal.reference });
+    this.event(m, reversal, null, "completed", `Revierte ${original.reference}. ${reason}`);
+    this.event(m, original, "completed", "reversed", `Revertida mediante ${reversal.reference}. ${reason}`);
+    this.auditTransaction(m, "transaction.reversed", original, `Transacción ${original.reference} revertida mediante ${reversal.reference}.`, { reason, reversalId: reversal.id, reversalReference: reversal.reference });
 
     const owners = new Set([original.sourceAccountId, original.destinationAccountId].map((id) => (id ? this.account(id).ownerId : null)));
     for (const userId of owners) {
-      this.notify(m, userId, "transaction", "Transaction reversed", `${original.description} (${formatMoney(original.amountMinor, original.currency)}) was reversed. Reason: ${reason}`, `/transactions/${original.id}`);
+      this.notify(m, userId, "transaction", "Transacción revertida", `Se revirtió la transacción “${original.description}” (${formatMoney(original.amountMinor, original.currency)}). Motivo: ${reason}`, `/transactions/${original.id}`);
     }
   }
 
   freeze(m: Moment, accountId: string, reason: string): void {
     const account = this.account(accountId);
     account.status = "frozen";
-    this.audit(m, { action: "account.frozen", entityType: "account", entityId: accountId, summary: `${account.name} frozen.`, metadata: { reason, previousStatus: "active" } });
-    this.notify(m, account.ownerId, "account", "Account frozen", `${account.name} has been frozen and cannot send or receive funds. Contact support for details.`, `/accounts/${accountId}`);
+    this.audit(m, { action: "account.frozen", entityType: "account", entityId: accountId, summary: `Cuenta congelada: ${account.name}.`, metadata: { reason, previousStatus: "active" } });
+    this.notify(m, account.ownerId, "account", "Cuenta congelada", `Tu cuenta “${account.name}” fue congelada y no puede enviar ni recibir fondos. Comunícate con soporte para obtener más información.`, `/accounts/${accountId}`);
   }
 
   suspend(m: Moment, userId: string, reason: string): void {
     const user = SEED_USERS.find((u) => u.id === userId)!;
     this.userStatus.set(userId, "suspended");
-    this.audit(m, { action: "user.suspended", entityType: "user", entityId: userId, summary: `${user.name} suspended.`, metadata: { reason, email: user.email } });
+    this.audit(m, { action: "user.suspended", entityType: "user", entityId: userId, summary: `Usuario suspendido: ${user.name}.`, metadata: { reason, email: user.email } });
   }
 
   login(m: Moment): void {
     this.lastLogin.set(m.actor.id, m.at);
-    this.audit(m, { action: "auth.login", entityType: "user", entityId: m.actor.id, summary: `${m.actor.label} signed in.` });
+    this.audit(m, { action: "auth.login", entityType: "user", entityId: m.actor.id, summary: `${m.actor.label} inició sesión.` });
   }
 }
 
@@ -679,7 +680,7 @@ function buildPlan(now: Date): Planner {
     ["lucas", A.lucasChecking, 124_000n],
   ];
   for (const [key, accountId, amount] of openings) {
-    activity(`opening:${key}`, opening, "transfer_in", accountId, amount, "Balance brought forward", "Opening balance", "transfers");
+    activity(`opening:${key}`, opening, "transfer_in", accountId, amount, "Saldo anterior", "Saldo inicial", "transfers");
   }
 
   const cardMerchants: [string, Category, number, number][] = [
@@ -703,86 +704,86 @@ function buildPlan(now: Date): Planner {
 
     // ---- Elena: recurring obligations ----
     if (dom === 1) {
-      transfer(`rent:${iso}`, daysAgo(d, 9, 5), P.elena, office, A.operating, { beneficiaryId: B.harborPoint }, 420_000n, "Studio rent", "rent", { settleAfter: 22 * HOUR });
-      activity(`fee:${iso}`, daysAgo(d, 0, 10), "fee", A.operating, 1_500n, "Aldera", "Monthly account fee", "bank_fees");
-      activity(`interest:${iso}`, daysAgo(d, 0, 12), "interest", A.taxReserve, amountBetween(`interest:${iso}`, 3_612, 4_388, 1), "Aldera", "Interest paid", "interest");
+      transfer(`rent:${iso}`, daysAgo(d, 9, 5), P.elena, office, A.operating, { beneficiaryId: B.harborPoint }, 420_000n, "Alquiler del estudio", "rent", { settleAfter: 22 * HOUR });
+      activity(`fee:${iso}`, daysAgo(d, 0, 10), "fee", A.operating, 1_500n, "Aldera", "Comisión mensual de la cuenta", "bank_fees");
+      activity(`interest:${iso}`, daysAgo(d, 0, 12), "interest", A.taxReserve, amountBetween(`interest:${iso}`, 3_612, 4_388, 1), "Aldera", "Intereses pagados", "interest");
     }
-    if (dom === 2) activity(`insurance:${iso}`, daysAgo(d, 6, 30), "card_payment", A.operating, 48_600n, "Harbor Insurance Group", "Business liability policy", "insurance");
-    if (dom === 3) activity(`hosting:${iso}`, daysAgo(d, 4, 15), "card_payment", A.operating, amountBetween(`hosting:${iso}`, 58_000, 66_000, 10), "Cloudline Hosting", "Cloud infrastructure", "software");
+    if (dom === 2) activity(`insurance:${iso}`, daysAgo(d, 6, 30), "card_payment", A.operating, 48_600n, "Harbor Insurance Group", "Póliza de responsabilidad civil empresarial", "insurance");
+    if (dom === 3) activity(`hosting:${iso}`, daysAgo(d, 4, 15), "card_payment", A.operating, amountBetween(`hosting:${iso}`, 58_000, 66_000, 10), "Cloudline Hosting", "Infraestructura en la nube", "software");
     if (dom === 5) {
-      transfer(`tax-sweep:${iso}`, daysAgo(d, 10, 20), P.elena, office, A.operating, { accountId: A.taxReserve }, 350_000n, "Monthly tax set-aside", "transfers");
-      activity(`deskwise:${iso}`, daysAgo(d, 5, 2), "card_payment", A.operating, 24_900n, "Deskwise Software", "Team workspace subscription", "software");
+      transfer(`tax-sweep:${iso}`, daysAgo(d, 10, 20), P.elena, office, A.operating, { accountId: A.taxReserve }, 350_000n, "Reserva mensual para impuestos", "transfers");
+      activity(`deskwise:${iso}`, daysAgo(d, 5, 2), "card_payment", A.operating, 24_900n, "Deskwise Software", "Suscripción al espacio de trabajo del equipo", "software");
     }
-    if (dom === 6) activity(`nube:${iso}`, daysAgo(d, 7, 40), "card_payment", A.euro, 8_900n, "Nube Ibérica Hosting", "EU hosting", "software");
-    if (dom === 7) activity(`internet:${iso}`, daysAgo(d, 3, 0), "card_payment", A.operating, 12_999n, "Brightwave Internet", "Fibre internet", "utilities");
-    if (dom === 10) activity(`power:${iso}`, daysAgo(d, 8, 45), "card_payment", A.operating, amountBetween(`power:${iso}`, 17_800, 24_600, 1), "CityPower Utilities", "Electricity", "utilities");
-    if (dom === 12) activity(`tipo:${iso}`, daysAgo(d, 13, 10), "card_payment", A.euro, amountBetween(`tipo:${iso}`, 32_000, 54_000, 50), "Estudio Tipográfico Sur", "Type licensing", "software");
-    if (dom === 13) transfer(`payroll-topup:${iso}`, daysAgo(d, 15, 30), P.elena, office, A.operating, { accountId: A.payroll }, 1_720_000n, "Payroll funding", "transfers");
+    if (dom === 6) activity(`nube:${iso}`, daysAgo(d, 7, 40), "card_payment", A.euro, 8_900n, "Nube Ibérica Hosting", "Hosting en la UE", "software");
+    if (dom === 7) activity(`internet:${iso}`, daysAgo(d, 3, 0), "card_payment", A.operating, 12_999n, "Brightwave Internet", "Internet de fibra óptica", "utilities");
+    if (dom === 10) activity(`power:${iso}`, daysAgo(d, 8, 45), "card_payment", A.operating, amountBetween(`power:${iso}`, 17_800, 24_600, 1), "CityPower Utilities", "Electricidad", "utilities");
+    if (dom === 12) activity(`tipo:${iso}`, daysAgo(d, 13, 10), "card_payment", A.euro, amountBetween(`tipo:${iso}`, 32_000, 54_000, 50), "Estudio Tipográfico Sur", "Licencias tipográficas", "software");
+    if (dom === 13) transfer(`payroll-topup:${iso}`, daysAgo(d, 15, 30), P.elena, office, A.operating, { accountId: A.payroll }, 1_720_000n, "Fondeo de nómina", "transfers");
     if (dom === 14 || dom === 28) {
-      transfer(`payroll:${iso}`, daysAgo(d, 9, 0), P.elena, office, A.payroll, { beneficiaryId: B.atlas }, amountBetween(`payroll:${iso}`, 842_000, 856_000, 500), `Payroll run · ${dom === 14 ? "mid-month" : "month-end"}`, "payroll", { settleAfter: 20 * HOUR });
+      transfer(`payroll:${iso}`, daysAgo(d, 9, 0), P.elena, office, A.payroll, { beneficiaryId: B.atlas }, amountBetween(`payroll:${iso}`, 842_000, 856_000, 500), `Pago de nómina · ${dom === 14 ? "primera quincena" : "segunda quincena"}`, "payroll", { settleAfter: 20 * HOUR });
     }
-    if (dom === 18) activity(`stock:${iso}`, daysAgo(d, 2, 20), "card_payment", A.operating, 7_900n, "Pixel Stock Assets", "Asset library", "software");
-    if (dom === 20) transfer(`tomas:${iso}`, daysAgo(d, 11, 15), P.elena, office, A.operating, { beneficiaryId: B.tomas }, amountBetween(`tomas:${iso}`, 240_000, 320_000, 5_000), "Frontend development · monthly invoice", "contractors", { settleAfter: 18 * HOUR });
-    if (dom === 22) transfer(`lucia:${iso}`, daysAgo(d, 10, 40), P.elena, office, A.euro, { beneficiaryId: B.lucia }, amountBetween(`lucia:${iso}`, 115_000, 148_000, 2_500), "Illustration work", "contractors", { settleAfter: 27 * HOUR });
-    if (dom === 24 && month % 2 === 0) transfer(`greenfield:${iso}`, daysAgo(d, 14, 5), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, amountBetween(`greenfield:${iso}`, 128_000, 190_000, 1_000), "Print production", "marketing", { settleAfter: 21 * HOUR });
-    if (dom === 25) transfer(`daniel:${iso}`, daysAgo(d, 16, 10), P.elena, phone, A.operating, { beneficiaryId: B.daniel }, 65_000n, "Strategy retainer", "contractors");
+    if (dom === 18) activity(`stock:${iso}`, daysAgo(d, 2, 20), "card_payment", A.operating, 7_900n, "Pixel Stock Assets", "Biblioteca de recursos gráficos", "software");
+    if (dom === 20) transfer(`tomas:${iso}`, daysAgo(d, 11, 15), P.elena, office, A.operating, { beneficiaryId: B.tomas }, amountBetween(`tomas:${iso}`, 240_000, 320_000, 5_000), "Desarrollo frontend · factura mensual", "contractors", { settleAfter: 18 * HOUR });
+    if (dom === 22) transfer(`lucia:${iso}`, daysAgo(d, 10, 40), P.elena, office, A.euro, { beneficiaryId: B.lucia }, amountBetween(`lucia:${iso}`, 115_000, 148_000, 2_500), "Trabajo de ilustración", "contractors", { settleAfter: 27 * HOUR });
+    if (dom === 24 && month % 2 === 0) transfer(`greenfield:${iso}`, daysAgo(d, 14, 5), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, amountBetween(`greenfield:${iso}`, 128_000, 190_000, 1_000), "Producción de impresos", "marketing", { settleAfter: 21 * HOUR });
+    if (dom === 25) transfer(`daniel:${iso}`, daysAgo(d, 16, 10), P.elena, phone, A.operating, { beneficiaryId: B.daniel }, 65_000n, "Honorarios de estrategia", "contractors");
 
     // ---- Elena: client income ----
-    if (dom === 4) activity(`halcyon:${iso}`, daysAgo(d, 13, jitter("h")), "transfer_in", A.operating, amountBetween(`halcyon:${iso}`, 1_240_000, 1_680_000, 5_000), "Halcyon Retail Group", "Invoice payment · brand retainer", "client_payments");
-    if (dom === 9) activity(`lumiere:${iso}`, daysAgo(d, 10, jitter("l")), "transfer_in", A.euro, amountBetween(`lumiere:${iso}`, 280_000, 360_000, 5_000), "Lumière Hôtels SAS", "Invoice payment · campaign design", "client_payments");
-    if (dom === 11) activity(`brightline:${iso}`, daysAgo(d, 15, jitter("b")), "transfer_in", A.operating, amountBetween(`brightline:${iso}`, 720_000, 960_000, 5_000), "Brightline Media", "Invoice payment · editorial design", "client_payments");
-    if (dom === 17) activity(`orchard:${iso}`, daysAgo(d, 11, jitter("o")), "transfer_in", A.operating, amountBetween(`orchard:${iso}`, 540_000, 790_000, 5_000), "Orchard & Vine Hospitality", "Invoice payment · menu system", "client_payments");
-    if (dom === 19 && month % 2 === 1) activity(`costaverde:${iso}`, daysAgo(d, 9, jitter("c")), "transfer_in", A.euro, amountBetween(`costaverde:${iso}`, 140_000, 210_000, 5_000), "Costa Verde Turismo S.L.", "Invoice payment · signage", "client_payments");
-    if (dom === 23) activity(`summit:${iso}`, daysAgo(d, 14, jitter("s")), "transfer_in", A.operating, amountBetween(`summit:${iso}`, 980_000, 1_450_000, 5_000), "Summit Health Partners", "Invoice payment · patient app", "client_payments");
-    if (dom === 27 && month % 3 !== 0) activity(`kite:${iso}`, daysAgo(d, 12, jitter("k")), "transfer_in", A.operating, amountBetween(`kite:${iso}`, 320_000, 480_000, 5_000), "Kite Mobility", "Invoice payment · icon set", "client_payments");
+    if (dom === 4) activity(`halcyon:${iso}`, daysAgo(d, 13, jitter("h")), "transfer_in", A.operating, amountBetween(`halcyon:${iso}`, 1_240_000, 1_680_000, 5_000), "Halcyon Retail Group", "Pago de factura · servicios de marca", "client_payments");
+    if (dom === 9) activity(`lumiere:${iso}`, daysAgo(d, 10, jitter("l")), "transfer_in", A.euro, amountBetween(`lumiere:${iso}`, 280_000, 360_000, 5_000), "Lumière Hôtels SAS", "Pago de factura · diseño de campaña", "client_payments");
+    if (dom === 11) activity(`brightline:${iso}`, daysAgo(d, 15, jitter("b")), "transfer_in", A.operating, amountBetween(`brightline:${iso}`, 720_000, 960_000, 5_000), "Brightline Media", "Pago de factura · diseño editorial", "client_payments");
+    if (dom === 17) activity(`orchard:${iso}`, daysAgo(d, 11, jitter("o")), "transfer_in", A.operating, amountBetween(`orchard:${iso}`, 540_000, 790_000, 5_000), "Orchard & Vine Hospitality", "Pago de factura · sistema de menús", "client_payments");
+    if (dom === 19 && month % 2 === 1) activity(`costaverde:${iso}`, daysAgo(d, 9, jitter("c")), "transfer_in", A.euro, amountBetween(`costaverde:${iso}`, 140_000, 210_000, 5_000), "Costa Verde Turismo S.L.", "Pago de factura · señalética", "client_payments");
+    if (dom === 23) activity(`summit:${iso}`, daysAgo(d, 14, jitter("s")), "transfer_in", A.operating, amountBetween(`summit:${iso}`, 980_000, 1_450_000, 5_000), "Summit Health Partners", "Pago de factura · app para pacientes", "client_payments");
+    if (dom === 27 && month % 3 !== 0) activity(`kite:${iso}`, daysAgo(d, 12, jitter("k")), "transfer_in", A.operating, amountBetween(`kite:${iso}`, 320_000, 480_000, 5_000), "Kite Mobility", "Pago de factura · conjunto de íconos", "client_payments");
 
     // ---- Elena: day-to-day card spend ----
     if (weekday !== 0 && hashInt(`misc:${iso}`, 100) < 34) {
       const [merchant, category, min, max] = cardMerchants[hashInt(`merchant:${iso}`, cardMerchants.length)];
-      activity(`card:${iso}`, daysAgo(d, 12 + hashInt(`hour:${iso}`, 8), jitter("m")), "card_payment", A.operating, amountBetween(`card:${iso}`, min, max, 5), merchant, "Card purchase", category);
+      activity(`card:${iso}`, daysAgo(d, 12 + hashInt(`hour:${iso}`, 8), jitter("m")), "card_payment", A.operating, amountBetween(`card:${iso}`, min, max, 5), merchant, "Compra con tarjeta", category);
     }
 
     // ---- Other customers ----
     if (d <= 75) {
-      if (dom === 1) activity(`daniel-income:${iso}`, daysAgo(d, 7, 30), "transfer_in", A.danielChecking, 520_000n, "Northfield Advisory", "Consulting fees", "client_payments");
-      if (dom % 6 === 2) activity(`daniel-card:${iso}`, daysAgo(d, 18, jitter("dc")), "card_payment", A.danielChecking, amountBetween(`daniel-card:${iso}`, 2_400, 16_800, 5), dom % 12 === 2 ? "Fresh Market" : "Metro Transit", "Card purchase", dom % 12 === 2 ? "meals" : "travel");
-      if (dom === 15) activity(`mateo-income:${iso}`, daysAgo(d, 10, 0), "transfer_in", A.mateoBusiness, amountBetween(`mateo-income:${iso}`, 610_000, 880_000, 5_000), "Bahía Trading Corp", "Shipment settlement", "client_payments");
-      if (dom % 9 === 4) activity(`mateo-card:${iso}`, daysAgo(d, 16, jitter("mc")), "card_payment", A.mateoBusiness, amountBetween(`mateo-card:${iso}`, 6_400, 42_000, 5), "Portside Freight Services", "Card purchase", "office");
+      if (dom === 1) activity(`daniel-income:${iso}`, daysAgo(d, 7, 30), "transfer_in", A.danielChecking, 520_000n, "Northfield Advisory", "Honorarios de consultoría", "client_payments");
+      if (dom % 6 === 2) activity(`daniel-card:${iso}`, daysAgo(d, 18, jitter("dc")), "card_payment", A.danielChecking, amountBetween(`daniel-card:${iso}`, 2_400, 16_800, 5), dom % 12 === 2 ? "Fresh Market" : "Metro Transit", "Compra con tarjeta", dom % 12 === 2 ? "meals" : "travel");
+      if (dom === 15) activity(`mateo-income:${iso}`, daysAgo(d, 10, 0), "transfer_in", A.mateoBusiness, amountBetween(`mateo-income:${iso}`, 610_000, 880_000, 5_000), "Bahía Trading Corp", "Liquidación de embarque", "client_payments");
+      if (dom % 9 === 4) activity(`mateo-card:${iso}`, daysAgo(d, 16, jitter("mc")), "card_payment", A.mateoBusiness, amountBetween(`mateo-card:${iso}`, 6_400, 42_000, 5), "Portside Freight Services", "Compra con tarjeta", "office");
       if (dom === 8) activity(`hannah-income:${iso}`, daysAgo(d, 9, 20), "transfer_in", A.hannahGiro, amountBetween(`hannah-income:${iso}`, 310_000, 460_000, 5_000), "Stadtwerke Bauprojekt", "Honorar · Entwurfsphase", "client_payments");
     }
   }
 
   // ---- Elena: one-off events that give the demo its texture ----
-  transfer("estimated-tax", daysAgo(74, 10, 0), P.elena, office, A.taxReserve, { beneficiaryId: B.revenue }, 890_000n, "Quarterly estimated tax payment", "taxes", { settleAfter: 26 * HOUR });
-  transfer("greenfield-approved", daysAgo(33, 11, 30), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, 1_420_000n, "Trade show booth · final balance", "marketing", { approveAfter: 3 * HOUR, by: P.marcus, note: "Verified against signed purchase order PO-2291.", settleAfter: 25 * HOUR });
-  transfer("payroll-duplicate", daysAgo(19, 15, 45), P.elena, phone, A.operating, { beneficiaryId: B.atlas }, 1_800_000n, "Payroll funding · special run", "payroll", { rejectAfter: 2 * HOUR, by: P.camila, reason: "Duplicate of an instruction already settled this cycle. Confirmed with the customer by phone." });
+  transfer("estimated-tax", daysAgo(74, 10, 0), P.elena, office, A.taxReserve, { beneficiaryId: B.revenue }, 890_000n, "Pago trimestral de impuestos estimados", "taxes", { settleAfter: 26 * HOUR });
+  transfer("greenfield-approved", daysAgo(33, 11, 30), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, 1_420_000n, "Stand de feria comercial · saldo final", "marketing", { approveAfter: 3 * HOUR, by: P.marcus, note: "Verificada contra la orden de compra firmada PO-2291.", settleAfter: 25 * HOUR });
+  transfer("payroll-duplicate", daysAgo(19, 15, 45), P.elena, phone, A.operating, { beneficiaryId: B.atlas }, 1_800_000n, "Fondeo de nómina · pago extraordinario", "payroll", { rejectAfter: 2 * HOUR, by: P.camila, reason: "Duplicado de una instrucción ya liquidada en este ciclo. Confirmado por teléfono con la titular de la cuenta." });
 
   let duplicateCharge: TransactionRow | null = null;
   const chargedAt = daysAgo(9, 4, 16);
   schedule(chargedAt, () => {
-    duplicateCharge = plan.activity({ key: "hosting-duplicate", at: chargedAt, actor: SYSTEM }, "card_payment", A.operating, 61_240n, "Cloudline Hosting", "Cloud infrastructure", "software");
+    duplicateCharge = plan.activity({ key: "hosting-duplicate", at: chargedAt, actor: SYSTEM }, "card_payment", A.operating, 61_240n, "Cloudline Hosting", "Infraestructura en la nube", "software");
   });
   const reversedAt = daysAgo(8, 13, 20);
   schedule(reversedAt, () => {
-    if (duplicateCharge) plan.reverse({ key: "hosting-duplicate:reverse", at: reversedAt, actor: P.priya }, duplicateCharge, "Duplicate charge confirmed by the merchant.");
+    if (duplicateCharge) plan.reverse({ key: "hosting-duplicate:reverse", at: reversedAt, actor: P.priya }, duplicateCharge, "Cargo duplicado confirmado por el comercio.");
   });
 
-  transfer("northgate-returned", daysAgo(6, 10, 10), P.elena, office, A.operating, { beneficiaryId: B.northgate }, 184_000n, "Freight · exhibition materials", "office", { failAfter: 19 * HOUR, reason: "Returned by the receiving bank: beneficiary account closed (R02)." });
-  transfer("greenfield-pending", ago(21 * HOUR), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, 1_250_000n, "Trade show booth · 50% deposit", "marketing");
-  transfer("tomas-processing", ago(2 * HOUR + 10 * MINUTE), P.elena, office, A.operating, { beneficiaryId: B.tomas }, 295_000n, "Invoice 2026-041 · frontend sprint", "contractors");
-  transfer("lucia-processing", ago(42 * MINUTE), P.elena, phone, A.euro, { beneficiaryId: B.lucia }, 132_000n, "Packaging illustrations", "contractors");
-  activity("halcyon-recent", ago(5 * HOUR), "transfer_in", A.operating, 1_425_000n, "Halcyon Retail Group", "Invoice payment · autumn campaign", "client_payments");
+  transfer("northgate-returned", daysAgo(6, 10, 10), P.elena, office, A.operating, { beneficiaryId: B.northgate }, 184_000n, "Flete · materiales de exhibición", "office", { failAfter: 19 * HOUR, reason: "Devuelta por el banco receptor: cuenta del beneficiario cerrada (R02)." });
+  transfer("greenfield-pending", ago(21 * HOUR), P.elena, office, A.operating, { beneficiaryId: B.greenfield }, 1_250_000n, "Stand de feria comercial · anticipo del 50%", "marketing");
+  transfer("tomas-processing", ago(2 * HOUR + 10 * MINUTE), P.elena, office, A.operating, { beneficiaryId: B.tomas }, 295_000n, "Factura 2026-041 · sprint de frontend", "contractors");
+  transfer("lucia-processing", ago(42 * MINUTE), P.elena, phone, A.euro, { beneficiaryId: B.lucia }, 132_000n, "Ilustraciones para empaques", "contractors");
+  activity("halcyon-recent", ago(5 * HOUR), "transfer_in", A.operating, 1_425_000n, "Halcyon Retail Group", "Pago de factura · campaña de otoño", "client_payments");
 
   // ---- Other customers: items for the operations queue ----
-  transfer("daniel-pending", ago(1 * DAY + 3 * HOUR), P.daniel, { ip: "198.51.100.14", userAgent: UA.safariMac }, A.danielSavings, { beneficiaryId: B.coastal }, 1_100_000n, "Vehicle purchase deposit", "other");
-  transfer("mateo-processing", ago(3 * HOUR + 25 * MINUTE), P.mateo, { ip: "203.0.113.90", userAgent: UA.chromeWindows }, A.mateoBusiness, { beneficiaryId: B.andes }, 430_000n, "Container deposit · order 7714", "other");
-  transfer("mateo-settled", daysAgo(12, 14, 0), P.mateo, { ip: "203.0.113.90", userAgent: UA.chromeWindows }, A.mateoBusiness, { beneficiaryId: B.andes }, 268_000n, "Packaging supplies", "other", { settleAfter: 23 * HOUR });
-  transfer("hannah-failed", daysAgo(8, 9, 30), P.hannah, { ip: "198.51.100.201", userAgent: UA.firefoxLinux }, A.hannahGiro, { beneficiaryId: B.werkraum }, 78_000n, "Modellbau · Wettbewerb", "other", { failAfter: 6 * HOUR, reason: "Rejected by the receiving bank: account details could not be validated." });
+  transfer("daniel-pending", ago(1 * DAY + 3 * HOUR), P.daniel, { ip: "198.51.100.14", userAgent: UA.safariMac }, A.danielSavings, { beneficiaryId: B.coastal }, 1_100_000n, "Anticipo para la compra de un vehículo", "other");
+  transfer("mateo-processing", ago(3 * HOUR + 25 * MINUTE), P.mateo, { ip: "203.0.113.90", userAgent: UA.chromeWindows }, A.mateoBusiness, { beneficiaryId: B.andes }, 430_000n, "Depósito por contenedor · pedido 7714", "other");
+  transfer("mateo-settled", daysAgo(12, 14, 0), P.mateo, { ip: "203.0.113.90", userAgent: UA.chromeWindows }, A.mateoBusiness, { beneficiaryId: B.andes }, 268_000n, "Insumos de empaque", "other", { settleAfter: 23 * HOUR });
+  transfer("hannah-failed", daysAgo(8, 9, 30), P.hannah, { ip: "198.51.100.201", userAgent: UA.firefoxLinux }, A.hannahGiro, { beneficiaryId: B.werkraum }, 78_000n, "Modellbau · Wettbewerb", "other", { failAfter: 6 * HOUR, reason: "Rechazada por el banco receptor: no se pudieron validar los datos de la cuenta." });
 
   const frozenAt = daysAgo(12, 16, 5);
-  schedule(frozenAt, () => plan.freeze({ key: "lucas-freeze", at: frozenAt, actor: P.marcus }, A.lucasChecking, "Unusual sign-in pattern from multiple countries; pending identity verification."));
+  schedule(frozenAt, () => plan.freeze({ key: "lucas-freeze", at: frozenAt, actor: P.marcus }, A.lucasChecking, "Patrón inusual de inicios de sesión desde varios países; verificación de identidad pendiente."));
   const suspendedAt = daysAgo(12, 16, 40);
-  schedule(suspendedAt, () => plan.suspend({ key: "lucas-suspend", at: suspendedAt, actor: P.priya }, U.lucas, "Identity verification outstanding. Escalated by operations."));
+  schedule(suspendedAt, () => plan.suspend({ key: "lucas-suspend", at: suspendedAt, actor: P.priya }, U.lucas, "Verificación de identidad pendiente. Caso escalado por operaciones."));
 
   // ---- Sign-in history ----
   const login = (key: string, at: Date, actor: Person, client: Client) => schedule(at, () => plan.login({ key, at, actor, client }));
@@ -800,18 +801,18 @@ function buildPlan(now: Date): Planner {
   const failedAt = daysAgo(3, 2, 14);
   schedule(failedAt, () => {
     const m: Moment = { key: "login-failed:elena", at: failedAt, actor: { id: "", label: "elena@aldera.example", role: "system" }, client: { ip: "192.0.2.146", userAgent: UA.firefoxLinux } };
-    plan.audit(m, { action: "auth.login_failed", entityType: "user", entityId: U.elena, summary: "Failed sign-in attempt for elena@aldera.example.", metadata: { reason: "wrong_password" } });
-    plan.notify(m, U.elena, "security", "Sign-in attempt blocked", "We blocked a sign-in attempt with an incorrect password from an unrecognised device. If this was not you, change your password.", "/settings?tab=security");
+    plan.audit(m, { action: "auth.login_failed", entityType: "user", entityId: U.elena, summary: "Intento fallido de inicio de sesión para elena@aldera.example.", metadata: { reason: "wrong_password" } });
+    plan.notify(m, U.elena, "security", "Intento de inicio de sesión bloqueado", "Bloqueamos un intento de inicio de sesión con una contraseña incorrecta desde un dispositivo no reconocido. Si no fuiste tú, cambia tu contraseña.", "/settings?tab=security");
   });
   const profileAt = daysAgo(16, 9, 12);
-  schedule(profileAt, () => plan.audit({ key: "profile:elena", at: profileAt, actor: P.elena, client: office }, { action: "profile.updated", entityType: "user", entityId: U.elena, summary: "Profile updated (phone).", metadata: { fields: ["phone"] } }));
+  schedule(profileAt, () => plan.audit({ key: "profile:elena", at: profileAt, actor: P.elena, client: office }, { action: "profile.updated", entityType: "user", entityId: U.elena, summary: "Perfil actualizado (teléfono).", metadata: { fields: ["phone"] } }));
 
   // ---- Standalone notices ----
   const notice = (key: string, at: Date, kind: "security" | "account" | "system", title: string, body: string, href: string) =>
     schedule(at, () => plan.notify({ key, at, actor: SYSTEM }, U.elena, kind, title, body, href));
-  notice("two-factor", daysAgo(2, 9, 0), "security", "Add a second layer of protection", "Two-step verification is not enabled for your profile. Turn it on in security settings.", "/settings?tab=security");
-  notice("statement", daysAgo(Math.max(1, new Date(today).getUTCDate() - 1), 6, 0), "account", "Your monthly statement is ready", "The statement for last month is available for all four accounts.", "/accounts");
-  notice("maintenance", daysAgo(11, 5, 30), "system", "Scheduled maintenance completed", "Payment processing was upgraded overnight with no downtime. No action is needed.", "/notifications");
+  notice("two-factor", daysAgo(2, 9, 0), "security", "Agrega una segunda capa de protección", "La verificación en dos pasos no está activada en tu perfil. Actívala en la configuración de seguridad.", "/settings?tab=security");
+  notice("statement", daysAgo(Math.max(1, new Date(today).getUTCDate() - 1), 6, 0), "account", "Tu estado de cuenta mensual está listo", "El estado de cuenta del mes pasado ya está disponible para tus cuatro cuentas.", "/accounts");
+  notice("maintenance", daysAgo(11, 5, 30), "system", "Mantenimiento programado completado", "El procesamiento de pagos se actualizó durante la noche sin interrupciones. No necesitas hacer nada.", "/notifications");
 
   // Replay in chronological order; ties keep their scheduling order.
   steps

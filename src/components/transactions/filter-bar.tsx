@@ -62,8 +62,8 @@ export function TransactionFilterBar({
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by name, description or reference"
-          aria-label="Search transactions"
+          placeholder="Buscar por nombre, descripción o referencia"
+          aria-label="Buscar transacciones"
           className="pr-9 pl-9 [&::-webkit-search-cancel-button]:hidden"
         />
         {pending ? (
@@ -71,7 +71,7 @@ export function TransactionFilterBar({
         ) : search ? (
           <button
             type="button"
-            aria-label="Clear search"
+            aria-label="Limpiar búsqueda"
             onClick={() => setSearch("")}
             className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
           >
@@ -82,11 +82,11 @@ export function TransactionFilterBar({
 
       <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-wrap lg:items-center">
         <Select value={params.get("status") ?? ALL} onValueChange={(value) => update({ status: value })}>
-          <SelectTrigger aria-label="Status" className="w-full lg:w-40">
+          <SelectTrigger aria-label="Estado" className="w-full lg:w-52">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
+            <SelectItem value={ALL}>Todos los estados</SelectItem>
             {TRANSACTION_STATUSES.map((status) => (
               <SelectItem key={status} value={status}>
                 {TRANSACTION_STATUS_LABELS[status]}
@@ -96,11 +96,11 @@ export function TransactionFilterBar({
         </Select>
 
         <Select value={params.get("type") ?? ALL} onValueChange={(value) => update({ type: value })}>
-          <SelectTrigger aria-label="Type" className="w-full lg:w-44">
+          <SelectTrigger aria-label="Tipo" className="w-full lg:w-52">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All types</SelectItem>
+            <SelectItem value={ALL}>Todos los tipos</SelectItem>
             {TRANSACTION_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {TRANSACTION_TYPE_LABELS[type]}
@@ -111,11 +111,11 @@ export function TransactionFilterBar({
 
         {accounts && accounts.length > 1 ? (
           <Select value={params.get("account") ?? ALL} onValueChange={(value) => update({ account: value })}>
-            <SelectTrigger aria-label="Account" className="col-span-2 w-full lg:w-56">
+            <SelectTrigger aria-label="Cuenta" className="col-span-2 w-full lg:w-56">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>All accounts</SelectItem>
+              <SelectItem value={ALL}>Todas las cuentas</SelectItem>
               {accounts.map((account) => (
                 <SelectItem key={account.id} value={account.id}>
                   {account.label}
@@ -126,7 +126,7 @@ export function TransactionFilterBar({
         ) : null}
 
         <label className="flex flex-col gap-1 text-xs text-muted-foreground lg:flex-row lg:items-center lg:gap-2 lg:text-sm">
-          <span className="shrink-0">From</span>
+          <span className="shrink-0">Desde</span>
           <Input
             type="date"
             value={params.get("from") ?? ""}
@@ -136,7 +136,7 @@ export function TransactionFilterBar({
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-muted-foreground lg:flex-row lg:items-center lg:gap-2 lg:text-sm">
-          <span className="shrink-0">To</span>
+          <span className="shrink-0">Hasta</span>
           <Input
             type="date"
             value={params.get("to") ?? ""}
@@ -157,7 +157,7 @@ export function TransactionFilterBar({
               startTransition(() => router.replace(pathname, { scroll: false }));
             }}
           >
-            <X /> Clear filters
+            <X /> Limpiar filtros
           </Button>
         ) : null}
       </div>

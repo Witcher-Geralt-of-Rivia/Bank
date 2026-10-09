@@ -69,17 +69,17 @@ export function CashFlowChart({
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <ul className="flex items-center gap-4 text-xs text-muted-foreground" aria-label="Legend">
+        <ul className="flex items-center gap-4 text-xs text-muted-foreground" aria-label="Leyenda">
           <li className="flex items-center gap-1.5">
             <span className="size-2.5 rounded-[3px] bg-chart-in" aria-hidden="true" />
-            Money in
+            Ingresos
           </li>
           <li className="flex items-center gap-1.5">
             <span className="size-2.5 rounded-[3px] bg-chart-out" aria-hidden="true" />
-            Money out
+            Egresos
           </li>
         </ul>
-        <div role="group" aria-label="View" className="flex rounded-lg bg-muted p-0.5 text-xs font-medium">
+        <div role="group" aria-label="Vista" className="flex rounded-lg bg-muted p-0.5 text-xs font-medium">
           {(["chart", "table"] as const).map((option) => (
             <button
               key={option}
@@ -91,7 +91,7 @@ export function CashFlowChart({
                 view === option ? "bg-card text-foreground shadow-card" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {option}
+              {option === "chart" ? "Gráfico" : "Tabla"}
             </button>
           ))}
         </div>
@@ -100,13 +100,13 @@ export function CashFlowChart({
       {view === "table" ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <caption className="sr-only">Money in and money out by month</caption>
+            <caption className="sr-only">Ingresos y egresos por mes</caption>
             <thead>
               <tr className="border-b border-border/70 text-xs text-muted-foreground">
-                <th scope="col" className="py-2 pr-4 text-left font-medium">Month</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">Money in</th>
-                <th scope="col" className="px-4 py-2 text-right font-medium">Money out</th>
-                <th scope="col" className="py-2 pl-4 text-right font-medium">Net</th>
+                <th scope="col" className="py-2 pr-4 text-left font-medium">Mes</th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">Ingresos</th>
+                <th scope="col" className="px-4 py-2 text-right font-medium">Egresos</th>
+                <th scope="col" className="py-2 pl-4 text-right font-medium">Neto</th>
               </tr>
             </thead>
             <tbody>
@@ -114,7 +114,7 @@ export function CashFlowChart({
                 <tr key={d.title} className="border-b border-border/50 last:border-0">
                   <th scope="row" className="py-2.5 pr-4 text-left font-normal">
                     {d.title}
-                    {d.partial ? <span className="text-muted-foreground"> (to date)</span> : null}
+                    {d.partial ? <span className="text-muted-foreground"> (parcial)</span> : null}
                   </th>
                   <td className="tabular px-4 py-2.5 text-right">{d.inText}</td>
                   <td className="tabular px-4 py-2.5 text-right">{d.outText}</td>
@@ -127,7 +127,7 @@ export function CashFlowChart({
       ) : (
         <div ref={ref} className="relative" style={{ height: HEIGHT }} onPointerLeave={() => setActive(null)}>
           {width > 0 ? (
-            <svg width={width} height={HEIGHT} role="img" aria-label="Bar chart of money in and money out by month. Use the table view for exact figures.">
+            <svg width={width} height={HEIGHT} role="img" aria-label="Gráfico de barras de ingresos y egresos por mes. Usa la vista de tabla para ver las cifras exactas.">
               {ticks.map((tick) => (
                 <g key={tick}>
                   <line
@@ -174,7 +174,7 @@ export function CashFlowChart({
                       fill="transparent"
                       tabIndex={0}
                       role="button"
-                      aria-label={`${d.title}: money in ${d.inText}, money out ${d.outText}, net ${d.netText}`}
+                      aria-label={`${d.title}: ingresos ${d.inText}, egresos ${d.outText}, neto ${d.netText}`}
                       aria-describedby={isActive ? tooltipId : undefined}
                       onPointerEnter={() => setActive(index)}
                       onPointerMove={() => setActive(index)}
@@ -192,30 +192,30 @@ export function CashFlowChart({
             <div
               id={tooltipId}
               role="tooltip"
-              className="pointer-events-none absolute top-1 z-10 w-44 rounded-lg bg-popover p-3 text-xs shadow-raised ring-1 ring-foreground/10"
+              className="pointer-events-none absolute top-1 z-10 w-48 rounded-lg bg-popover p-3 text-xs shadow-raised ring-1 ring-foreground/10"
               style={{
-                left: Math.min(Math.max(8, MARGIN.left + band * active + band / 2 - 88), Math.max(8, width - 184)),
+                left: Math.min(Math.max(8, MARGIN.left + band * active + band / 2 - 96), Math.max(8, width - 200)),
               }}
             >
               <p className="mb-2 font-medium text-foreground">
                 {current.title}
-                {current.partial ? <span className="font-normal text-muted-foreground"> · to date</span> : null}
+                {current.partial ? <span className="font-normal text-muted-foreground"> · parcial</span> : null}
               </p>
               <dl className="grid gap-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <dt className="flex items-center gap-1.5 text-muted-foreground">
-                    <span className="h-0.5 w-3 rounded-full bg-chart-in" aria-hidden="true" /> In
+                    <span className="h-0.5 w-3 rounded-full bg-chart-in" aria-hidden="true" /> Ingresos
                   </dt>
                   <dd className="tabular font-semibold text-foreground">{current.inText}</dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="flex items-center gap-1.5 text-muted-foreground">
-                    <span className="h-0.5 w-3 rounded-full bg-chart-out" aria-hidden="true" /> Out
+                    <span className="h-0.5 w-3 rounded-full bg-chart-out" aria-hidden="true" /> Egresos
                   </dt>
                   <dd className="tabular font-semibold text-foreground">{current.outText}</dd>
                 </div>
                 <div className="mt-0.5 flex items-center justify-between gap-3 border-t border-border/70 pt-1.5">
-                  <dt className="text-muted-foreground">Net</dt>
+                  <dt className="text-muted-foreground">Neto</dt>
                   <dd className="tabular font-semibold text-foreground">{current.netText}</dd>
                 </div>
               </dl>

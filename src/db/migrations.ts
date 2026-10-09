@@ -173,14 +173,14 @@ const init: Migration = {
     // The bank side of every movement. Because each transaction balances, the
     // sum of all account balances in a currency is always exactly zero.
     `INSERT INTO accounts (id, kind, type, name, number, currency, allow_negative) VALUES
-      ('acc_sys_clearing_usd', 'system', 'clearing', 'External clearing · USD', 'SYS-CLEARING-USD', 'USD', true),
-      ('acc_sys_transit_usd', 'system', 'transit', 'Payments in transit · USD', 'SYS-TRANSIT-USD', 'USD', true),
-      ('acc_sys_fees_usd', 'system', 'fees', 'Fee income · USD', 'SYS-FEES-USD', 'USD', true),
-      ('acc_sys_interest_usd', 'system', 'interest', 'Interest expense · USD', 'SYS-INTEREST-USD', 'USD', true),
-      ('acc_sys_clearing_eur', 'system', 'clearing', 'External clearing · EUR', 'SYS-CLEARING-EUR', 'EUR', true),
-      ('acc_sys_transit_eur', 'system', 'transit', 'Payments in transit · EUR', 'SYS-TRANSIT-EUR', 'EUR', true),
-      ('acc_sys_fees_eur', 'system', 'fees', 'Fee income · EUR', 'SYS-FEES-EUR', 'EUR', true),
-      ('acc_sys_interest_eur', 'system', 'interest', 'Interest expense · EUR', 'SYS-INTEREST-EUR', 'EUR', true)`,
+      ('acc_sys_clearing_usd', 'system', 'clearing', 'Compensación externa · USD', 'SYS-CLEARING-USD', 'USD', true),
+      ('acc_sys_transit_usd', 'system', 'transit', 'Pagos en tránsito · USD', 'SYS-TRANSIT-USD', 'USD', true),
+      ('acc_sys_fees_usd', 'system', 'fees', 'Ingresos por comisiones · USD', 'SYS-FEES-USD', 'USD', true),
+      ('acc_sys_interest_usd', 'system', 'interest', 'Gasto por intereses · USD', 'SYS-INTEREST-USD', 'USD', true),
+      ('acc_sys_clearing_eur', 'system', 'clearing', 'Compensación externa · EUR', 'SYS-CLEARING-EUR', 'EUR', true),
+      ('acc_sys_transit_eur', 'system', 'transit', 'Pagos en tránsito · EUR', 'SYS-TRANSIT-EUR', 'EUR', true),
+      ('acc_sys_fees_eur', 'system', 'fees', 'Ingresos por comisiones · EUR', 'SYS-FEES-EUR', 'EUR', true),
+      ('acc_sys_interest_eur', 'system', 'interest', 'Gasto por intereses · EUR', 'SYS-INTEREST-EUR', 'EUR', true)`,
 
     // --- Append-only tables -------------------------------------------------
     `CREATE FUNCTION aldera_forbid_mutation() RETURNS trigger AS $$

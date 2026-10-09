@@ -51,14 +51,14 @@ export function ProfileForm({
         setFormError(Object.keys(fieldErrors).length > 0 ? null : result.error.message);
         return;
       }
-      toast.success("Profile updated");
+      toast.success("Perfil actualizado");
       router.refresh();
     });
   }
 
   return (
     <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2" noValidate>
-      <Field label="Full name" error={errors.name}>
+      <Field label="Nombre completo" error={errors.name}>
         {(props) => (
           <Input
             {...props}
@@ -71,7 +71,7 @@ export function ProfileForm({
           />
         )}
       </Field>
-      <Field label="Email" hint="Used to sign in. It cannot be changed here.">
+      <Field label="Correo electrónico" hint="Se usa para iniciar sesión. No se puede cambiar aquí.">
         {(props) => (
           <Input
             {...props}
@@ -84,7 +84,7 @@ export function ProfileForm({
           />
         )}
       </Field>
-      <Field label="Company" optional error={errors.company}>
+      <Field label="Empresa" optional error={errors.company}>
         {(props) => (
           <Input
             {...props}
@@ -96,7 +96,7 @@ export function ProfileForm({
           />
         )}
       </Field>
-      <Field label="Phone" optional error={errors.phone}>
+      <Field label="Teléfono" optional error={errors.phone}>
         {(props) => (
           <Input
             {...props}
@@ -119,8 +119,8 @@ export function ProfileForm({
       ) : null}
 
       <div className="sm:col-span-2">
-        <SubmitButton pending={pending} pendingLabel="Saving…" className="w-full sm:w-auto">
-          Save changes
+        <SubmitButton pending={pending} pendingLabel="Guardando…" className="w-full sm:w-auto">
+          Guardar cambios
         </SubmitButton>
       </div>
     </form>

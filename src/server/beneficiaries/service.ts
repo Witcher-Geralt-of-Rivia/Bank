@@ -30,8 +30,8 @@ export async function createBeneficiary(
       .from(beneficiaries)
       .where(and(eq(beneficiaries.ownerId, ownerId), isNull(beneficiaries.archivedAt)));
     if (existing.some((row) => normaliseAccountNumber(row.accountNumber) === accountNumber)) {
-      throw new ConflictError("You already have a beneficiary with this account number.", {
-        accountNumber: "This account is already in your beneficiaries.",
+      throw new ConflictError("Ya tienes un beneficiario con este número de cuenta.", {
+        accountNumber: "Esta cuenta ya está entre tus beneficiarios.",
       });
     }
 
@@ -50,26 +50,26 @@ export async function createBeneficiary(
       );
 
       if (!match || match.account.status === "closed") {
-        throw new ValidationError("No Aldera account matches this number.", {
-          accountNumber: "No Aldera account matches this number.",
+        throw new ValidationError("Ninguna cuenta de Aldera coincide con este número.", {
+          accountNumber: "Ninguna cuenta de Aldera coincide con este número.",
         });
       }
       if (match.account.ownerId === ownerId) {
-        throw new ValidationError("This is one of your own accounts.", {
-          accountNumber: "Use “Between my accounts” to move money to your own accounts.",
+        throw new ValidationError("Esta es una de tus propias cuentas.", {
+          accountNumber: "Al transferir, usa la pestaña “Mis cuentas” para mover dinero entre tus propias cuentas.",
         });
       }
       if (match.account.currency !== input.currency) {
-        throw new ValidationError("Currency does not match the account.", {
-          currency: `This account is held in ${match.account.currency}.`,
+        throw new ValidationError("La moneda no coincide con la de la cuenta.", {
+          currency: `Esta cuenta está en ${match.account.currency}.`,
         });
       }
       internalAccountId = match.account.id;
       bankName = "Aldera";
       displayNumber = match.account.number;
     } else if (bankName.length < 2) {
-      throw new ValidationError("Enter the name of the bank.", {
-        bankName: "Enter the name of the bank.",
+      throw new ValidationError("Ingresa el nombre del banco.", {
+        bankName: "Ingresa el nombre del banco.",
       });
     }
 
@@ -96,7 +96,7 @@ export async function createBeneficiary(
       action: "beneficiary.created",
       entityType: "beneficiary",
       entityId: created.id,
-      summary: `Beneficiary ${created.name} added.`,
+      summary: `Beneficiario ${created.name} agregado.`,
       metadata: {
         kind: created.kind,
         bank: created.bankName,
@@ -125,7 +125,7 @@ export async function archiveBeneficiary(
       .where(eq(beneficiaries.id, beneficiaryId))
       .limit(1);
     if (!row || row.ownerId !== ownerId || row.archivedAt) {
-      throw new NotFoundError("Beneficiary");
+      throw new NotFoundError("el beneficiario");
     }
 
     await tx
@@ -136,7 +136,7 @@ export async function archiveBeneficiary(
       action: "beneficiary.archived",
       entityType: "beneficiary",
       entityId: beneficiaryId,
-      summary: `Beneficiary ${row.name} removed.`,
+      summary: `Beneficiario ${row.name} eliminado.`,
     });
   });
 }

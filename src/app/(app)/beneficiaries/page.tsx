@@ -13,7 +13,7 @@ import { formatCount, formatRelative, initials } from "@/lib/format";
 import { requireCustomer } from "@/server/auth/session";
 import { listBeneficiaries } from "@/server/queries/misc";
 
-export const metadata: Metadata = { title: "Beneficiaries" };
+export const metadata: Metadata = { title: "Beneficiarios" };
 
 export default async function BeneficiariesPage() {
   const user = await requireCustomer();
@@ -24,12 +24,12 @@ export default async function BeneficiariesPage() {
   return (
     <>
       <PageHeader
-        title="Beneficiaries"
-        description="The people and businesses you pay. Transfers to Aldera customers settle instantly; transfers to other banks usually settle within one business day."
+        title="Beneficiarios"
+        description="Las personas y empresas a las que les pagas. Las transferencias a clientes de Aldera se liquidan al instante; las que van a otros bancos suelen liquidarse en un día hábil."
         actions={
           <AddBeneficiaryDialog>
             <Button size="lg">
-              <Plus /> Add beneficiary
+              <Plus /> Agregar beneficiario
             </Button>
           </AddBeneficiaryDialog>
         }
@@ -39,12 +39,12 @@ export default async function BeneficiariesPage() {
         <Section flush>
           <EmptyState
             icon={Users}
-            title="No beneficiaries yet"
-            description="Save the people and businesses you pay to send money in a couple of taps."
+            title="Aún no tienes beneficiarios"
+            description="Guarda a las personas y empresas a las que les pagas para enviarles dinero en un par de toques."
             action={
               <AddBeneficiaryDialog>
                 <Button>
-                  <Plus /> Add beneficiary
+                  <Plus /> Agregar beneficiario
                 </Button>
               </AddBeneficiaryDialog>
             }
@@ -87,11 +87,11 @@ export default async function BeneficiariesPage() {
 
               <dl className="mt-4 mb-4 grid grid-cols-2 gap-4 border-t border-border/70 pt-4">
                 <div>
-                  <dt className="text-xs text-muted-foreground">Transfers</dt>
+                  <dt className="text-xs text-muted-foreground">Transferencias</dt>
                   <dd className="tabular mt-1 text-sm font-medium">{formatCount(b.transferCount)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Total sent</dt>
+                  <dt className="text-xs text-muted-foreground">Total enviado</dt>
                   <dd className="mt-1 text-sm font-medium">
                     <Money minor={b.totalSentMinor} currency={b.currency} />
                   </dd>
@@ -100,11 +100,11 @@ export default async function BeneficiariesPage() {
 
               <div className="mt-auto flex items-center justify-between gap-3">
                 <p className="min-w-0 truncate text-xs text-muted-foreground">
-                  {b.lastUsedAt ? `Last used · ${formatRelative(b.lastUsedAt, now)}` : "Never used"}
+                  {b.lastUsedAt ? `Último uso · ${formatRelative(b.lastUsedAt, now)}` : "Aún sin usar"}
                 </p>
                 <Button asChild variant="outline" size="sm" className="relative z-10">
-                  <Link href={`/transfers/new?to=${b.id}`} aria-label={`Send money to ${b.name}`}>
-                    <Send /> Send
+                  <Link href={`/transfers/new?to=${b.id}`} aria-label={`Enviar dinero a ${b.name}`}>
+                    <Send /> Enviar
                   </Link>
                 </Button>
               </div>

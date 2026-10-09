@@ -47,8 +47,8 @@ describe("transfer payload", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const errors = fieldErrorsOf(result.error);
-      expect(errors.amount).toBe("Enter an amount.");
-      expect(errors.description).toBe("Add a short description.");
+      expect(errors.amount).toBe("Ingresa un monto.");
+      expect(errors.description).toBe("Agrega una descripción breve.");
     }
   });
 

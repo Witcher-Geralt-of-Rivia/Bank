@@ -7,7 +7,7 @@ import { requireCustomer } from "@/server/auth/session";
 import { listAccountsForUser } from "@/server/queries/accounts";
 import { listBeneficiaries } from "@/server/queries/misc";
 
-export const metadata: Metadata = { title: "Move money" };
+export const metadata: Metadata = { title: "Transferir" };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -26,8 +26,8 @@ export default async function NewTransferPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="Move money"
-        description="Send to a saved beneficiary or between your own accounts. You will review everything before anything is sent."
+        title="Transferir"
+        description="Envía dinero a un beneficiario guardado o entre tus propias cuentas. Podrás revisar todo antes de que se envíe."
       />
       <TransferWizard
         accounts={accounts

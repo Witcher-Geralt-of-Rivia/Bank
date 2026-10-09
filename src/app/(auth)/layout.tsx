@@ -5,18 +5,18 @@ import { Logo } from "@/components/brand/logo";
 const POINTS = [
   {
     icon: Scale,
-    title: "Every cent accounted for",
-    body: "Balances are derived from a double-entry ledger. Debits always equal credits.",
+    title: "Cada centavo contabilizado",
+    body: "Los saldos se derivan de un libro mayor de partida doble. Los débitos siempre igualan a los créditos.",
   },
   {
     icon: Fingerprint,
-    title: "Safe to retry",
-    body: "Each payment carries an idempotency key, so a repeated request never moves money twice.",
+    title: "Reintentos seguros",
+    body: "Cada pago lleva una clave de idempotencia, así que una solicitud repetida nunca mueve el dinero dos veces.",
   },
   {
     icon: ScrollText,
-    title: "A complete audit trail",
-    body: "Sign-ins, transfers and administrative actions are recorded in an append-only log.",
+    title: "Un registro de auditoría completo",
+    body: "Los inicios de sesión, las transferencias y las acciones administrativas quedan en un registro de solo adición.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative max-w-md">
           <h2 className="display text-[2.75rem] text-balance xl:text-[3.25rem]">
-            Banking built on a ledger you can <em className="text-sidebar-primary">audit</em>.
+            Banca construida sobre un libro mayor que puedes <em className="text-sidebar-primary">auditar</em>.
           </h2>
           <ul className="mt-10 grid gap-6">
             {POINTS.map((point) => (
@@ -51,7 +51,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <p className="relative text-xs leading-relaxed text-sidebar-muted">
-          Aldera is a fictional institution created to demonstrate financial software engineering. No real money moves.
+          Aldera es una institución ficticia creada para demostrar ingeniería de software financiero. No se mueve dinero real.
         </p>
       </aside>
 
@@ -60,7 +60,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <Logo />
         </Link>
         <div className="mx-auto flex w-full max-w-[26rem] flex-1 flex-col justify-center py-10">{children}</div>
-        <p className="text-center text-xs text-muted-foreground lg:hidden">Demonstration environment. No real money moves.</p>
+        <p className="text-center text-xs text-muted-foreground lg:hidden">Entorno de demostración. No se mueve dinero real.</p>
       </main>
     </div>
   );

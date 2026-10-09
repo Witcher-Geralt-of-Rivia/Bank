@@ -21,15 +21,15 @@ export function TwoFactorToggle({ enabled }: { enabled: boolean }) {
         toast.error(result.error.message);
         return;
       }
-      toast.success(next ? "Two-step verification turned on" : "Two-step verification turned off");
+      toast.success(next ? "Verificación en dos pasos activada" : "Verificación en dos pasos desactivada");
       router.refresh();
     });
   }
 
   return (
     <SettingSwitch
-      label="Two-step verification"
-      hint="In this demonstration the setting is recorded and audited, but no second factor is requested at sign-in."
+      label="Verificación en dos pasos"
+      hint="En esta demostración, el ajuste se registra y se audita, pero no se solicita un segundo factor al iniciar sesión."
       checked={checked}
       disabled={pending}
       onCheckedChange={toggle}

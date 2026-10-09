@@ -21,7 +21,7 @@ import { requireUser } from "@/server/auth/session";
 import { getOperationsOverview } from "@/server/queries/admin";
 import { listAllTransactions, parseTransactionFilters } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Transaction monitoring" };
+export const metadata: Metadata = { title: "Monitoreo de transacciones" };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -64,7 +64,7 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
   const filtered = Object.values(applied).some(Boolean);
 
   const tabs: { status: TransactionStatus | undefined; label: string; count: number }[] = [
-    { status: undefined, label: "All", count: TRANSACTION_STATUSES.reduce((sum, status) => sum + overview.statusCounts[status], 0) },
+    { status: undefined, label: "Todas", count: TRANSACTION_STATUSES.reduce((sum, status) => sum + overview.statusCounts[status], 0) },
     ...TRANSACTION_STATUSES.map((status) => ({
       status,
       label: TRANSACTION_STATUS_LABELS[status],
@@ -75,8 +75,8 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="Transaction monitoring"
-        description="Every movement on the platform, across all customers. Select a transaction to see its ledger entries and status history, and to act on it."
+        title="Monitoreo de transacciones"
+        description="Todos los movimientos de la plataforma, de todos los clientes. Selecciona una transacción para ver sus asientos contables y su historial de estados, y para actuar sobre ella."
       />
 
       <div className="mb-4 flex flex-col gap-3">
@@ -98,19 +98,19 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
               name="q"
               defaultValue={applied.q ?? ""}
               maxLength={80}
-              placeholder="Search description, counterparty, reference or ID"
-              aria-label="Search transactions"
+              placeholder="Buscar por descripción, contraparte, referencia o ID"
+              aria-label="Buscar transacciones"
               className="pl-9"
             />
           </div>
-          <div className="relative sm:w-44">
+          <div className="relative sm:w-52">
             <select
               name="type"
               defaultValue={applied.type ?? ""}
-              aria-label="Type"
+              aria-label="Tipo"
               className="h-10 w-full appearance-none rounded-lg border border-input bg-card pr-9 pl-3 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm"
             >
-              <option value="">All types</option>
+              <option value="">Todos los tipos</option>
               {TRANSACTION_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {TRANSACTION_TYPE_LABELS[type]}
@@ -121,18 +121,18 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="outline" size="lg" className="flex-1 sm:flex-none">
-              Search
+              Buscar
             </Button>
             {filtered ? (
               <Button asChild variant="ghost" size="lg">
-                <Link href={BASE_PATH}>Clear</Link>
+                <Link href={BASE_PATH}>Limpiar</Link>
               </Button>
             ) : null}
           </div>
         </form>
 
         <nav
-          aria-label="Filter by status"
+          aria-label="Filtrar por estado"
           className="-mx-4 -my-1 flex gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:px-0"
         >
           {tabs.map((tab) => {
@@ -164,33 +164,33 @@ export default async function AdminTransactionsPage({ searchParams }: Props) {
           filtered ? (
             <EmptyState
               icon={SearchX}
-              title="No transactions match these filters"
-              description="Try a different search term, type or status, or clear the filters."
+              title="Ninguna transacción coincide con estos filtros"
+              description="Prueba con otro término de búsqueda, tipo o estado, o limpia los filtros."
               action={
                 <Button asChild variant="outline" size="sm">
-                  <Link href={BASE_PATH}>Clear filters</Link>
+                  <Link href={BASE_PATH}>Limpiar filtros</Link>
                 </Button>
               }
             />
           ) : (
             <EmptyState
               icon={ListChecks}
-              title="No transactions yet"
-              description="Movements will be listed here as soon as customers start using their accounts."
+              title="Aún no hay transacciones"
+              description="Los movimientos aparecerán aquí en cuanto los clientes empiecen a usar sus cuentas."
             />
           )
         ) : (
           <>
             <p className="px-5 pt-4 pb-1 text-xs text-muted-foreground" aria-live="polite">
-              {pluralize(result.total, "transaction")}
-              {filtered ? (result.total === 1 ? " matches your filters" : " match your filters") : ""}
+              {pluralize(result.total, "transacción", "transacciones")}
+              {filtered ? (result.total === 1 ? " coincide con tus filtros" : " coinciden con tus filtros") : ""}
             </p>
             <TransactionList rows={result.rows} staff basePath={BASE_PATH} />
             <Pagination
               page={result.page}
               pageCount={result.pageCount}
               total={result.total}
-              noun="transactions"
+              noun="transacciones"
               hrefFor={(page) => hrefWith(applied, { page })}
             />
           </>

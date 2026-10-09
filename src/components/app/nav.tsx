@@ -102,7 +102,7 @@ function NavGroups({
 }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Main" className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-2">
+    <nav aria-label="Principal" className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-2">
       {groups.map((group, index) => (
         <div key={group.label} className={cn(index === groups.length - 1 && "mt-auto")}>
           <p className="eyebrow mb-1.5 px-3 text-sidebar-muted/70">{group.label}</p>
@@ -130,9 +130,9 @@ function EnvironmentNote({ demo }: { demo: boolean }) {
     <div className="mx-3 mb-3 rounded-lg border border-sidebar-border bg-white/[0.03] px-3 py-2.5">
       <p className="flex items-center gap-2 text-xs font-medium text-sidebar-foreground">
         <span className="size-1.5 rounded-full bg-sidebar-primary" />
-        Demo environment
+        Entorno de demostración
       </p>
-      <p className="mt-1 text-xs leading-relaxed text-sidebar-muted">Sample data. No real money moves.</p>
+      <p className="mt-1 text-xs leading-relaxed text-sidebar-muted">Datos de ejemplo. No se mueve dinero real.</p>
     </div>
   );
 }
@@ -174,7 +174,7 @@ export function MobileMenu({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="-ml-2 lg:hidden" aria-label="Open navigation">
+        <Button variant="ghost" size="icon" className="-ml-2 lg:hidden" aria-label="Abrir navegación">
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
@@ -185,7 +185,7 @@ export function MobileMenu({
               <Logo tone="light" />
             </div>
           </SheetTitle>
-          <SheetDescription className="sr-only">Main navigation</SheetDescription>
+          <SheetDescription className="sr-only">Navegación principal</SheetDescription>
         </SheetHeader>
         <NavGroups groups={groups} unread={unread} onNavigate={() => setOpen(false)} />
         <EnvironmentNote demo={demo} />
@@ -199,7 +199,7 @@ export function MobileTabBar() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="Quick navigation"
+      aria-label="Navegación rápida"
       className="no-print fixed inset-x-0 bottom-0 z-30 border-t border-border/80 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
       <ul className="mx-auto grid max-w-md grid-cols-4">
@@ -234,7 +234,7 @@ export function UserMenu({ user }: { user: ShellUser }) {
         <button
           type="button"
           className="flex items-center gap-2.5 rounded-full py-1 pr-1 pl-1 text-left transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/60 sm:pr-3"
-          aria-label="Account menu"
+          aria-label="Menú de usuario"
         >
           <Avatar className="size-8">
             <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
@@ -255,19 +255,19 @@ export function UserMenu({ user }: { user: ShellUser }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/settings">
-            <Settings /> Settings
+            <Settings /> Configuración
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/notifications">
-            <Bell /> Notifications
+            <Bell /> Notificaciones
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild variant="destructive">
           <form action={logoutAction} className="w-full">
             <button type="submit" className="flex w-full items-center gap-2 outline-none">
-              <LogOut /> Sign out
+              <LogOut /> Cerrar sesión
             </button>
           </form>
         </DropdownMenuItem>

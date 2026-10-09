@@ -22,14 +22,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
       >
-        Skip to content
+        Saltar al contenido
       </a>
       <Sidebar groups={groups} unread={unread} home={home} demo={env.demoMode} />
 
       <div className="flex min-h-dvh flex-1 flex-col lg:pl-60">
         <header className="no-print sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border/70 bg-background/85 px-4 backdrop-blur sm:px-6 lg:h-16 lg:px-10">
           <MobileMenu groups={groups} unread={unread} demo={env.demoMode} />
-          <Link href={home} className="outline-none focus-visible:opacity-80 lg:hidden" aria-label="Aldera home">
+          <Link href={home} className="outline-none focus-visible:opacity-80 lg:hidden" aria-label="Inicio de Aldera">
             <LogoMark className="size-7" />
           </Link>
 
@@ -37,12 +37,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {env.demoMode ? (
               <span className="hidden items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground md:inline-flex">
                 <span className="size-1.5 rounded-full bg-chart-in" />
-                Demo data
+                Datos de demostración
               </span>
             ) : null}
             <Link
               href="/notifications"
-              aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+              aria-label={unread > 0 ? `Notificaciones, ${unread} sin leer` : "Notificaciones"}
               className="relative flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
             >
               <Bell className="size-[1.125rem]" />

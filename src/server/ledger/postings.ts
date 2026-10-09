@@ -105,10 +105,10 @@ export async function postEntries(
 
   for (const leg of legs) {
     const account = locked.get(leg.accountId);
-    if (!account) throw new NotFoundError("Account");
+    if (!account) throw new NotFoundError("la cuenta");
     if (account.currency !== currency) throw new CurrencyMismatchError();
     if (account.status === "closed") {
-      throw new AccountUnavailableError(`${account.name} is closed.`);
+      throw new AccountUnavailableError(`La cuenta “${account.name}” está cerrada.`);
     }
 
     const before = running.get(account.id) ?? account.postedMinor;
@@ -154,7 +154,7 @@ export async function placeHold(
   amountMinor: bigint,
 ): Promise<void> {
   const account = (await lockAccounts(tx, [accountId])).get(accountId);
-  if (!account) throw new NotFoundError("Account");
+  if (!account) throw new NotFoundError("la cuenta");
   if (availableMinor(account) < amountMinor) throw new InsufficientFundsError();
   await tx
     .update(accounts)

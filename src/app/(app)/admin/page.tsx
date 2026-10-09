@@ -34,7 +34,7 @@ import { checkLedgerIntegrity } from "@/server/ledger/integrity";
 import { getOperationsOverview, recentAuditLogs } from "@/server/queries/admin";
 import { listAllTransactions } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Operations overview" };
+export const metadata: Metadata = { title: "Resumen de operaciones" };
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 
@@ -58,7 +58,7 @@ function relativeInline(date: Date, now: Date): string {
 /** Busier or quieter is neither good nor bad here, so the change stays in ink. */
 function Change({ current, previous }: { current: number; previous: number }) {
   const bps = changeInBasisPoints(BigInt(current), BigInt(previous));
-  if (bps === null) return <span>No earlier period to compare</span>;
+  if (bps === null) return <span>Sin periodo anterior para comparar</span>;
   const Icon = bps > 0n ? TrendingUp : TrendingDown;
   return (
     <span className="flex items-center gap-1">
@@ -66,7 +66,7 @@ function Change({ current, previous }: { current: number; previous: number }) {
         {bps === 0n ? null : <Icon className="size-3.5" />}
         <span className="tabular">{formatBasisPoints(bps)}</span>
       </span>
-      vs previous 24 hours
+      vs. 24 horas previas
     </span>
   );
 }
@@ -131,8 +131,8 @@ export default async function OperationsOverviewPage() {
   // --- daily activity ---
   const days = overview.daily.map((day) => {
     const label = formatShortDate(new Date(`${day.date}T00:00:00.000Z`));
-    const failed = day.failed > 0 ? `, ${formatCount(day.failed)} failed` : "";
-    return { ...day, label, title: `${label}: ${pluralize(day.count, "transaction")}${failed}` };
+    const failed = day.failed > 0 ? `, ${pluralize(day.failed, "fallida")}` : "";
+    return { ...day, label, title: `${label}: ${pluralize(day.count, "transacción", "transacciones")}${failed}` };
   });
   const dailyTotal = days.reduce((sum, day) => sum + day.count, 0);
   const busiest = days.reduce((best, day) => (day.count > best.count ? day : best), days[0]);
@@ -143,82 +143,86 @@ export default async function OperationsOverviewPage() {
   return (
     <>
       <PageHeader
-        title="Operations overview"
-        description="The state of the platform right now: who banks with Aldera, how much is held, what is moving, and whether the books and the audit trail still prove themselves."
+        title="Resumen de operaciones"
+        description="El estado de la plataforma en este momento: quiénes son clientes de Aldera, cuánto dinero hay depositado, qué está en movimiento y si los libros contables y el registro de auditoría siguen demostrando su integridad."
       />
 
       <div className="grid grid-cols-1 gap-6">
         {/* Key figures */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <StatTile
-            label="Customers"
+            label="Clientes"
             icon={Users}
             value={formatCount(overview.customers)}
             footer={
               <span className="text-xs text-muted-foreground">
-                {overview.suspendedUsers > 0 ? `${pluralize(overview.suspendedUsers, "user")} suspended` : "No suspended users"}
+                {overview.suspendedUsers > 0
+                  ? pluralize(overview.suspendedUsers, "usuario suspendido", "usuarios suspendidos")
+                  : "Ningún usuario suspendido"}
               </span>
             }
           />
           <StatTile
-            label="Active accounts"
+            label="Cuentas activas"
             icon={Wallet}
             value={formatCount(overview.activeAccounts)}
             footer={
               <span className="text-xs text-muted-foreground">
-                {overview.frozenAccounts > 0 ? `${pluralize(overview.frozenAccounts, "account")} frozen` : "No frozen accounts"}
+                {overview.frozenAccounts > 0
+                  ? pluralize(overview.frozenAccounts, "cuenta congelada", "cuentas congeladas")
+                  : "Ninguna cuenta congelada"}
               </span>
             }
           />
           <StatTile
-            label="Customer deposits held"
+            label="Depósitos de clientes"
             icon={Landmark}
             value={formatMoney(overview.depositsBaseMinor, BASE_CURRENCY)}
-            footer={<span className="text-xs text-muted-foreground">Across all customer accounts · {BASE_CURRENCY} equivalent</span>}
+            footer={<span className="text-xs text-muted-foreground">En todas las cuentas de clientes · equivalente en {BASE_CURRENCY}</span>}
           />
           <StatTile
-            label="Transactions · 24 hours"
+            label="Transacciones · 24 horas"
             icon={Activity}
             value={formatCount(overview.last24h.count)}
             footer={
               <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                 <span>
-                  <span className="tabular">{formatMoney(overview.last24h.volumeBaseMinor, BASE_CURRENCY)}</span> volume
+                  <span className="tabular">{formatMoney(overview.last24h.volumeBaseMinor, BASE_CURRENCY)}</span> de volumen
                 </span>
                 <Change current={overview.last24h.count} previous={overview.previous24h.count} />
               </span>
             }
           />
           <StatTile
-            label="Awaiting review"
+            label="En espera de revisión"
             icon={Clock}
             value={formatCount(overview.awaitingReview.count)}
             footer={
               <span className="text-xs text-muted-foreground">
                 {overview.awaitingReview.count > 0 ? (
                   <>
-                    <span className="tabular">{formatMoney(overview.awaitingReview.valueBaseMinor, BASE_CURRENCY)}</span> reserved
-                    {overview.awaitingReview.oldestAt ? ` · oldest submitted ${relativeInline(overview.awaitingReview.oldestAt, now)}` : null}
+                    <span className="tabular">{formatMoney(overview.awaitingReview.valueBaseMinor, BASE_CURRENCY)}</span> retenidos
+                    {overview.awaitingReview.oldestAt ? ` · la más antigua: ${relativeInline(overview.awaitingReview.oldestAt, now)}` : null}
                   </>
                 ) : (
-                  "Nothing is waiting for a decision"
+                  "No hay nada en espera de una decisión"
                 )}
               </span>
             }
           />
           <StatTile
-            label="In transit"
+            label="En tránsito"
             icon={CircleDashed}
             value={formatCount(overview.inTransit.count)}
             footer={
               <span className="text-xs text-muted-foreground">
                 {overview.inTransit.count > 0 ? (
                   <>
-                    <span className="tabular">{formatMoney(overview.inTransit.valueBaseMinor, BASE_CURRENCY)}</span> on the way to
-                    receiving banks
+                    <span className="tabular">{formatMoney(overview.inTransit.valueBaseMinor, BASE_CURRENCY)}</span> en camino a los
+                    bancos receptores
                   </>
                 ) : (
-                  "Nothing is in transit"
+                  "No hay nada en tránsito"
                 )}
               </span>
             }
@@ -229,34 +233,34 @@ export default async function OperationsOverviewPage() {
           <div className="grid grid-cols-1 gap-6 xl:col-span-2">
             {/* Ledger integrity */}
             <Section
-              title="Ledger integrity"
-              description={`Recalculated from the raw ledger entries · ${formatDateTime(ledger.checkedAt)}`}
+              title="Integridad del libro mayor"
+              description={`Recalculada directamente a partir de los asientos contables · ${formatDateTime(ledger.checkedAt)}`}
             >
               {ledger.healthy ? (
-                <Callout tone="success" icon={ShieldCheck} title="The ledger is balanced">
-                  Every movement of money is recorded twice, as a debit on one account and an equal credit on another, so matching
-                  totals and a zero net balance prove that no money has been created or lost.
+                <Callout tone="success" icon={ShieldCheck} title="El libro mayor está cuadrado">
+                  Cada movimiento de dinero se registra dos veces: como débito en una cuenta y como crédito igual en otra. Por eso,
+                  cuando los totales coinciden y el saldo neto es cero, queda demostrado que no se creó ni se perdió dinero.
                 </Callout>
               ) : (
-                <Callout tone="danger" icon={ShieldAlert} title="The ledger needs attention">
-                  At least one check below did not pass, which means the recorded entries no longer fully explain the balances and
-                  should be investigated before more money moves.
+                <Callout tone="danger" icon={ShieldAlert} title="El libro mayor requiere atención">
+                  Al menos una de las verificaciones de abajo no se superó. Esto significa que los asientos registrados ya no
+                  explican por completo los saldos, y debe investigarse antes de que se mueva más dinero.
                 </Callout>
               )}
 
               <dl className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-3">
-                <IntegrityCheck label="Ledger entries" value={formatCount(ledger.entryCount)} note="Every entry was re-read" />
+                <IntegrityCheck label="Asientos contables" value={formatCount(ledger.entryCount)} note="Se releyeron todos los asientos" />
                 <IntegrityCheck
-                  label="Unbalanced transactions"
+                  label="Transacciones descuadradas"
                   value={formatCount(ledger.unbalancedTransactions)}
                   passed={ledger.unbalancedTransactions === 0}
-                  note={ledger.unbalancedTransactions === 0 ? "Every transaction balances" : "Debits and credits differ"}
+                  note={ledger.unbalancedTransactions === 0 ? "Cada transacción cuadra" : "Débitos y créditos no coinciden"}
                 />
                 <IntegrityCheck
-                  label="Drifted accounts"
+                  label="Cuentas con diferencias"
                   value={formatCount(ledger.driftedAccounts)}
                   passed={ledger.driftedAccounts === 0}
-                  note={ledger.driftedAccounts === 0 ? "Every balance matches its entries" : "Balance differs from its entries"}
+                  note={ledger.driftedAccounts === 0 ? "Cada saldo coincide con sus asientos" : "El saldo no coincide con sus asientos"}
                 />
               </dl>
 
@@ -267,10 +271,10 @@ export default async function OperationsOverviewPage() {
                       key={totals.currency}
                       currency={totals.currency}
                       rows={[
-                        { label: "Total debits", minor: totals.debitMinor },
-                        { label: "Total credits", minor: totals.creditMinor },
+                        { label: "Total de débitos", minor: totals.debitMinor },
+                        { label: "Total de créditos", minor: totals.creditMinor },
                       ]}
-                      result={{ label: "Net of all balances", minor: totals.netBalanceMinor }}
+                      result={{ label: "Neto de todos los saldos", minor: totals.netBalanceMinor }}
                       passed={totals.debitMinor === totals.creditMinor && totals.netBalanceMinor === 0n}
                     />
                   ))}
@@ -280,22 +284,24 @@ export default async function OperationsOverviewPage() {
 
             {/* Review queue */}
             <Section
-              title="Review queue"
+              title="Cola de revisión"
               description={
-                queue.total > 0 ? `${pluralize(queue.total, "transfer")} waiting for a decision` : "Transfers held for a decision by operations"
+                queue.total > 0
+                  ? `${pluralize(queue.total, "transferencia")} en espera de una decisión`
+                  : "Transferencias retenidas hasta que operaciones tome una decisión"
               }
               flush
               action={
                 <Button asChild variant="link" size="sm" className="h-auto p-0">
-                  <Link href="/admin/transactions?status=pending">View all</Link>
+                  <Link href="/admin/transactions?status=pending">Ver todo</Link>
                 </Button>
               }
             >
               {queue.rows.length === 0 ? (
                 <EmptyState
                   icon={ListChecks}
-                  title="Nothing to review"
-                  description="External transfers above the review threshold wait here until someone approves or rejects them."
+                  title="Nada por revisar"
+                  description="Las transferencias externas que superan el umbral de revisión esperan aquí hasta que alguien las apruebe o las rechace."
                 />
               ) : (
                 <TransactionList rows={queue.rows} staff compact basePath="/admin/transactions" />
@@ -306,10 +312,10 @@ export default async function OperationsOverviewPage() {
           <div className="grid grid-cols-1 gap-6">
             {/* Audit chain */}
             <Section
-              title="Audit chain"
+              title="Cadena de auditoría"
               action={
                 <Button asChild variant="link" size="sm" className="h-auto p-0">
-                  <Link href="/admin/audit">Audit log</Link>
+                  <Link href="/admin/audit">Registro de auditoría</Link>
                 </Button>
               }
             >
@@ -324,12 +330,14 @@ export default async function OperationsOverviewPage() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {chain.valid ? `Intact · ${pluralize(chain.checked, "record")} verified` : `Broken at record #${chain.brokenAtSeq}`}
+                    {chain.valid
+                      ? `Íntegra · ${pluralize(chain.checked, "registro verificado", "registros verificados")}`
+                      : `Rota en el registro #${chain.brokenAtSeq}`}
                   </p>
                   <p className="mt-0.5 text-[0.8125rem] leading-snug text-pretty text-muted-foreground">
                     {chain.valid
-                      ? "Each record carries the hash of the one before it, so an edited or deleted record would break the chain."
-                      : `${pluralize(chain.checked, "record")} checked. This record no longer matches its stored hash or its link to the record before it.`}
+                      ? "Cada registro incluye el hash del anterior, de modo que un registro modificado o eliminado rompería la cadena."
+                      : `${pluralize(chain.checked, "registro revisado", "registros revisados")}. Este registro ya no coincide con su hash almacenado o con su enlace al registro anterior.`}
                   </p>
                 </div>
               </div>
@@ -337,21 +345,21 @@ export default async function OperationsOverviewPage() {
 
             {/* Transactions by status */}
             <Section
-              title="Transactions by status"
-              description={`${pluralize(statusTotal, "transaction")} to date`}
+              title="Transacciones por estado"
+              description={`${pluralize(statusTotal, "transacción", "transacciones")} hasta la fecha`}
               action={
                 <Button asChild variant="link" size="sm" className="h-auto p-0">
-                  <Link href="/admin/transactions">Monitoring</Link>
+                  <Link href="/admin/transactions">Monitoreo</Link>
                 </Button>
               }
             >
               {statusTotal === 0 ? (
-                <EmptyState icon={CircleDashed} title="No transactions yet" description="The split by status will appear here once money starts moving." className="py-8" />
+                <EmptyState icon={CircleDashed} title="Aún no hay transacciones" description="La distribución por estado aparecerá aquí cuando empiece a moverse dinero." className="py-8" />
               ) : (
                 <>
                   <div
                     role="img"
-                    aria-label={`Share of transactions by status. ${statuses.map((s) => `${s.label}: ${formatCount(s.count)}`).join(", ")}.`}
+                    aria-label={`Proporción de transacciones por estado. ${statuses.map((s) => `${s.label}: ${formatCount(s.count)}`).join(", ")}.`}
                     className="flex h-3 gap-0.5"
                   >
                     {statuses
@@ -365,7 +373,7 @@ export default async function OperationsOverviewPage() {
                         />
                       ))}
                   </div>
-                  <ul aria-label="Legend" className="mt-4 grid gap-2">
+                  <ul aria-label="Leyenda" className="mt-4 grid gap-2">
                     {statuses.map((s) => (
                       <li key={s.status} className="flex items-center justify-between gap-3 text-sm">
                         <span className="flex min-w-0 items-center gap-2">
@@ -381,16 +389,16 @@ export default async function OperationsOverviewPage() {
             </Section>
 
             {/* Daily activity */}
-            <Section title="Activity, last 14 days" description="Transactions created per day">
+            <Section title="Actividad de los últimos 14 días" description="Transacciones creadas por día">
               {dailyTotal === 0 ? (
-                <EmptyState icon={Activity} title="No activity yet" description="Daily volumes will appear here once money starts moving." className="py-8" />
+                <EmptyState icon={Activity} title="Aún no hay actividad" description="Los volúmenes diarios aparecerán aquí cuando empiece a moverse dinero." className="py-8" />
               ) : (
                 <>
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-sm font-medium text-foreground">{formatCount(dailyTotal)}</span> in total · busiest day{" "}
-                    {busiest.label} with {formatCount(busiest.count)}
+                    <span className="text-sm font-medium text-foreground">{formatCount(dailyTotal)}</span> en total · día más activo:{" "}
+                    {busiest.label}, con {formatCount(busiest.count)}
                   </p>
-                  <ol aria-label="Transactions per day" className="mt-4 flex h-24 border-b border-chart-axis">
+                  <ol aria-label="Transacciones por día" className="mt-4 flex h-24 border-b border-chart-axis">
                     {days.map((day) => (
                       <li
                         key={day.date}
@@ -427,27 +435,27 @@ export default async function OperationsOverviewPage() {
 
         {/* Recent audit activity */}
         <Section
-          title="Recent audit activity"
-          description="The latest records written to the audit log"
+          title="Actividad de auditoría reciente"
+          description="Los registros de auditoría más recientes"
           flush
           action={
             <Button asChild variant="link" size="sm" className="h-auto p-0">
-              <Link href="/admin/audit">View all</Link>
+              <Link href="/admin/audit">Ver todo</Link>
             </Button>
           }
         >
           {audit.length === 0 ? (
             <EmptyState
               icon={ScrollText}
-              title="No audit records yet"
-              description="Sign-ins, money movements and operations actions are recorded here as they happen."
+              title="Aún no hay registros de auditoría"
+              description="Los inicios de sesión, los movimientos de dinero y las acciones de operaciones se registran aquí a medida que ocurren."
             />
           ) : (
             <ul className="divide-y divide-border/70 border-t border-border/70">
               {audit.map((record) => (
                 <li
                   key={record.seq}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-5 py-3 md:grid-cols-[14.5rem_minmax(0,1fr)_minmax(0,11rem)_6.5rem]"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-5 py-3 md:grid-cols-[16.5rem_minmax(0,1fr)_minmax(0,11rem)_7rem]"
                 >
                   <AuditActionPill action={record.action} />
                   <span className="tabular text-xs text-muted-foreground md:order-last md:text-right">

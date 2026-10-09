@@ -37,7 +37,7 @@ export function RemoveBeneficiaryButton({ id, name }: { id: string; name: string
         setError(result.error.message);
         return;
       }
-      toast.success(`${name} removed from your beneficiaries`);
+      toast.success(`${name} se eliminó de tus beneficiarios`);
       // Stay pending until the list has loaded, so the button cannot be pressed twice.
       startTransition(() => router.push("/beneficiaries"));
     });
@@ -54,21 +54,21 @@ export function RemoveBeneficiaryButton({ id, name }: { id: string; name: string
     >
       <AlertDialogTrigger asChild>
         <Button variant="outline" size="lg">
-          <Trash2 /> Remove
+          <Trash2 /> Eliminar
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Remove {name}?</AlertDialogTitle>
+          <AlertDialogTitle>¿Eliminar a {name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            They will no longer appear in your beneficiaries or when you send money. Past transfers stay in your transaction history.
+            Ya no aparecerá entre tus beneficiarios ni al enviar dinero. Las transferencias anteriores se conservan en tu historial de transacciones.
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error ? <Callout tone="danger">{error}</Callout> : null}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
-          <SubmitButton type="button" variant="destructive" pending={pending} pendingLabel="Removing…" onClick={remove}>
-            Remove beneficiary
+          <AlertDialogCancel disabled={pending}>Cancelar</AlertDialogCancel>
+          <SubmitButton type="button" variant="destructive" pending={pending} pendingLabel="Eliminando…" onClick={remove}>
+            Eliminar beneficiario
           </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>

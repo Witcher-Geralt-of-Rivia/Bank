@@ -62,7 +62,7 @@ export function BalanceTrendChart({
       style={{ height: HEIGHT }}
       tabIndex={0}
       role="group"
-      aria-label={`Line chart of your combined balance over ${data.length} days, ending at ${data[lastIndex]?.text}. Use the left and right arrow keys to read each day.`}
+      aria-label={`Gráfico de líneas de tu saldo combinado durante ${data.length} días, con un saldo final de ${data[lastIndex]?.text}. Usa las flechas izquierda y derecha para leer cada día.`}
       aria-describedby={current ? tooltipId : undefined}
       onPointerMove={(event) => setActive(nearest(event.clientX, event.currentTarget.getBoundingClientRect()))}
       onPointerLeave={() => setActive(null)}

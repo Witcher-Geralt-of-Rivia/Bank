@@ -55,7 +55,7 @@ export type WizardBeneficiary = {
 
 type Destination = { kind: "account"; id: string } | { kind: "beneficiary"; id: string };
 
-const STEPS = ["From", "To", "Amount", "Review"] as const;
+const STEPS = ["Origen", "Destino", "Monto", "Revisión"] as const;
 
 const PAYMENT_CATEGORIES: Category[] = [
   "contractors",
@@ -73,7 +73,7 @@ const PAYMENT_CATEGORIES: Category[] = [
 
 function Stepper({ step }: { step: number }) {
   return (
-    <ol className="mb-6 flex items-center gap-2 sm:gap-3" aria-label="Progress">
+    <ol className="mb-6 flex items-center gap-2 sm:gap-3" aria-label="Progreso">
       {STEPS.map((label, index) => {
         const done = index < step;
         const current = index === step;
@@ -225,10 +225,10 @@ export function TransferWizard({
   const arrival = !destination
     ? null
     : !external
-      ? { icon: Zap, text: "Instantly", detail: "Settles immediately on the Aldera ledger." }
+      ? { icon: Zap, text: "Al instante", detail: "Se liquida de inmediato en el libro mayor de Aldera." }
       : needsReview
-        ? { icon: ShieldCheck, text: "After review", detail: "Held for a check by our operations team, then sent to the receiving bank." }
-        : { icon: Clock, text: "Usually within 1 business day", detail: "Sent to the receiving bank through the payment network." };
+        ? { icon: ShieldCheck, text: "Después de la revisión", detail: "Queda retenida mientras nuestro equipo de operaciones la revisa y luego se envía al banco receptor." }
+        : { icon: Clock, text: "Normalmente en 1 día hábil", detail: "Se envía al banco receptor a través de la red de pagos." };
 
   const filteredBeneficiaries = beneficiaries.filter((b) => {
     const term = search.trim().toLowerCase();
@@ -250,16 +250,16 @@ export function TransferWizard({
     if (!source) return false;
     try {
       const minor = parseAmount(amount, source.currency);
-      if (minor <= 0n) next.amount = "Amount must be greater than zero.";
+      if (minor <= 0n) next.amount = "El monto debe ser mayor que cero.";
       else if (minor > BigInt(source.availableMinor)) {
-        next.amount = `This is more than the ${formatMoney(BigInt(source.availableMinor), source.currency)} available in ${source.name}.`;
+        next.amount = `Supera el saldo disponible en ${source.name}: ${formatMoney(BigInt(source.availableMinor), source.currency)}.`;
       } else if (minor > TRANSFER_POLICY.maxAmountMinor) {
-        next.amount = `The limit for a single transfer is ${formatMoney(TRANSFER_POLICY.maxAmountMinor, source.currency)}.`;
+        next.amount = `El límite por transferencia es de ${formatMoney(TRANSFER_POLICY.maxAmountMinor, source.currency)}.`;
       }
     } catch (error) {
-      next.amount = error instanceof MoneyError ? error.message : "Enter a valid amount.";
+      next.amount = error instanceof MoneyError ? error.message : "Ingresa un monto válido.";
     }
-    if (!description.trim()) next.description = "Add a short description so both sides can recognise this transfer.";
+    if (!description.trim()) next.description = "Agrega una descripción breve para que ambas partes reconozcan esta transferencia.";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -318,8 +318,8 @@ export function TransferWizard({
 
   if (usableAccounts.length === 0) {
     return (
-      <Callout tone="warning" icon={Snowflake} title="No account can send money right now">
-        None of your accounts are active. Contact support if you believe this is a mistake.
+      <Callout tone="warning" icon={Snowflake} title="Ninguna cuenta puede enviar dinero en este momento">
+        Ninguna de tus cuentas está activa. Comunícate con soporte si crees que se trata de un error.
       </Callout>
     );
   }
@@ -328,15 +328,15 @@ export function TransferWizard({
   if (step === 4 && receipt && source && amountMinor !== null) {
     const status = liveStatus ?? receipt.status;
     const heading =
-      status === "completed" ? "Transfer completed" : status === "pending" ? "Submitted for review" : status === "failed" ? "Transfer not completed" : "Transfer sent";
+      status === "completed" ? "Transferencia completada" : status === "pending" ? "Enviada a revisión" : status === "failed" ? "Transferencia no completada" : "Transferencia enviada";
     const message =
       status === "completed"
-        ? `${destinationName} has received the funds.`
+        ? `${destinationName} ya recibió los fondos.`
         : status === "pending"
-          ? "The amount is reserved in your account. We will notify you as soon as it is approved."
+          ? "El monto queda retenido en tu cuenta. Te avisaremos en cuanto se apruebe."
           : status === "failed"
-            ? "The funds are back in your account."
-            : "On its way to the receiving bank. This page updates when it settles.";
+            ? "Los fondos ya están de vuelta en tu cuenta."
+            : "Va en camino al banco receptor. Esta página se actualizará cuando se liquide.";
 
     return (
       <div className="mx-auto max-w-lg">
@@ -363,40 +363,40 @@ export function TransferWizard({
               {heading}
             </h2>
             <p className="mt-4 text-[2.5rem] leading-none font-semibold tracking-[-0.03em]">{formatMoney(amountMinor, source.currency)}</p>
-            <p className="mt-2 text-sm text-muted-foreground">to {destinationName}</p>
+            <p className="mt-2 text-sm text-muted-foreground">para {destinationName}</p>
             <p className="mt-4 max-w-sm text-sm text-pretty text-muted-foreground">{message}</p>
           </div>
 
           <dl className="divide-y divide-border/70 border-t border-border/70 px-6 py-1">
-            <SummaryRow label="Status">
+            <SummaryRow label="Estado">
               <StatusBadge status={status} />
             </SummaryRow>
-            <SummaryRow label="From">
+            <SummaryRow label="Origen">
               {source.name} <span className="tabular font-normal text-muted-foreground">{source.maskedNumber}</span>
             </SummaryRow>
-            <SummaryRow label="Reference">
+            <SummaryRow label="Referencia">
               <span className="font-mono text-[0.8125rem]">{receipt.reference}</span>
             </SummaryRow>
           </dl>
 
           {receipt.replayed ? (
             <div className="px-6 pb-4">
-              <Callout tone="info">This instruction had already been received, so it was not sent a second time.</Callout>
+              <Callout tone="info">Esta instrucción ya se había recibido, así que no se envió por segunda vez.</Callout>
             </div>
           ) : null}
 
           <div className="grid gap-2 border-t border-border/70 bg-muted/40 p-4 sm:grid-cols-2">
             <Button asChild size="lg">
-              <Link href={`/transactions/${receipt.id}`}>View receipt</Link>
+              <Link href={`/transactions/${receipt.id}`}>Ver comprobante</Link>
             </Button>
             <Button variant="outline" size="lg" onClick={restart}>
-              Make another transfer
+              Hacer otra transferencia
             </Button>
           </div>
         </div>
         <p className="mt-4 text-center text-sm">
           <Link href="/dashboard" className="text-muted-foreground underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:underline">
-            Back to overview
+            Volver al resumen
           </Link>
         </p>
       </div>
@@ -411,8 +411,8 @@ export function TransferWizard({
 
         {step === 0 ? (
           <fieldset>
-            <legend className="heading text-lg">Which account are you sending from?</legend>
-            <p className="mt-1 text-sm text-muted-foreground">You can send up to the available balance.</p>
+            <legend className="heading text-lg">¿Desde qué cuenta envías?</legend>
+            <p className="mt-1 text-sm text-muted-foreground">Puedes enviar hasta el saldo disponible.</p>
             <div className="mt-5 grid gap-2.5">
               {accounts.map((account) => (
                 <Choice
@@ -427,20 +427,20 @@ export function TransferWizard({
                     account.usable ? (
                       <>
                         <span className="tabular sm:hidden">
-                          {formatMoney(BigInt(account.availableMinor), account.currency)} available · {account.maskedNumber}
+                          {formatMoney(BigInt(account.availableMinor), account.currency)} disponible · {account.maskedNumber}
                         </span>
                         <span className="hidden sm:inline">
                           {account.typeLabel} · {account.maskedNumber}
                         </span>
                       </>
                     ) : (
-                      "Frozen · cannot send money"
+                      "Congelada · no puede enviar dinero"
                     )
                   }
                   trailing={
                     <span className="mr-1 hidden text-right sm:block">
                       <span className="tabular block text-sm font-medium">{formatMoney(BigInt(account.availableMinor), account.currency)}</span>
-                      <span className="block text-xs text-muted-foreground">available</span>
+                      <span className="block text-xs text-muted-foreground">disponible</span>
                     </span>
                   }
                 />
@@ -448,7 +448,7 @@ export function TransferWizard({
             </div>
             <div className="mt-6 flex justify-end">
               <Button size="lg" disabled={!source} onClick={() => setStep(1)}>
-                Continue <ArrowRight />
+                Continuar <ArrowRight />
               </Button>
             </div>
           </fieldset>
@@ -456,27 +456,27 @@ export function TransferWizard({
 
         {step === 1 && source ? (
           <div>
-            <h2 className="heading text-lg">Who are you sending to?</h2>
+            <h2 className="heading text-lg">¿A quién le envías?</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sending from a {source.currency} account, so only {source.currency} destinations can be selected.
+              Envías desde una cuenta en {source.currency}, así que solo puedes elegir destinos en {source.currency}.
             </p>
             <Tabs value={tab} onValueChange={(value) => setTab(value as typeof tab)} className="mt-5">
               <TabsList className="w-full sm:w-fit">
                 <TabsTrigger value="beneficiaries">
-                  <Users className="size-3.5" /> Beneficiaries
+                  <Users className="size-3.5" /> Beneficiarios
                 </TabsTrigger>
                 <TabsTrigger value="accounts">
-                  <Wallet className="size-3.5" /> My accounts
+                  <Wallet className="size-3.5" /> Mis cuentas
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="beneficiaries" className="mt-3">
                 {beneficiaries.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
-                    <p className="text-sm font-medium">No beneficiaries yet</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Save the people and businesses you pay to send them money.</p>
+                    <p className="text-sm font-medium">Aún no tienes beneficiarios</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Guarda a las personas y empresas a las que les pagas para enviarles dinero.</p>
                     <Button asChild variant="outline" size="sm" className="mt-4">
-                      <Link href="/beneficiaries">Add a beneficiary</Link>
+                      <Link href="/beneficiaries">Agregar un beneficiario</Link>
                     </Button>
                   </div>
                 ) : (
@@ -488,13 +488,13 @@ export function TransferWizard({
                           type="search"
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
-                          placeholder="Search beneficiaries"
-                          aria-label="Search beneficiaries"
+                          placeholder="Buscar beneficiarios"
+                          aria-label="Buscar beneficiarios"
                           className="pl-9"
                         />
                       </div>
                     ) : null}
-                    <div role="radiogroup" aria-label="Beneficiary" className="grid gap-2.5">
+                    <div role="radiogroup" aria-label="Beneficiario" className="grid gap-2.5">
                       {filteredBeneficiaries.map((b) => {
                         const mismatch = b.currency !== source.currency;
                         return (
@@ -510,11 +510,11 @@ export function TransferWizard({
                               </Avatar>
                             }
                             title={b.name}
-                            subtitle={mismatch ? `Accepts ${b.currency} only` : `${b.bankName} · ${b.maskedNumber}`}
+                            subtitle={mismatch ? `Solo acepta ${b.currency}` : `${b.bankName} · ${b.maskedNumber}`}
                             trailing={
                               b.kind === "internal" && !mismatch ? (
                                 <span className="mr-1 hidden items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-[0.6875rem] font-medium text-success sm:inline-flex">
-                                  <Zap className="size-3" /> Instant
+                                  <Zap className="size-3" /> Al instante
                                 </span>
                               ) : (
                                 <span className="mr-1 text-xs font-medium text-muted-foreground">{b.currency}</span>
@@ -523,11 +523,11 @@ export function TransferWizard({
                           />
                         );
                       })}
-                      {filteredBeneficiaries.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">No beneficiary matches “{search}”.</p> : null}
+                      {filteredBeneficiaries.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">Ningún beneficiario coincide con “{search}”.</p> : null}
                     </div>
                     <p className="mt-3 text-sm">
                       <Link href="/beneficiaries" className="font-medium text-accent-foreground underline-offset-4 outline-none hover:underline focus-visible:underline">
-                        Add a new beneficiary
+                        Agregar un nuevo beneficiario
                       </Link>
                     </p>
                   </>
@@ -536,9 +536,9 @@ export function TransferWizard({
 
               <TabsContent value="accounts" className="mt-3">
                 {accounts.length < 2 ? (
-                  <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">You have no other account to move money to.</p>
+                  <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">No tienes otra cuenta a la que transferir dinero.</p>
                 ) : (
-                  <div role="radiogroup" aria-label="Your accounts" className="grid gap-2.5">
+                  <div role="radiogroup" aria-label="Tus cuentas" className="grid gap-2.5">
                     {accounts
                       .filter((a) => a.id !== source.id)
                       .map((account) => {
@@ -552,7 +552,7 @@ export function TransferWizard({
                             onSelect={() => setDestination({ kind: "account", id: account.id })}
                             leading={<CurrencyChip currency={account.currency} />}
                             title={account.name}
-                            subtitle={!account.usable ? "Frozen · cannot receive money" : mismatch ? `Held in ${account.currency}` : `${account.typeLabel} · ${account.maskedNumber}`}
+                            subtitle={!account.usable ? "Congelada · no puede recibir dinero" : mismatch ? `Cuenta en ${account.currency}` : `${account.typeLabel} · ${account.maskedNumber}`}
                           />
                         );
                       })}
@@ -563,10 +563,10 @@ export function TransferWizard({
 
             <div className="mt-6 flex justify-between gap-3">
               <Button variant="ghost" size="lg" onClick={() => setStep(0)}>
-                <ArrowLeft /> Back
+                <ArrowLeft /> Atrás
               </Button>
               <Button size="lg" disabled={!destination} onClick={() => setStep(2)}>
-                Continue <ArrowRight />
+                Continuar <ArrowRight />
               </Button>
             </div>
           </div>
@@ -580,26 +580,26 @@ export function TransferWizard({
               goToReview();
             }}
           >
-            <h2 className="heading text-lg">How much are you sending?</h2>
+            <h2 className="heading text-lg">¿Cuánto envías?</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              To <span className="font-medium text-foreground">{destinationName}</span> from {source.name}
+              Para <span className="font-medium text-foreground">{destinationName}</span>, desde {source.name}
             </p>
 
             <div className="mt-5 grid gap-5">
               <Field
-                label="Amount"
+                label="Monto"
                 error={errors.amount}
                 hint={
                   <span className="flex items-center justify-between gap-3">
                     <span>
-                      Available: <span className="tabular">{formatMoney(BigInt(source.availableMinor), source.currency)}</span>
+                      Disponible: <span className="tabular">{formatMoney(BigInt(source.availableMinor), source.currency)}</span>
                     </span>
                     <button
                       type="button"
                       onClick={() => setAmount(toDecimalString(BigInt(source.availableMinor), source.currency))}
                       className="font-medium text-accent-foreground underline-offset-4 outline-none hover:underline focus-visible:underline"
                     >
-                      Use full balance
+                      Usar todo el saldo
                     </button>
                   </span>
                 }
@@ -624,12 +624,12 @@ export function TransferWizard({
                 )}
               </Field>
 
-              <Field label="Description" error={errors.description} hint="Shown to you and included on the receipt.">
+              <Field label="Descripción" error={errors.description} hint="Visible para ti e incluida en el comprobante.">
                 {(props) => (
                   <Input
                     {...props}
                     maxLength={140}
-                    placeholder="e.g. Invoice 2026-041"
+                    placeholder="p. ej., Factura 2026-041"
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                   />
@@ -637,11 +637,11 @@ export function TransferWizard({
               </Field>
 
               {destination?.kind === "beneficiary" ? (
-                <Field label="Category" optional hint="Used to organise your spending in Insights.">
+                <Field label="Categoría" optional hint="Se usa para organizar tus gastos en Análisis.">
                   {(props) => (
                     <Select value={category} onValueChange={(value) => setCategory(value as Category)}>
                       <SelectTrigger {...props} className="w-full">
-                        <SelectValue placeholder="Choose a category" />
+                        <SelectValue placeholder="Elige una categoría" />
                       </SelectTrigger>
                       <SelectContent>
                         {PAYMENT_CATEGORIES.map((key) => (
@@ -656,19 +656,19 @@ export function TransferWizard({
               ) : null}
 
               {needsReview ? (
-                <Callout tone="warning" icon={ShieldCheck} title="This transfer will be reviewed">
-                  External transfers of {formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)} or more are checked by our
-                  operations team before release. The amount is reserved in the meantime.
+                <Callout tone="warning" icon={ShieldCheck} title="Esta transferencia pasará por revisión">
+                  Nuestro equipo de operaciones revisa las transferencias externas de {formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)} o
+                  más antes de enviarlas. Mientras tanto, el monto queda retenido.
                 </Callout>
               ) : null}
             </div>
 
             <div className="mt-6 flex justify-between gap-3">
               <Button type="button" variant="ghost" size="lg" onClick={() => setStep(1)}>
-                <ArrowLeft /> Back
+                <ArrowLeft /> Atrás
               </Button>
               <Button type="submit" size="lg">
-                Review <ArrowRight />
+                Revisar <ArrowRight />
               </Button>
             </div>
           </form>
@@ -676,49 +676,49 @@ export function TransferWizard({
 
         {step === 3 && source && amountMinor !== null ? (
           <div>
-            <h2 className="heading text-lg">Review and confirm</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Check the details. Once confirmed, the transfer is recorded on the ledger.</p>
+            <h2 className="heading text-lg">Revisa y confirma</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Revisa los detalles. Una vez confirmada, la transferencia queda registrada en el libro mayor.</p>
 
             <div className="mt-5 rounded-xl border border-border bg-background px-5 py-6 text-center">
-              <p className="text-sm text-muted-foreground">You are sending</p>
+              <p className="text-sm text-muted-foreground">Vas a enviar</p>
               <p className="mt-1.5 text-[2.5rem] leading-none font-semibold tracking-[-0.03em]">{formatMoney(amountMinor, source.currency)}</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                to <span className="font-medium text-foreground">{destinationName}</span>
+                a <span className="font-medium text-foreground">{destinationName}</span>
               </p>
             </div>
 
             <dl className="mt-3 divide-y divide-border/70">
-              <SummaryRow label="From">
+              <SummaryRow label="Origen">
                 {source.name} <span className="tabular font-normal text-muted-foreground">{source.maskedNumber}</span>
               </SummaryRow>
-              <SummaryRow label="To">
+              <SummaryRow label="Destino">
                 {destinationName}
                 <span className="tabular block text-xs font-normal text-muted-foreground">
                   {destinationBeneficiary ? `${destinationBeneficiary.bankName} · ${destinationBeneficiary.maskedNumber}` : destinationAccount?.maskedNumber}
                 </span>
               </SummaryRow>
-              <SummaryRow label="Description">{description}</SummaryRow>
-              {category && destination?.kind === "beneficiary" ? <SummaryRow label="Category">{CATEGORIES[category]}</SummaryRow> : null}
-              <SummaryRow label="Fee">No fee</SummaryRow>
-              <SummaryRow label="Arrives">{arrival?.text}</SummaryRow>
-              <SummaryRow label="Balance after">
+              <SummaryRow label="Descripción">{description}</SummaryRow>
+              {category && destination?.kind === "beneficiary" ? <SummaryRow label="Categoría">{CATEGORIES[category]}</SummaryRow> : null}
+              <SummaryRow label="Comisión">Sin comisión</SummaryRow>
+              <SummaryRow label="Llegada">{arrival?.text}</SummaryRow>
+              <SummaryRow label="Saldo posterior">
                 <span className="tabular">{formatMoney(BigInt(source.availableMinor) - amountMinor, source.currency)}</span>{" "}
-                <span className="font-normal text-muted-foreground">available</span>
+                <span className="font-normal text-muted-foreground">disponible</span>
               </SummaryRow>
             </dl>
 
             {formError ? (
-              <Callout tone="danger" className="mt-4" title="The transfer was not sent">
-                {formError} You can try again safely: this instruction will not be processed twice.
+              <Callout tone="danger" className="mt-4" title="La transferencia no se envió">
+                {formError} Puedes intentarlo de nuevo sin riesgo: esta instrucción no se procesará dos veces.
               </Callout>
             ) : null}
 
             <div className="mt-6 flex flex-col-reverse justify-between gap-3 sm:flex-row">
               <Button variant="ghost" size="lg" disabled={pending} onClick={() => setStep(2)}>
-                <ArrowLeft /> Edit
+                <ArrowLeft /> Editar
               </Button>
-              <SubmitButton type="button" size="xl" pending={pending} pendingLabel="Sending…" onClick={submit}>
-                Confirm and send {formatMoney(amountMinor, source.currency)}
+              <SubmitButton type="button" size="xl" pending={pending} pendingLabel="Enviando…" onClick={submit}>
+                Confirmar y enviar {formatMoney(amountMinor, source.currency)}
               </SubmitButton>
             </div>
           </div>
@@ -727,11 +727,11 @@ export function TransferWizard({
 
       {/* Running summary */}
       <aside className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07] lg:sticky lg:top-24">
-        <h2 className="text-sm font-semibold">Transfer summary</h2>
+        <h2 className="text-sm font-semibold">Resumen de la transferencia</h2>
         <dl className="mt-2 divide-y divide-border/70">
-          <SummaryRow label="From">{source ? source.name : <span className="font-normal text-muted-foreground">Not selected</span>}</SummaryRow>
-          <SummaryRow label="To">{destinationName || <span className="font-normal text-muted-foreground">Not selected</span>}</SummaryRow>
-          <SummaryRow label="Amount">
+          <SummaryRow label="Origen">{source ? source.name : <span className="font-normal text-muted-foreground">Sin seleccionar</span>}</SummaryRow>
+          <SummaryRow label="Destino">{destinationName || <span className="font-normal text-muted-foreground">Sin seleccionar</span>}</SummaryRow>
+          <SummaryRow label="Monto">
             {source && amountMinor !== null && amountMinor > 0n ? (
               <span className="tabular">{formatMoney(amountMinor, source.currency)}</span>
             ) : (
@@ -750,7 +750,7 @@ export function TransferWizard({
         ) : null}
         <p className="mt-4 flex gap-2 text-xs leading-relaxed text-muted-foreground">
           <Landmark className="mt-0.5 size-3.5 shrink-0" />
-          Every transfer is posted as balanced ledger entries and carries a unique key, so it can never be applied twice.
+          Cada transferencia se registra con asientos contables cuadrados y lleva una clave única, por lo que nunca puede aplicarse dos veces.
         </p>
       </aside>
     </div>

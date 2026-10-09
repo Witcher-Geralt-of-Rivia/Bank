@@ -15,22 +15,22 @@ import { CURRENCIES, formatMoney } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
 import { type AccountRef, type TransactionDetail, getTransactionForStaff } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Transaction" };
+export const metadata: Metadata = { title: "Transacción" };
 
 type Props = { params: Promise<{ id: string }> };
 
 type RequestDetails = TransactionDetail["metadata"];
 
 const CHANNEL_LABELS: Record<NonNullable<RequestDetails["channel"]>, string> = {
-  web: "Web app",
+  web: "Aplicación web",
   api: "API",
-  system: "System",
+  system: "Sistema",
 };
 
 const ROUTE_LABELS: Record<NonNullable<RequestDetails["route"]>, string> = {
-  instant: "Instant, on the Aldera ledger",
-  network: "Payment network",
-  review: "Manual review",
+  instant: "Instantánea, en el libro mayor de Aldera",
+  network: "Red de pagos",
+  review: "Revisión manual",
 };
 
 /** An account on the platform: who owns it, then which account it is. */
@@ -61,15 +61,15 @@ export default async function AdminTransactionPage({ params }: Props) {
   // waiting for review, or was rejected during it, has no ledger entries.
   const noEntriesNote =
     t.status === "pending"
-      ? "Nothing has been posted yet. A transfer awaiting review only holds the funds on the source account; the entries are written when it is approved."
+      ? "Aún no se ha registrado ningún asiento. Una transferencia en espera de revisión solo retiene los fondos en la cuenta de origen; los asientos se registran cuando se aprueba."
       : t.status === "failed"
-        ? "Nothing was posted. The funds were only ever held on the source account, and that hold has been released."
-        : "No ledger entries were posted for this transaction.";
+        ? "No se registró ningún asiento. Los fondos solo estuvieron retenidos en la cuenta de origen, y esa retención ya se liberó."
+        : "No se registraron asientos contables para esta transacción.";
 
   return (
     <>
       <PageHeader
-        back={{ href: "/admin/transactions", label: "Transaction monitoring" }}
+        back={{ href: "/admin/transactions", label: "Monitoreo de transacciones" }}
         eyebrow={t.reference}
         title={t.description}
         description={
@@ -91,7 +91,7 @@ export default async function AdminTransactionPage({ params }: Props) {
       {/* Explicit columns let a track be narrower than its content, so on phones the ledger table scrolls inside its card. */}
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
         <div className="grid grid-cols-1 gap-6 xl:col-span-2">
-          <Section title="Available actions">
+          <Section title="Acciones disponibles">
             <TransactionActions
               id={t.id}
               status={t.status}
@@ -102,8 +102,8 @@ export default async function AdminTransactionPage({ params }: Props) {
           </Section>
 
           <Section
-            title="Ledger entries"
-            description="The immutable postings recorded for this transaction; total debits always equal total credits."
+            title="Asientos contables"
+            description="Los asientos inmutables registrados para esta transacción; el total de débitos siempre es igual al total de créditos."
             flush
           >
             {entries.length > 0 ? (
@@ -113,55 +113,55 @@ export default async function AdminTransactionPage({ params }: Props) {
             )}
           </Section>
 
-          <Section title="Details">
+          <Section title="Detalles">
             <dl className="-my-2.5 divide-y divide-border/70">
-              <DetailRow label="Type">{transactionTypeLabel(t)}</DetailRow>
-              <DetailRow label="Amount">
+              <DetailRow label="Tipo">{transactionTypeLabel(t)}</DetailRow>
+              <DetailRow label="Monto">
                 <Money minor={t.amountMinor} currency={t.currency} />
               </DetailRow>
-              <DetailRow label="Currency">
+              <DetailRow label="Moneda">
                 {CURRENCIES[t.currency].name} ({t.currency})
               </DetailRow>
               {t.source ? (
-                <DetailRow label="Source account">
+                <DetailRow label="Cuenta de origen">
                   <Party account={t.source} />
                 </DetailRow>
               ) : (
-                <DetailRow label="Source">{t.counterpartyName ?? "External account"}</DetailRow>
+                <DetailRow label="Origen">{t.counterpartyName ?? "Cuenta externa"}</DetailRow>
               )}
               {t.destination ? (
-                <DetailRow label="Destination account">
+                <DetailRow label="Cuenta de destino">
                   <Party account={t.destination} />
                 </DetailRow>
               ) : beneficiary ? (
-                <DetailRow label="Beneficiary">
+                <DetailRow label="Beneficiario">
                   {beneficiary.name}
                   <span className="tabular block text-xs font-normal text-muted-foreground">
                     {beneficiary.bankName} · {maskAccountNumber(beneficiary.accountNumber)}
                   </span>
                 </DetailRow>
               ) : (
-                <DetailRow label="Destination">{t.counterpartyName ?? "External account"}</DetailRow>
+                <DetailRow label="Destino">{t.counterpartyName ?? "Cuenta externa"}</DetailRow>
               )}
-              <DetailRow label="Category">{categoryLabel(t.category)}</DetailRow>
-              <DetailRow label="Initiated by">{initiatedByName ?? "System"}</DetailRow>
-              <DetailRow label="Created">
+              <DetailRow label="Categoría">{categoryLabel(t.category)}</DetailRow>
+              <DetailRow label="Iniciada por">{initiatedByName ?? "Sistema"}</DetailRow>
+              <DetailRow label="Creada">
                 <span className="tabular">{formatDateTime(t.createdAt)}</span>
               </DetailRow>
               {t.completedAt ? (
-                <DetailRow label="Completed">
+                <DetailRow label="Completada">
                   <span className="tabular">{formatDateTime(t.completedAt)}</span>
                 </DetailRow>
               ) : null}
-              {t.failureReason ? <DetailRow label="Failure reason">{t.failureReason}</DetailRow> : null}
-              <DetailRow label="Transaction ID">
+              {t.failureReason ? <DetailRow label="Motivo de la falla">{t.failureReason}</DetailRow> : null}
+              <DetailRow label="ID de transacción">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="font-mono text-[0.8125rem] break-all">{t.id}</span>
-                  <CopyButton value={t.id} label="Copy transaction ID" />
+                  <CopyButton value={t.id} label="Copiar ID de transacción" />
                 </span>
               </DetailRow>
               {related ? (
-                <DetailRow label={related.relation === "reverses" ? "Reverses" : "Reversed by"}>
+                <DetailRow label={related.relation === "reverses" ? "Revierte" : "Revertida por"}>
                   <Link
                     href={`/admin/transactions/${related.id}`}
                     className="text-accent-foreground underline-offset-4 outline-none hover:underline focus-visible:underline"
@@ -175,21 +175,21 @@ export default async function AdminTransactionPage({ params }: Props) {
         </div>
 
         <div className="grid grid-cols-1 gap-6">
-          <Section title="Status history" description="Each change is recorded and cannot be altered">
+          <Section title="Historial de estados" description="Cada cambio queda registrado y no se puede modificar">
             <StatusTimeline events={events} />
           </Section>
 
           {hasRequestDetails ? (
-            <Section title="Request metadata" description="Captured when the transaction was created">
+            <Section title="Metadatos de la solicitud" description="Capturados al crear la transacción">
               <dl className="-my-2.5 divide-y divide-border/70">
-                {request.channel ? <DetailRow label="Channel">{CHANNEL_LABELS[request.channel]}</DetailRow> : null}
-                {request.route ? <DetailRow label="Route">{ROUTE_LABELS[request.route]}</DetailRow> : null}
+                {request.channel ? <DetailRow label="Canal">{CHANNEL_LABELS[request.channel]}</DetailRow> : null}
+                {request.route ? <DetailRow label="Ruta">{ROUTE_LABELS[request.route]}</DetailRow> : null}
                 {request.ip ? (
-                  <DetailRow label="IP address">
+                  <DetailRow label="Dirección IP">
                     <span className="tabular">{request.ip}</span>
                   </DetailRow>
                 ) : null}
-                {request.userAgent ? <DetailRow label="Device">{describeUserAgent(request.userAgent)}</DetailRow> : null}
+                {request.userAgent ? <DetailRow label="Dispositivo">{describeUserAgent(request.userAgent)}</DetailRow> : null}
               </dl>
             </Section>
           ) : null}

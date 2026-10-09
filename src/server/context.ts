@@ -10,7 +10,7 @@ export type Actor = {
   role: Role | "system";
 };
 
-export const SYSTEM_ACTOR: Actor = { id: null, label: "System", role: "system" };
+export const SYSTEM_ACTOR: Actor = { id: null, label: "Sistema", role: "system" };
 
 /**
  * Everything the domain layer needs to know about the caller. It is built
@@ -59,7 +59,7 @@ export function requireUserId(ctx: RequestContext): string {
 export function assertCustomer(ctx: RequestContext): string {
   const id = requireUserId(ctx);
   if (ctx.actor.role !== "customer") {
-    throw new ForbiddenError("Only account holders can move their own funds.");
+    throw new ForbiddenError("Solo los titulares de cuentas pueden mover sus propios fondos.");
   }
   return id;
 }
@@ -72,7 +72,7 @@ export function assertStaff(ctx: RequestContext): void {
 
 export function assertAdmin(ctx: RequestContext): void {
   if (ctx.actor.role !== "admin") {
-    throw new ForbiddenError("This action requires an administrator.");
+    throw new ForbiddenError("Esta acción requiere un administrador.");
   }
 }
 

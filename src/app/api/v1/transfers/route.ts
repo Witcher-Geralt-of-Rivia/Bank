@@ -22,20 +22,20 @@ import { limiters } from "@/server/rate-limit";
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
-    if (!user) throw new DomainError("unauthenticated", "Sign in to continue.", 401);
+    if (!user) throw new DomainError("unauthenticated", "Inicia sesión para continuar.", 401);
     if (user.role !== "customer") {
-      throw new DomainError("forbidden", "Only account holders can create transfers.", 403);
+      throw new DomainError("forbidden", "Solo los titulares de cuentas pueden crear transferencias.", 403);
     }
 
     // A cross-site page cannot send a custom header without a CORS preflight,
     // which this route never approves.
     const idempotencyKey = request.headers.get("idempotency-key")?.trim();
-    if (!idempotencyKey) throw new ValidationError("The Idempotency-Key header is required.");
+    if (!idempotencyKey) throw new ValidationError("El encabezado Idempotency-Key es obligatorio.");
 
     const limit = limiters.movement.check(user.id);
     if (!limit.allowed) {
       return NextResponse.json(
-        { error: { code: "rate_limited", message: "Too many requests." } },
+        { error: { code: "rate_limited", message: "Demasiadas solicitudes." } },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
       );
     }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const body: unknown = await request.json().catch(() => null);
     const parsed = transferSchema.safeParse({ ...(body as object | null), idempotencyKey });
     if (!parsed.success) {
-      throw new ValidationError("The request body is invalid.", fieldErrorsOf(parsed.error));
+      throw new ValidationError("El cuerpo de la solicitud no es válido.", fieldErrorsOf(parsed.error));
     }
 
     const db = await getDb();
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       .from(accounts)
       .where(eq(accounts.id, parsed.data.sourceAccountId))
       .limit(1);
-    if (!source || source.ownerId !== user.id) throw new NotFoundError("Source account");
+    if (!source || source.ownerId !== user.id) throw new NotFoundError("la cuenta de origen");
 
     let amountMinor: bigint;
     try {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const correlationId = crypto.randomUUID().slice(0, 8);
     console.error(`[aldera] POST /api/v1/transfers failed (${correlationId})`, error);
     return NextResponse.json(
-      { error: { code: "internal_error", message: `Unexpected error. Reference ${correlationId}.` } },
+      { error: { code: "internal_error", message: `Error inesperado. Referencia ${correlationId}.` } },
       { status: 500 },
     );
   }

@@ -2,7 +2,7 @@ import "server-only";
 import { eq } from "drizzle-orm";
 import type { DbOrTx } from "@/db/client";
 import { accounts, users } from "@/db/schema";
-import { ROLE_LABELS, type Role } from "@/lib/domain";
+import { ACCOUNT_STATUS_LABELS, ROLE_LABELS, type Role } from "@/lib/domain";
 import { InvalidStateError, NotFoundError, ValidationError } from "@/lib/errors";
 import { recordAudit } from "../audit";
 import { type RequestContext, assertAdmin, assertStaff, clock } from "../context";
@@ -11,8 +11,8 @@ import { notify } from "../ledger/service";
 function requireReason(reason: string): string {
   const trimmed = reason.trim();
   if (trimmed.length < 3) {
-    throw new ValidationError("A reason is required for this action.", {
-      reason: "Enter a reason.",
+    throw new ValidationError("Se requiere un motivo para esta acción.", {
+      reason: "Ingresa un motivo.",
     });
   }
   return trimmed;
@@ -35,12 +35,12 @@ export async function setAccountStatus(
       .from(accounts)
       .where(eq(accounts.id, accountId))
       .for("update");
-    if (!account || account.kind !== "customer") throw new NotFoundError("Account");
+    if (!account || account.kind !== "customer") throw new NotFoundError("la cuenta");
     if (account.status === "closed") {
-      throw new InvalidStateError("A closed account cannot be changed.");
+      throw new InvalidStateError("Una cuenta cerrada no se puede modificar.");
     }
     if (account.status === status) {
-      throw new InvalidStateError(`The account is already ${status}.`);
+      throw new InvalidStateError(`La cuenta ya está ${ACCOUNT_STATUS_LABELS[status].toLowerCase()}.`);
     }
 
     await tx.update(accounts).set({ status }).where(eq(accounts.id, accountId));
@@ -48,7 +48,7 @@ export async function setAccountStatus(
       action: status === "frozen" ? "account.frozen" : "account.unfrozen",
       entityType: "account",
       entityId: accountId,
-      summary: `${account.name} ${status === "frozen" ? "frozen" : "unfrozen"}.`,
+      summary: `Cuenta ${status === "frozen" ? "congelada" : "descongelada"}: ${account.name}.`,
       metadata: { reason: note, previousStatus: account.status },
     });
     await notify(
@@ -56,10 +56,10 @@ export async function setAccountStatus(
       ctx,
       account.ownerId,
       "account",
-      status === "frozen" ? "Account frozen" : "Account restored",
+      status === "frozen" ? "Cuenta congelada" : "Cuenta reactivada",
       status === "frozen"
-        ? `${account.name} has been frozen and cannot send or receive funds. Contact support for details.`
-        : `${account.name} is active again.`,
+        ? `Tu cuenta “${account.name}” fue congelada y no puede enviar ni recibir fondos. Comunícate con soporte para obtener más información.`
+        : `Tu cuenta “${account.name}” vuelve a estar activa.`,
       `/accounts/${accountId}`,
     );
   });
@@ -76,14 +76,14 @@ export async function setUserStatus(
   assertAdmin(ctx);
   const note = requireReason(reason);
   if (userId === ctx.actor.id) {
-    throw new InvalidStateError("You cannot change the status of your own user.");
+    throw new InvalidStateError("No puedes cambiar el estado de tu propio usuario.");
   }
 
   await db.transaction(async (tx) => {
     const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
-    if (!user) throw new NotFoundError("User");
+    if (!user) throw new NotFoundError("el usuario");
     if (user.status === status) {
-      throw new InvalidStateError(`The user is already ${status}.`);
+      throw new InvalidStateError(`El usuario ya está ${status === "suspended" ? "suspendido" : "activo"}.`);
     }
 
     await tx
@@ -94,7 +94,7 @@ export async function setUserStatus(
       action: status === "suspended" ? "user.suspended" : "user.reactivated",
       entityType: "user",
       entityId: userId,
-      summary: `${user.name} ${status === "suspended" ? "suspended" : "reactivated"}.`,
+      summary: `Usuario ${status === "suspended" ? "suspendido" : "reactivado"}: ${user.name}.`,
       metadata: { reason: note, email: user.email },
     });
   });
@@ -111,14 +111,14 @@ export async function setUserRole(
   assertAdmin(ctx);
   const note = requireReason(reason);
   if (userId === ctx.actor.id) {
-    throw new InvalidStateError("You cannot change your own role.");
+    throw new InvalidStateError("No puedes cambiar tu propio rol.");
   }
 
   await db.transaction(async (tx) => {
     const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
-    if (!user) throw new NotFoundError("User");
+    if (!user) throw new NotFoundError("el usuario");
     if (user.role === role) {
-      throw new InvalidStateError(`The user is already ${ROLE_LABELS[role]}.`);
+      throw new InvalidStateError(`El usuario ya tiene el rol de ${ROLE_LABELS[role].toLowerCase()}.`);
     }
 
     await tx
@@ -129,7 +129,7 @@ export async function setUserRole(
       action: "user.role_changed",
       entityType: "user",
       entityId: userId,
-      summary: `${user.name} changed from ${ROLE_LABELS[user.role]} to ${ROLE_LABELS[role]}.`,
+      summary: `El rol de ${user.name} cambió de ${ROLE_LABELS[user.role].toLowerCase()} a ${ROLE_LABELS[role].toLowerCase()}.`,
       metadata: { reason: note, from: user.role, to: role },
     });
   });

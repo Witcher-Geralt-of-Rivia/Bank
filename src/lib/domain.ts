@@ -7,9 +7,9 @@ export const ROLES = ["customer", "operator", "admin"] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ROLE_LABELS: Record<Role, string> = {
-  customer: "Customer",
-  operator: "Operator",
-  admin: "Administrator",
+  customer: "Cliente",
+  operator: "Operador",
+  admin: "Administrador",
 };
 
 export const STAFF_ROLES: readonly Role[] = ["operator", "admin"];
@@ -36,22 +36,22 @@ export const ACCOUNT_TYPES = [
 export type AccountType = (typeof ACCOUNT_TYPES)[number];
 
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  checking: "Checking",
-  savings: "Savings",
-  reserve: "Reserve",
-  clearing: "External clearing",
-  transit: "Payments in transit",
-  fees: "Fee income",
-  interest: "Interest expense",
+  checking: "Cuenta corriente",
+  savings: "Ahorros",
+  reserve: "Reserva",
+  clearing: "Compensación externa",
+  transit: "Pagos en tránsito",
+  fees: "Ingresos por comisiones",
+  interest: "Gasto por intereses",
 };
 
 export const ACCOUNT_STATUSES = ["active", "frozen", "closed"] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
 
 export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
-  active: "Active",
-  frozen: "Frozen",
-  closed: "Closed",
+  active: "Activa",
+  frozen: "Congelada",
+  closed: "Cerrada",
 };
 
 export const TRANSACTION_TYPES = [
@@ -68,15 +68,15 @@ export const TRANSACTION_TYPES = [
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
-  transfer_internal: "Internal transfer",
-  transfer_out: "Outgoing transfer",
-  transfer_in: "Incoming transfer",
-  deposit: "Deposit",
-  withdrawal: "Withdrawal",
-  card_payment: "Card payment",
-  fee: "Fee",
-  interest: "Interest",
-  reversal: "Reversal",
+  transfer_internal: "Transferencia interna",
+  transfer_out: "Transferencia enviada",
+  transfer_in: "Transferencia recibida",
+  deposit: "Depósito",
+  withdrawal: "Retiro",
+  card_payment: "Pago con tarjeta",
+  fee: "Comisión",
+  interest: "Intereses",
+  reversal: "Reversión",
 };
 
 export const TRANSACTION_STATUSES = [
@@ -89,24 +89,25 @@ export const TRANSACTION_STATUSES = [
 export type TransactionStatus = (typeof TRANSACTION_STATUSES)[number];
 
 export const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
-  pending: "Pending review",
-  processing: "Processing",
-  completed: "Completed",
-  failed: "Failed",
-  reversed: "Reversed",
+  pending: "Pendiente de revisión",
+  processing: "En proceso",
+  completed: "Completada",
+  failed: "Fallida",
+  reversed: "Revertida",
 };
 
 export const TRANSACTION_STATUS_DESCRIPTIONS: Record<TransactionStatus, string> =
   {
     pending:
-      "Awaiting review by the operations team. Funds are reserved but have not left the account.",
+      "En espera de revisión por el equipo de operaciones. Los fondos están retenidos, pero aún no han salido de la cuenta.",
     processing:
-      "Funds have left the account and are in transit to the receiving bank.",
-    completed: "Settled. The movement is final and recorded on the ledger.",
+      "Los fondos salieron de la cuenta y están en tránsito hacia el banco receptor.",
+    completed:
+      "Liquidada. El movimiento es definitivo y quedó registrado en el libro mayor.",
     failed:
-      "The movement did not complete. Any reserved or debited funds were returned.",
+      "El movimiento no se completó. Los fondos retenidos o debitados fueron devueltos.",
     reversed:
-      "Reversed by a compensating transaction. The original record is retained.",
+      "Revertida mediante una transacción compensatoria. El registro original se conserva.",
   };
 
 /**
@@ -147,22 +148,22 @@ export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
 /** Spending and income categories used by analytics. */
 export const CATEGORIES = {
-  client_payments: "Client payments",
-  payroll: "Payroll",
-  contractors: "Contractors",
-  rent: "Rent & facilities",
-  software: "Software & cloud",
-  utilities: "Utilities",
-  insurance: "Insurance",
-  travel: "Travel",
+  client_payments: "Pagos de clientes",
+  payroll: "Nómina",
+  contractors: "Contratistas",
+  rent: "Alquiler e instalaciones",
+  software: "Software y nube",
+  utilities: "Servicios públicos",
+  insurance: "Seguros",
+  travel: "Viajes",
   marketing: "Marketing",
-  office: "Office & supplies",
-  meals: "Meals",
-  taxes: "Taxes",
-  bank_fees: "Bank fees",
-  interest: "Interest",
-  transfers: "Transfers",
-  other: "Other",
+  office: "Oficina e insumos",
+  meals: "Comidas",
+  taxes: "Impuestos",
+  bank_fees: "Comisiones bancarias",
+  interest: "Intereses",
+  transfers: "Transferencias",
+  other: "Otros",
 } as const;
 export type Category = keyof typeof CATEGORIES;
 
@@ -175,31 +176,31 @@ export function categoryLabel(category: string | null | undefined): string {
 
 /** Audit actions, grouped by the area of the product they belong to. */
 export const AUDIT_ACTIONS = {
-  "auth.login": "Signed in",
-  "auth.login_failed": "Failed sign-in attempt",
-  "auth.logout": "Signed out",
-  "auth.registered": "Account registered",
-  "auth.password_changed": "Password changed",
-  "auth.password_reset_requested": "Password reset requested",
-  "profile.updated": "Profile updated",
-  "security.two_factor_enabled": "Two-step verification enabled",
-  "security.two_factor_disabled": "Two-step verification disabled",
-  "beneficiary.created": "Beneficiary added",
-  "beneficiary.archived": "Beneficiary removed",
-  "transfer.created": "Transfer created",
-  "transfer.approved": "Transfer approved",
-  "transfer.rejected": "Transfer rejected",
-  "transfer.settled": "Transfer settled",
-  "transfer.failed": "Transfer failed",
-  "transaction.reversed": "Transaction reversed",
-  "deposit.created": "Deposit recorded",
-  "withdrawal.created": "Withdrawal recorded",
-  "account.opened": "Account opened",
-  "account.frozen": "Account frozen",
-  "account.unfrozen": "Account unfrozen",
-  "user.suspended": "User suspended",
-  "user.reactivated": "User reactivated",
-  "user.role_changed": "User role changed",
+  "auth.login": "Inicio de sesión",
+  "auth.login_failed": "Intento fallido de inicio de sesión",
+  "auth.logout": "Cierre de sesión",
+  "auth.registered": "Cuenta registrada",
+  "auth.password_changed": "Contraseña cambiada",
+  "auth.password_reset_requested": "Restablecimiento de contraseña solicitado",
+  "profile.updated": "Perfil actualizado",
+  "security.two_factor_enabled": "Verificación en dos pasos activada",
+  "security.two_factor_disabled": "Verificación en dos pasos desactivada",
+  "beneficiary.created": "Beneficiario agregado",
+  "beneficiary.archived": "Beneficiario eliminado",
+  "transfer.created": "Transferencia creada",
+  "transfer.approved": "Transferencia aprobada",
+  "transfer.rejected": "Transferencia rechazada",
+  "transfer.settled": "Transferencia liquidada",
+  "transfer.failed": "Transferencia fallida",
+  "transaction.reversed": "Transacción revertida",
+  "deposit.created": "Depósito registrado",
+  "withdrawal.created": "Retiro registrado",
+  "account.opened": "Cuenta abierta",
+  "account.frozen": "Cuenta congelada",
+  "account.unfrozen": "Cuenta descongelada",
+  "user.suspended": "Usuario suspendido",
+  "user.reactivated": "Usuario reactivado",
+  "user.role_changed": "Rol de usuario cambiado",
 } as const;
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
 

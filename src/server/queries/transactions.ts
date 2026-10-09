@@ -112,10 +112,10 @@ function toView(row: Row, viewerId: string | null): TransactionView {
   if (direction === "internal" && viewerId !== null) {
     counterparty = `${src!.name} → ${dst!.name}`;
   } else if (direction === "out") {
-    counterparty = t.counterpartyName ?? dst?.ownerName ?? dst?.name ?? "External account";
+    counterparty = t.counterpartyName ?? dst?.ownerName ?? dst?.name ?? "Cuenta externa";
   } else {
     counterparty =
-      viewerId !== null && src?.ownerName ? src.ownerName : (t.counterpartyName ?? src?.ownerName ?? "External account");
+      viewerId !== null && src?.ownerName ? src.ownerName : (t.counterpartyName ?? src?.ownerName ?? "Cuenta externa");
   }
 
   return {

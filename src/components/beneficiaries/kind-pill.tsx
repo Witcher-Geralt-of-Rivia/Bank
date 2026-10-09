@@ -6,11 +6,11 @@ import type { BeneficiaryKind } from "@/lib/domain";
 export function BeneficiaryKindPill({ kind }: { kind: BeneficiaryKind }) {
   return kind === "internal" ? (
     <Pill tone="success" icon={Zap}>
-      Aldera · instant
+      Aldera · al instante
     </Pill>
   ) : (
     <Pill tone="muted" icon={Landmark}>
-      External bank
+      Banco externo
     </Pill>
   );
 }

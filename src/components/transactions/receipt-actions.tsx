@@ -10,7 +10,7 @@ import { refreshTransferStatusAction } from "@/server/actions/banking";
 export function PrintButton() {
   return (
     <Button variant="outline" size="lg" onClick={() => window.print()}>
-      <Printer /> Print receipt
+      <Printer /> Imprimir comprobante
     </Button>
   );
 }

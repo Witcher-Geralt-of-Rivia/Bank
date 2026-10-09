@@ -16,7 +16,7 @@ import { formatDateTime } from "@/lib/format";
 import { requireCustomer } from "@/server/auth/session";
 import { getTransactionForUser } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Transaction" };
+export const metadata: Metadata = { title: "Transacción" };
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,21 +35,21 @@ export default async function TransactionPage({ params }: Props) {
   const fromLabel = t.source
     ? t.source.ownerId === user.id
       ? `${t.source.name} ${maskAccountNumber(t.source.number)}`
-      : (t.source.ownerName ?? "Aldera customer")
-    : (t.counterpartyName ?? "External account");
+      : (t.source.ownerName ?? "Cliente de Aldera")
+    : (t.counterpartyName ?? "Cuenta externa");
 
   const toLabel = t.destination
     ? t.destination.ownerId === user.id
       ? `${t.destination.name} ${maskAccountNumber(t.destination.number)}`
-      : (t.destination.ownerName ?? "Aldera customer")
-    : (t.counterpartyName ?? "External account");
+      : (t.destination.ownerName ?? "Cliente de Aldera")
+    : (t.counterpartyName ?? "Cuenta externa");
 
   return (
     <>
       <StatusWatcher transactionId={t.id} status={t.status} />
       <PageHeader
-        back={{ href: "/transactions", label: "Transactions" }}
-        eyebrow={`Receipt · ${t.reference}`}
+        back={{ href: "/transactions", label: "Transacciones" }}
+        eyebrow={`Comprobante · ${t.reference}`}
         title={t.direction === "internal" ? t.description : t.counterparty}
         description={t.direction === "internal" ? t.counterparty : t.description}
         actions={
@@ -58,7 +58,7 @@ export default async function TransactionPage({ params }: Props) {
             {outgoing && t.beneficiaryId && beneficiary && !beneficiary.archivedAt ? (
               <Button asChild size="lg">
                 <Link href={`/transfers/new?to=${t.beneficiaryId}`}>
-                  <Send /> Send again
+                  <Send /> Enviar de nuevo
                 </Link>
               </Button>
             ) : null}
@@ -68,7 +68,7 @@ export default async function TransactionPage({ params }: Props) {
 
       <div className="grid items-start gap-6 xl:grid-cols-3">
         <div className="grid gap-6 xl:col-span-2">
-          <section aria-label="Summary" className="rounded-xl bg-card shadow-card ring-1 ring-foreground/[0.07]">
+          <section aria-label="Resumen" className="rounded-xl bg-card shadow-card ring-1 ring-foreground/[0.07]">
             <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <TransactionIcon view={t} className="size-12 [&_svg]:size-5" />
@@ -87,34 +87,34 @@ export default async function TransactionPage({ params }: Props) {
 
             {t.status === "failed" && t.failureReason ? (
               <div className="px-6 pb-6">
-                <Callout tone="danger" icon={CircleX} title="This transfer did not complete">
+                <Callout tone="danger" icon={CircleX} title="Esta transferencia no se completó">
                   {t.failureReason}
                 </Callout>
               </div>
             ) : null}
             {t.status === "pending" ? (
               <div className="px-6 pb-6">
-                <Callout tone="warning" icon={Clock} title="Awaiting review">
-                  Transfers of this size to an external account are checked by our operations team before release. The amount is
-                  reserved and will be released automatically if the transfer is not approved.
+                <Callout tone="warning" icon={Clock} title="En espera de revisión">
+                  Nuestro equipo de operaciones revisa las transferencias de este monto a cuentas externas antes de enviarlas. El
+                  monto queda retenido y se liberará automáticamente si la transferencia no se aprueba.
                 </Callout>
               </div>
             ) : null}
             {related ? (
               <div className="px-6 pb-6">
                 <Callout tone="neutral" icon={Undo2}>
-                  {related.relation === "reversed_by" ? "Reversed by " : "This entry reverses "}
+                  {related.relation === "reversed_by" ? "Revertida por " : "Esta transacción revierte "}
                   <Link href={`/transactions/${related.id}`} className="font-medium text-foreground underline underline-offset-4">
                     {related.reference}
                   </Link>
-                  . Both records are kept; neither is edited.
+                  . Ambos registros se conservan; ninguno se modifica.
                 </Callout>
               </div>
             ) : null}
 
             <dl className="divide-y divide-border/70 border-t border-border/70 px-6 py-2">
-              <DetailRow label="From">{fromLabel}</DetailRow>
-              <DetailRow label="To">
+              <DetailRow label="Origen">{fromLabel}</DetailRow>
+              <DetailRow label="Destino">
                 {toLabel}
                 {beneficiary ? (
                   <span className="tabular block text-xs font-normal text-muted-foreground">
@@ -122,46 +122,46 @@ export default async function TransactionPage({ params }: Props) {
                   </span>
                 ) : null}
               </DetailRow>
-              <DetailRow label="Amount">
+              <DetailRow label="Monto">
                 <span className="tabular">
                   <TransactionAmount view={t} neutral className="font-medium text-foreground no-underline" /> {t.currency}
                 </span>
               </DetailRow>
-              <DetailRow label="Fee">No fee</DetailRow>
-              <DetailRow label="Description">{t.description}</DetailRow>
-              <DetailRow label="Category">{categoryLabel(t.category)}</DetailRow>
-              <DetailRow label="Created">
+              <DetailRow label="Comisión">Sin comisión</DetailRow>
+              <DetailRow label="Descripción">{t.description}</DetailRow>
+              <DetailRow label="Categoría">{categoryLabel(t.category)}</DetailRow>
+              <DetailRow label="Creada">
                 <span className="tabular">{formatDateTime(t.createdAt)}</span>
               </DetailRow>
               {t.completedAt ? (
-                <DetailRow label="Completed">
+                <DetailRow label="Completada">
                   <span className="tabular">{formatDateTime(t.completedAt)}</span>
                 </DetailRow>
               ) : null}
-              <DetailRow label="Reference">
+              <DetailRow label="Referencia">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="font-mono text-[0.8125rem]">{t.reference}</span>
-                  <CopyButton value={t.reference} label="Copy reference" />
+                  <CopyButton value={t.reference} label="Copiar referencia" />
                 </span>
               </DetailRow>
-              <DetailRow label="Transaction ID">
+              <DetailRow label="ID de transacción">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="font-mono text-[0.8125rem] break-all">{t.id}</span>
-                  <CopyButton value={t.id} label="Copy transaction ID" />
+                  <CopyButton value={t.id} label="Copiar ID de transacción" />
                 </span>
               </DetailRow>
             </dl>
 
             <div className="flex items-center gap-2.5 rounded-b-xl border-t border-border/70 bg-muted/40 px-6 py-3.5 text-xs text-muted-foreground">
               <LogoMark className="size-5" />
-              Issued by Aldera · a demonstration environment, no real funds were moved
+              Emitido por Aldera · entorno de demostración, no se movieron fondos reales
             </div>
           </section>
 
           {entries.length > 0 ? (
             <Section
-              title="Ledger entries on your accounts"
-              description="The permanent record of how this transaction changed your balances"
+              title="Asientos contables en tus cuentas"
+              description="El registro permanente de cómo esta transacción modificó tus saldos"
               flush
             >
               <LedgerEntriesTable entries={entries} currency={t.currency} />
@@ -169,7 +169,7 @@ export default async function TransactionPage({ params }: Props) {
           ) : null}
         </div>
 
-        <Section title="Status history" description="Each change is recorded and cannot be altered">
+        <Section title="Historial de estados" description="Cada cambio queda registrado y no se puede modificar">
           <StatusTimeline events={events} />
         </Section>
       </div>

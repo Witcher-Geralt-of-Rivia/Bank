@@ -18,11 +18,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="rounded-xl bg-card shadow-card ring-1 ring-foreground/[0.07]">
         <EmptyState
           icon={ShieldAlert}
-          title="You don't have access to this area"
-          description="The operations console is restricted to Aldera staff. If you think this is a mistake, contact your administrator."
+          title="No tienes acceso a esta área"
+          description="La consola de operaciones está restringida al personal de Aldera. Si crees que se trata de un error, comunícate con tu administrador."
           action={
             <Button asChild>
-              <Link href="/dashboard">Back to overview</Link>
+              <Link href="/dashboard">Volver al resumen</Link>
             </Button>
           }
           className="py-20"

@@ -14,9 +14,11 @@ import {
   users,
 } from "@/db/schema";
 import {
+  ACCOUNT_STATUS_LABELS,
   type AuditAction,
   type Category,
   type NotificationKind,
+  TRANSACTION_STATUS_LABELS,
   type TransactionStatus,
   type TransactionType,
   TRANSFER_POLICY,
@@ -108,8 +110,8 @@ export type ExternalActivityInput = {
 
 function assertValidAmount(amountMinor: bigint): void {
   if (amountMinor <= 0n) {
-    throw new ValidationError("Amount must be greater than zero.", {
-      amount: "Amount must be greater than zero.",
+    throw new ValidationError("El monto debe ser mayor que cero.", {
+      amount: "El monto debe ser mayor que cero.",
     });
   }
 }
@@ -117,14 +119,14 @@ function assertValidAmount(amountMinor: bigint): void {
 function assertWithinLimit(amountMinor: bigint, currency: CurrencyCode): void {
   if (amountMinor > TRANSFER_POLICY.maxAmountMinor) {
     throw new LimitExceededError(
-      `The limit for a single movement is ${formatMoney(TRANSFER_POLICY.maxAmountMinor, currency)}.`,
+      `El límite por movimiento es de ${formatMoney(TRANSFER_POLICY.maxAmountMinor, currency)}.`,
     );
   }
 }
 
 function assertIdempotencyKey(key: string): void {
   if (key.length < 8 || key.length > 128) {
-    throw new ValidationError("A valid idempotency key is required.");
+    throw new ValidationError("Se requiere una clave de idempotencia válida.");
   }
 }
 
@@ -198,7 +200,7 @@ async function insertTransaction(
     values.requestHash,
   );
   if (!replay) {
-    throw new DomainError("conflict", "The request could not be recorded.", 409);
+    throw new DomainError("conflict", "No se pudo registrar la solicitud.", 409);
   }
   return { transaction: replay, created: false };
 }
@@ -298,7 +300,7 @@ async function lockTransaction(tx: Tx, id: string): Promise<Transaction> {
     .from(transactions)
     .where(eq(transactions.id, id))
     .for("update");
-  if (!row) throw new NotFoundError("Transaction");
+  if (!row) throw new NotFoundError("la transacción");
   return row;
 }
 
@@ -308,7 +310,7 @@ function assertTransition(
 ): void {
   if (!canTransition(transaction.status, to)) {
     throw new InvalidStateError(
-      `A ${transaction.status} transaction cannot be moved to ${to}.`,
+      `Una transacción ${TRANSACTION_STATUS_LABELS[transaction.status].toLowerCase()} no puede pasar a ${TRANSACTION_STATUS_LABELS[to].toLowerCase()}.`,
     );
   }
 }
@@ -336,9 +338,9 @@ async function setStatus(
 
 function assertUsable(account: Account, role: "source" | "destination"): void {
   if (account.status === "active") return;
-  const what = role === "source" ? "Source" : "Destination";
+  const what = role === "source" ? "origen" : "destino";
   throw new AccountUnavailableError(
-    `${what} account is ${account.status} and cannot be used for this movement.`,
+    `La cuenta de ${what} está ${ACCOUNT_STATUS_LABELS[account.status].toLowerCase()} y no se puede usar para este movimiento.`,
   );
 }
 
@@ -375,8 +377,8 @@ export async function createTransfer(
 
     assertValidAmount(input.amountMinor);
     if (description.length === 0 || description.length > 140) {
-      throw new ValidationError("Add a description of up to 140 characters.", {
-        description: "Add a description of up to 140 characters.",
+      throw new ValidationError("Agrega una descripción de hasta 140 caracteres.", {
+        description: "Agrega una descripción de hasta 140 caracteres.",
       });
     }
 
@@ -394,15 +396,15 @@ export async function createTransfer(
         .where(eq(beneficiaries.id, input.destination.beneficiaryId))
         .limit(1);
       if (!row || row.ownerId !== actorId || row.archivedAt) {
-        throw new NotFoundError("Beneficiary");
+        throw new NotFoundError("el beneficiario");
       }
       beneficiary = row;
       destinationAccountId = row.internalAccountId;
     }
 
     if (destinationAccountId === input.sourceAccountId) {
-      throw new ValidationError("Choose a different destination account.", {
-        destination: "Source and destination must be different accounts.",
+      throw new ValidationError("Elige otra cuenta de destino.", {
+        destination: "El origen y el destino deben ser cuentas distintas.",
       });
     }
 
@@ -417,7 +419,7 @@ export async function createTransfer(
     // does not exist.
     const source = locked.get(input.sourceAccountId);
     if (!source || source.ownerId !== actorId) {
-      throw new NotFoundError("Source account");
+      throw new NotFoundError("la cuenta de origen");
     }
     assertUsable(source, "source");
     assertWithinLimit(input.amountMinor, source.currency);
@@ -431,7 +433,7 @@ export async function createTransfer(
         destination.kind !== "customer" ||
         (input.destination.kind === "account" && !ownsDestination)
       ) {
-        throw new NotFoundError("Destination account");
+        throw new NotFoundError("la cuenta de destino");
       }
       assertUsable(destination, "destination");
     }
@@ -439,7 +441,7 @@ export async function createTransfer(
     const destinationCurrency = destination?.currency ?? beneficiary?.currency;
     if (destinationCurrency !== source.currency) {
       throw new CurrencyMismatchError(
-        `This destination only accepts ${destinationCurrency}. Choose a ${destinationCurrency} account to send from.`,
+        `Este destino solo acepta ${destinationCurrency}. Elige una cuenta de origen en ${destinationCurrency}.`,
       );
     }
 
@@ -490,7 +492,7 @@ export async function createTransfer(
           { accountId: destination!.id, direction: "credit", amountMinor: input.amountMinor },
         ],
       });
-      await addEvent(tx, ctx, transaction.id, null, "completed", "Settled instantly on the Aldera ledger.");
+      await addEvent(tx, ctx, transaction.id, null, "completed", "Liquidada al instante en el libro mayor de Aldera.");
     } else if (route === "network") {
       await postEntries(tx, {
         transactionId: transaction.id,
@@ -502,11 +504,11 @@ export async function createTransfer(
             accountId: systemAccountId("transit", source.currency),
             direction: "credit",
             amountMinor: input.amountMinor,
-            memo: "Funds in transit to receiving bank",
+            memo: "Fondos en tránsito hacia el banco receptor",
           },
         ],
       });
-      await addEvent(tx, ctx, transaction.id, null, "processing", "Submitted to the payment network.");
+      await addEvent(tx, ctx, transaction.id, null, "processing", "Enviada a la red de pagos.");
     } else {
       await placeHold(tx, source.id, input.amountMinor);
       await addEvent(
@@ -515,7 +517,7 @@ export async function createTransfer(
         transaction.id,
         null,
         "pending",
-        `Held for review: at or above the ${formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)} automatic approval limit.`,
+        `Retenida para revisión: alcanza o supera el límite de aprobación automática de ${formatMoney(TRANSFER_POLICY.reviewThresholdMinor, source.currency)}.`,
       );
     }
 
@@ -526,13 +528,13 @@ export async function createTransfer(
         .where(eq(beneficiaries.id, beneficiary.id));
     }
 
-    const target = beneficiary?.name ?? destination?.name ?? "destination";
+    const target = beneficiary?.name ?? destination?.name ?? "la cuenta de destino";
     await auditTransaction(
       tx,
       ctx,
       "transfer.created",
       transaction,
-      `Transfer of ${money(transaction)} to ${target} created (${status}).`,
+      `Transferencia de ${money(transaction)} a ${target} creada (${TRANSACTION_STATUS_LABELS[status].toLowerCase()}).`,
       {
         route,
         source: maskAccountNumber(source.number),
@@ -546,8 +548,8 @@ export async function createTransfer(
         ctx,
         actorId,
         "transaction",
-        "Transfer held for review",
-        `Your transfer of ${money(transaction)} to ${target} is being reviewed. Funds are reserved until a decision is made.`,
+        "Transferencia retenida para revisión",
+        `Tu transferencia de ${money(transaction)} a ${target} está en revisión. Los fondos quedan retenidos hasta que se tome una decisión.`,
         `/transactions/${transaction.id}`,
       );
     }
@@ -557,8 +559,8 @@ export async function createTransfer(
         ctx,
         destination.ownerId,
         "transaction",
-        "Payment received",
-        `${ctx.actor.label} sent you ${money(transaction)}.`,
+        "Pago recibido",
+        `${ctx.actor.label} te envió ${money(transaction)}.`,
         `/transactions/${transaction.id}`,
       );
     }
@@ -576,7 +578,7 @@ async function fund(
   const actorId = assertCustomer(ctx);
   assertIdempotencyKey(input.idempotencyKey);
 
-  const description = input.description.trim() || (kind === "deposit" ? "Deposit" : "Withdrawal");
+  const description = input.description.trim() || (kind === "deposit" ? "Depósito" : "Retiro");
   const requestHash = fingerprint({
     operation: kind,
     accountId: input.accountId,
@@ -590,7 +592,7 @@ async function fund(
 
     assertValidAmount(input.amountMinor);
     const account = (await lockAccounts(tx, [input.accountId])).get(input.accountId);
-    if (!account || account.ownerId !== actorId) throw new NotFoundError("Account");
+    if (!account || account.ownerId !== actorId) throw new NotFoundError("la cuenta");
     assertUsable(account, kind === "deposit" ? "destination" : "source");
     assertWithinLimit(input.amountMinor, account.currency);
 
@@ -606,7 +608,7 @@ async function fund(
       currency: account.currency,
       sourceAccountId: kind === "withdrawal" ? account.id : null,
       destinationAccountId: kind === "deposit" ? account.id : null,
-      counterpartyName: "Linked bank account",
+      counterpartyName: "Cuenta bancaria vinculada",
       description,
       category: "transfers",
       completedAt: at,
@@ -629,13 +631,13 @@ async function fund(
               { accountId: clearing, direction: "credit", amountMinor: input.amountMinor },
             ],
     });
-    await addEvent(tx, ctx, transaction.id, null, "completed", "Posted to the ledger.");
+    await addEvent(tx, ctx, transaction.id, null, "completed", "Registrada en el libro mayor.");
     await auditTransaction(
       tx,
       ctx,
       kind === "deposit" ? "deposit.created" : "withdrawal.created",
       transaction,
-      `${kind === "deposit" ? "Deposit" : "Withdrawal"} of ${money(transaction)} on ${account.name}.`,
+      `${kind === "deposit" ? "Depósito" : "Retiro"} de ${money(transaction)} en ${account.name}.`,
       { account: maskAccountNumber(account.number) },
     );
 
@@ -666,12 +668,12 @@ export async function approveTransfer(
   return db.transaction(async (tx) => {
     const transaction = await lockTransaction(tx, transactionId);
     if (transaction.status !== "pending") {
-      throw new InvalidStateError("Only transfers pending review can be approved.");
+      throw new InvalidStateError("Solo se pueden aprobar transferencias pendientes de revisión.");
     }
 
     const sourceId = transaction.sourceAccountId!;
     const source = (await lockAccounts(tx, [sourceId])).get(sourceId);
-    if (!source) throw new NotFoundError("Source account");
+    if (!source) throw new NotFoundError("la cuenta de origen");
     assertUsable(source, "source");
 
     await releaseHold(tx, sourceId, transaction.amountMinor);
@@ -685,7 +687,7 @@ export async function approveTransfer(
           accountId: systemAccountId("transit", transaction.currency),
           direction: "credit",
           amountMinor: transaction.amountMinor,
-          memo: "Funds in transit to receiving bank",
+          memo: "Fondos en tránsito hacia el banco receptor",
         },
       ],
     });
@@ -697,9 +699,9 @@ export async function approveTransfer(
       transaction.id,
       "pending",
       "processing",
-      note?.trim() || "Approved by operations and submitted to the payment network.",
+      note?.trim() || "Aprobada por operaciones y enviada a la red de pagos.",
     );
-    await auditTransaction(tx, ctx, "transfer.approved", updated, `Transfer ${updated.reference} approved.`, {
+    await auditTransaction(tx, ctx, "transfer.approved", updated, `Transferencia ${updated.reference} aprobada.`, {
       note: note ?? null,
     });
     await notify(
@@ -707,8 +709,8 @@ export async function approveTransfer(
       ctx,
       transaction.initiatedBy,
       "transaction",
-      "Transfer approved",
-      `Your transfer of ${money(transaction)} to ${transaction.counterpartyName ?? "the beneficiary"} was approved and is on its way.`,
+      "Transferencia aprobada",
+      `Tu transferencia de ${money(transaction)} a ${transaction.counterpartyName ?? "tu beneficiario"} fue aprobada y está en camino.`,
       `/transactions/${transaction.id}`,
     );
     return updated;
@@ -723,17 +725,17 @@ export async function rejectTransfer(
   reason: string,
 ): Promise<Transaction> {
   assertStaff(ctx);
-  const failureReason = reason.trim() || "Rejected during review.";
+  const failureReason = reason.trim() || "Rechazada durante la revisión.";
   return db.transaction(async (tx) => {
     const transaction = await lockTransaction(tx, transactionId);
     if (transaction.status !== "pending") {
-      throw new InvalidStateError("Only transfers pending review can be rejected.");
+      throw new InvalidStateError("Solo se pueden rechazar transferencias pendientes de revisión.");
     }
 
     await releaseHold(tx, transaction.sourceAccountId!, transaction.amountMinor);
     const updated = await setStatus(tx, ctx, transaction, "failed", { failureReason });
     await addEvent(tx, ctx, transaction.id, "pending", "failed", failureReason);
-    await auditTransaction(tx, ctx, "transfer.rejected", updated, `Transfer ${updated.reference} rejected.`, {
+    await auditTransaction(tx, ctx, "transfer.rejected", updated, `Transferencia ${updated.reference} rechazada.`, {
       reason: failureReason,
     });
     await notify(
@@ -741,8 +743,8 @@ export async function rejectTransfer(
       ctx,
       transaction.initiatedBy,
       "transaction",
-      "Transfer not approved",
-      `Your transfer of ${money(transaction)} was not approved and the reserved funds were released. Reason: ${failureReason}`,
+      "Transferencia no aprobada",
+      `Tu transferencia de ${money(transaction)} no fue aprobada y se liberaron los fondos retenidos. Motivo: ${failureReason}`,
       `/transactions/${transaction.id}`,
     );
     return updated;
@@ -760,7 +762,7 @@ export async function settleTransfer(
   return db.transaction(async (tx) => {
     const transaction = await lockTransaction(tx, transactionId);
     if (transaction.status !== "processing") {
-      throw new InvalidStateError("Only processing transfers can be settled.");
+      throw new InvalidStateError("Solo se pueden liquidar transferencias en proceso.");
     }
 
     await postEntries(tx, {
@@ -777,7 +779,7 @@ export async function settleTransfer(
           accountId: systemAccountId("clearing", transaction.currency),
           direction: "credit",
           amountMinor: transaction.amountMinor,
-          memo: "Settled with receiving bank",
+          memo: "Liquidada con el banco receptor",
         },
       ],
     });
@@ -789,9 +791,9 @@ export async function settleTransfer(
       transaction.id,
       "processing",
       "completed",
-      note?.trim() || "Settlement confirmed by the receiving bank.",
+      note?.trim() || "Liquidación confirmada por el banco receptor.",
     );
-    await auditTransaction(tx, ctx, "transfer.settled", updated, `Transfer ${updated.reference} settled.`);
+    await auditTransaction(tx, ctx, "transfer.settled", updated, `Transferencia ${updated.reference} liquidada.`);
     return updated;
   });
 }
@@ -804,11 +806,11 @@ export async function failTransfer(
   reason: string,
 ): Promise<Transaction> {
   assertStaff(ctx);
-  const failureReason = reason.trim() || "Returned by the receiving bank.";
+  const failureReason = reason.trim() || "Devuelta por el banco receptor.";
   return db.transaction(async (tx) => {
     const transaction = await lockTransaction(tx, transactionId);
     if (transaction.status !== "processing") {
-      throw new InvalidStateError("Only processing transfers can be failed.");
+      throw new InvalidStateError("Solo se pueden marcar como fallidas las transferencias en proceso.");
     }
 
     await postEntries(tx, {
@@ -825,14 +827,14 @@ export async function failTransfer(
           accountId: transaction.sourceAccountId!,
           direction: "credit",
           amountMinor: transaction.amountMinor,
-          memo: "Funds returned to sender",
+          memo: "Fondos devueltos al remitente",
         },
       ],
     });
 
     const updated = await setStatus(tx, ctx, transaction, "failed", { failureReason });
     await addEvent(tx, ctx, transaction.id, "processing", "failed", failureReason);
-    await auditTransaction(tx, ctx, "transfer.failed", updated, `Transfer ${updated.reference} failed; funds returned.`, {
+    await auditTransaction(tx, ctx, "transfer.failed", updated, `Transferencia ${updated.reference} fallida; fondos devueltos.`, {
       reason: failureReason,
     });
     await notify(
@@ -840,8 +842,8 @@ export async function failTransfer(
       ctx,
       transaction.initiatedBy,
       "transaction",
-      "Transfer returned",
-      `Your transfer of ${money(transaction)} could not be delivered and the funds are back in your account. Reason: ${failureReason}`,
+      "Transferencia devuelta",
+      `Tu transferencia de ${money(transaction)} no pudo entregarse y los fondos ya están de vuelta en tu cuenta. Motivo: ${failureReason}`,
       `/transactions/${transaction.id}`,
     );
     return updated;
@@ -864,15 +866,15 @@ export async function reverseTransaction(
   assertAdmin(ctx);
   const note = reason.trim();
   if (note.length < 3) {
-    throw new ValidationError("A reason is required to reverse a transaction.", {
-      reason: "Enter a reason.",
+    throw new ValidationError("Se requiere un motivo para revertir una transacción.", {
+      reason: "Ingresa un motivo.",
     });
   }
 
   return db.transaction(async (tx) => {
     const original = await lockTransaction(tx, transactionId);
     if (original.type === "reversal") {
-      throw new InvalidStateError("A reversal cannot itself be reversed.");
+      throw new InvalidStateError("Una reversión no se puede revertir.");
     }
     assertTransition(original, "reversed");
 
@@ -892,7 +894,7 @@ export async function reverseTransaction(
         accountId,
         direction: amount > 0n ? ("debit" as const) : ("credit" as const),
         amountMinor: amount > 0n ? amount : -amount,
-        memo: `Reversal of ${original.reference}`,
+        memo: `Reversión de ${original.reference}`,
       }));
 
     const at = clock(ctx);
@@ -908,14 +910,14 @@ export async function reverseTransaction(
       sourceAccountId: original.destinationAccountId,
       destinationAccountId: original.sourceAccountId,
       counterpartyName: original.counterpartyName,
-      description: `Reversal of ${original.reference} · ${original.description}`,
+      description: `Reversión de ${original.reference} · ${original.description}`,
       category: original.category,
       reversalOf: original.id,
       completedAt: at,
       metadata: { reason: note },
     });
     if (!created) {
-      throw new InvalidStateError("This transaction has already been reversed.");
+      throw new InvalidStateError("Esta transacción ya fue revertida.");
     }
 
     await postEntries(tx, {
@@ -924,12 +926,12 @@ export async function reverseTransaction(
       at,
       legs,
     });
-    await addEvent(tx, ctx, reversal.id, null, "completed", `Reverses ${original.reference}. ${note}`);
+    await addEvent(tx, ctx, reversal.id, null, "completed", `Revierte ${original.reference}. ${note}`);
 
     const updated = await setStatus(tx, ctx, original, "reversed");
-    await addEvent(tx, ctx, original.id, "completed", "reversed", `Reversed by ${reversal.reference}. ${note}`);
+    await addEvent(tx, ctx, original.id, "completed", "reversed", `Revertida mediante ${reversal.reference}. ${note}`);
 
-    await auditTransaction(tx, ctx, "transaction.reversed", updated, `Transaction ${original.reference} reversed by ${reversal.reference}.`, {
+    await auditTransaction(tx, ctx, "transaction.reversed", updated, `Transacción ${original.reference} revertida mediante ${reversal.reference}.`, {
       reason: note,
       reversalId: reversal.id,
       reversalReference: reversal.reference,
@@ -947,8 +949,8 @@ export async function reverseTransaction(
         ctx,
         userId,
         "transaction",
-        "Transaction reversed",
-        `${original.description} (${money(original)}) was reversed. Reason: ${note}`,
+        "Transacción revertida",
+        `Se revirtió la transacción “${original.description}” (${money(original)}). Motivo: ${note}`,
         `/transactions/${original.id}`,
       );
     }
@@ -985,7 +987,7 @@ export async function recordExternalActivity(
     if (replay) return { transaction: replay, replayed: true };
 
     const account = (await lockAccounts(tx, [input.accountId])).get(input.accountId);
-    if (!account || account.kind !== "customer") throw new NotFoundError("Account");
+    if (!account || account.kind !== "customer") throw new NotFoundError("la cuenta");
 
     const incoming = input.type === "transfer_in" || input.type === "interest";
     const counterAccount = systemAccountId(
@@ -1026,7 +1028,7 @@ export async function recordExternalActivity(
             { accountId: counterAccount, direction: "credit", amountMinor: input.amountMinor },
           ],
     });
-    await addEvent(tx, ctx, transaction.id, null, "completed", "Posted to the ledger.");
+    await addEvent(tx, ctx, transaction.id, null, "completed", "Registrada en el libro mayor.");
 
     if (input.type === "transfer_in") {
       await notify(
@@ -1034,8 +1036,8 @@ export async function recordExternalActivity(
         ctx,
         account.ownerId,
         "transaction",
-        "Payment received",
-        `${input.counterpartyName} paid ${money(transaction)} into ${account.name}.`,
+        "Pago recibido",
+        `Recibiste ${money(transaction)} de ${input.counterpartyName} en ${account.name}.`,
         `/transactions/${transaction.id}`,
       );
     }

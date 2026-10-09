@@ -18,7 +18,7 @@ import { GENESIS_HASH, verifyAuditChain } from "@/server/audit";
 import { requireUser } from "@/server/auth/session";
 import { listAuditLogs } from "@/server/queries/admin";
 
-export const metadata: Metadata = { title: "Audit log" };
+export const metadata: Metadata = { title: "Registro de auditoría" };
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -38,7 +38,7 @@ function auditHref({ area, q, page }: Filters): string {
 
 /** Records written by the platform itself carry a role outside the user roles. */
 function actorRoleLabel(role: string): string {
-  return role in ROLE_LABELS ? ROLE_LABELS[role as Role] : "System";
+  return role in ROLE_LABELS ? ROLE_LABELS[role as Role] : "Sistema";
 }
 
 function ActionPills({ record, failing }: { record: AuditLog; failing: boolean }) {
@@ -47,7 +47,7 @@ function ActionPills({ record, failing }: { record: AuditLog; failing: boolean }
       <AuditActionPill action={record.action} />
       {failing ? (
         <Pill tone="danger" icon={TriangleAlert}>
-          Fails verification
+          No supera la verificación
         </Pill>
       ) : null}
     </span>
@@ -62,7 +62,7 @@ function CopyableRow({ label, value, children }: { label: string; value: string;
         <span className="font-mono text-[0.8125rem] break-all" title={value}>
           {children}
         </span>
-        <CopyButton value={value} label={`Copy ${label.toLowerCase()}`} className="shrink-0" />
+        <CopyButton value={value} label={`Copiar ${label.toLowerCase()}`} className="shrink-0" />
       </span>
     </DetailRow>
   );
@@ -79,42 +79,42 @@ function RecordDetail({ record }: { record: AuditLog }) {
   return (
     <div className="grid gap-x-8 gap-y-4 lg:grid-cols-2">
       <div className="min-w-0">
-        <p className="eyebrow text-muted-foreground">Metadata</p>
+        <p className="eyebrow text-muted-foreground">Metadatos</p>
         {hasMetadata ? (
           <pre className="mt-2 max-h-72 overflow-auto rounded-lg bg-card p-3 font-mono text-xs leading-relaxed wrap-anywhere whitespace-pre-wrap ring-1 ring-foreground/[0.07]">
             {JSON.stringify(record.metadata, null, 2)}
           </pre>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No additional details were recorded.</p>
+          <p className="mt-2 text-sm text-muted-foreground">No se registraron detalles adicionales.</p>
         )}
       </div>
       <dl className="-my-2.5 min-w-0 divide-y divide-border/70">
-        <DetailRow label="Sequence">
+        <DetailRow label="Secuencia">
           <span className="tabular">#{record.seq}</span>
         </DetailRow>
-        <CopyableRow label="Record ID" value={record.id}>
+        <CopyableRow label="ID de registro" value={record.id}>
           {record.id}
         </CopyableRow>
         {record.entityId ? (
-          <CopyableRow label="Entity ID" value={record.entityId}>
+          <CopyableRow label="ID de entidad" value={record.entityId}>
             {record.entityType} · {record.entityId}
           </CopyableRow>
         ) : (
-          <DetailRow label="Entity">
+          <DetailRow label="Entidad">
             <span className="font-mono text-[0.8125rem]">{record.entityType}</span>
           </DetailRow>
         )}
-        <DetailRow label="IP address">
-          {record.ip ? <span className="font-mono text-[0.8125rem] break-all">{record.ip}</span> : "Not recorded"}
+        <DetailRow label="Dirección IP">
+          {record.ip ? <span className="font-mono text-[0.8125rem] break-all">{record.ip}</span> : "No registrada"}
         </DetailRow>
-        <DetailRow label="Device">{describeUserAgent(record.userAgent)}</DetailRow>
-        <CopyableRow label="Record hash" value={record.hash}>
+        <DetailRow label="Dispositivo">{describeUserAgent(record.userAgent)}</DetailRow>
+        <CopyableRow label="Hash del registro" value={record.hash}>
           {shortHash(record.hash)}
         </CopyableRow>
         {record.prevHash === GENESIS_HASH ? (
-          <DetailRow label="Previous hash">None · first record in the chain</DetailRow>
+          <DetailRow label="Hash anterior">Ninguno · primer registro de la cadena</DetailRow>
         ) : (
-          <CopyableRow label="Previous hash" value={record.prevHash}>
+          <CopyableRow label="Hash anterior" value={record.prevHash}>
             {shortHash(record.prevHash)}
           </CopyableRow>
         )}
@@ -149,18 +149,19 @@ export default async function AuditLogPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="Audit log"
-        description="An append-only record of every sign-in, money movement and operations action. Each record is chained to the one before it, so a change to history cannot go unnoticed."
+        title="Registro de auditoría"
+        description="Un registro al que solo se puede agregar información: aquí queda anotado cada inicio de sesión, movimiento de dinero y acción de operaciones. Cada registro está encadenado al anterior, por lo que un cambio en el historial no puede pasar inadvertido."
       />
 
       {chain.valid ? (
-        <Callout tone="success" icon={ShieldCheck} title="Audit chain intact" className="mb-6">
-          {pluralize(chain.checked, "record")} verified. Every hash was recomputed and every link to the previous record confirmed.
+        <Callout tone="success" icon={ShieldCheck} title="Cadena de auditoría íntegra" className="mb-6">
+          {pluralize(chain.checked, "registro verificado", "registros verificados")}. Se recalculó cada hash y se confirmó cada enlace con el
+          registro anterior.
         </Callout>
       ) : (
-        <Callout tone="danger" icon={ShieldAlert} title={`Audit chain broken at record #${chain.brokenAtSeq}`} className="mb-6">
-          Record #{chain.brokenAtSeq} is the first that no longer matches its stored hash or its link to the record before it. Treat it and
-          every later record as unverified until this has been investigated.
+        <Callout tone="danger" icon={ShieldAlert} title={`Cadena de auditoría rota en el registro #${chain.brokenAtSeq}`} className="mb-6">
+          El registro #{chain.brokenAtSeq} es el primero que ya no coincide con su hash almacenado o con su enlace al registro anterior.
+          Trátalo, junto con todos los registros posteriores, como no verificado hasta que esto se haya investigado.
         </Callout>
       )}
 
@@ -175,26 +176,26 @@ export default async function AuditLogPage({ searchParams }: Props) {
               name="q"
               defaultValue={filters.q ?? ""}
               maxLength={80}
-              placeholder="Search actor, summary or entity ID"
-              aria-label="Search the audit log"
+              placeholder="Buscar por autor, resumen o ID de entidad"
+              aria-label="Buscar en el registro de auditoría"
               className="pl-9"
             />
           </div>
           <Button type="submit" variant="outline" size="lg">
-            Search
+            Buscar
           </Button>
           {filters.q ? (
             <Button asChild variant="ghost" size="lg">
-              <Link href={auditHref({ area: filters.area })}>Clear</Link>
+              <Link href={auditHref({ area: filters.area })}>Limpiar</Link>
             </Button>
           ) : null}
         </form>
 
         <nav
-          aria-label="Filter by area"
+          aria-label="Filtrar por área"
           className="-mx-4 -my-1 flex gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6 md:mx-0 md:flex-wrap md:px-0"
         >
-          {[{ value: undefined, label: "All" }, ...AUDIT_AREAS].map((option) => {
+          {[{ value: undefined, label: "Todas" }, ...AUDIT_AREAS].map((option) => {
             const active = option.value === filters.area;
             return (
               <Link
@@ -220,39 +221,39 @@ export default async function AuditLogPage({ searchParams }: Props) {
           filtered ? (
             <EmptyState
               icon={SearchX}
-              title="No records match these filters"
-              description="Try a different search term or area, or clear the filters."
+              title="Ningún registro coincide con estos filtros"
+              description="Prueba con otro término de búsqueda o área, o limpia los filtros."
               action={
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/admin/audit">Clear filters</Link>
+                  <Link href="/admin/audit">Limpiar filtros</Link>
                 </Button>
               }
             />
           ) : (
             <EmptyState
               icon={ScrollText}
-              title="No audit records yet"
-              description="Sign-ins, money movements and operations actions are recorded here as they happen."
+              title="Aún no hay registros de auditoría"
+              description="Los inicios de sesión, los movimientos de dinero y las acciones de operaciones se registran aquí a medida que ocurren."
             />
           )
         ) : (
           <>
             <p className="px-5 pt-4 pb-1 text-xs text-muted-foreground" aria-live="polite">
-              {pluralize(log.total, "record")}
-              {filtered ? (log.total === 1 ? " matches your filters" : " match your filters") : ""}
+              {pluralize(log.total, "registro")}
+              {filtered ? (log.total === 1 ? " coincide con tus filtros" : " coinciden con tus filtros") : ""}
             </p>
 
             <div className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>Time</TableHead>
-                    <TableHead>Actor</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead className="hidden xl:table-cell">Entity</TableHead>
-                    <TableHead className="hidden xl:table-cell">Origin</TableHead>
+                    <TableHead>Fecha y hora</TableHead>
+                    <TableHead>Autor</TableHead>
+                    <TableHead>Acción</TableHead>
+                    <TableHead className="hidden xl:table-cell">Entidad</TableHead>
+                    <TableHead className="hidden xl:table-cell">Origen</TableHead>
                     <TableHead>
-                      <span className="sr-only">Details</span>
+                      <span className="sr-only">Detalles</span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -283,7 +284,7 @@ export default async function AuditLogPage({ searchParams }: Props) {
                             {record.ip}
                           </span>
                         ) : (
-                          <span className="block truncate">Not recorded</span>
+                          <span className="block truncate">No registrado</span>
                         )}
                         <span className="block truncate text-xs text-muted-foreground">{describeUserAgent(record.userAgent)}</span>
                       </TableCell>
@@ -291,7 +292,7 @@ export default async function AuditLogPage({ searchParams }: Props) {
                         <details>
                           <summary className="-my-1 flex size-7 cursor-pointer list-none items-center justify-center rounded-md text-muted-foreground transition-colors outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 [&::-webkit-details-marker]:hidden">
                             <ChevronDown className="size-4 transition-transform group-has-[details[open]]:rotate-180" />
-                            <span className="sr-only">Details of record {record.seq}</span>
+                            <span className="sr-only">Detalles del registro {record.seq}</span>
                           </summary>
                         </details>
                       </TableCell>
@@ -333,7 +334,7 @@ export default async function AuditLogPage({ searchParams }: Props) {
               page={log.page}
               pageCount={log.pageCount}
               total={log.total}
-              noun="records"
+              noun="registros"
               hrefFor={(page) => auditHref({ ...filters, page })}
             />
           </>

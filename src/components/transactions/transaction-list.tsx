@@ -19,8 +19,8 @@ import type { TransactionView } from "@/server/queries/transactions";
 /** Human label for a movement, from the viewer's side of it. */
 export function transactionTypeLabel(view: TransactionView): string {
   if (view.type === "transfer_internal") {
-    if (view.direction === "out") return "Outgoing transfer";
-    if (view.direction === "in") return "Incoming transfer";
+    if (view.direction === "out") return "Transferencia enviada";
+    if (view.direction === "in") return "Transferencia recibida";
   }
   return TRANSACTION_TYPE_LABELS[view.type];
 }
@@ -105,8 +105,8 @@ type ListProps = {
 
 function accountLabel(view: TransactionView, staff: boolean): string {
   if (staff) {
-    const from = view.source ? `${view.source.ownerName ?? "Aldera"} ${maskAccountNumber(view.source.number)}` : "External";
-    const to = view.destination ? `${view.destination.ownerName ?? "Aldera"} ${maskAccountNumber(view.destination.number)}` : (view.counterpartyName ?? "External");
+    const from = view.source ? `${view.source.ownerName ?? "Aldera"} ${maskAccountNumber(view.source.number)}` : "Externo";
+    const to = view.destination ? `${view.destination.ownerName ?? "Aldera"} ${maskAccountNumber(view.destination.number)}` : (view.counterpartyName ?? "Externo");
     return `${from} → ${to}`;
   }
   return view.ownAccount ? `${view.ownAccount.name} ${maskAccountNumber(view.ownAccount.number)}` : "—";
@@ -140,12 +140,12 @@ export function TransactionList({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[7.5rem]">Date</TableHead>
-              <TableHead>{staff ? "Description" : "Details"}</TableHead>
-              {withAccount ? <TableHead>{staff ? "From → To" : "Account"}</TableHead> : null}
-              {compact ? null : <TableHead className="hidden lg:table-cell">Type</TableHead>}
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="w-[7.5rem]">Fecha</TableHead>
+              <TableHead>{staff ? "Descripción" : "Detalle"}</TableHead>
+              {withAccount ? <TableHead>{staff ? "Origen → Destino" : "Cuenta"}</TableHead> : null}
+              {compact ? null : <TableHead className="hidden lg:table-cell">Tipo</TableHead>}
+              <TableHead>Estado</TableHead>
+              <TableHead className="text-right">Monto</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

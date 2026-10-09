@@ -27,7 +27,7 @@ export function CurrencyProof({
           {CURRENCIES[currency].name} <span className="font-normal text-muted-foreground">{currency}</span>
         </p>
         <Pill tone={passed ? "success" : "danger"} icon={passed ? CircleCheck : TriangleAlert}>
-          {passed ? "Balanced" : "Out of balance"}
+          {passed ? "Cuadrado" : "Descuadrado"}
         </Pill>
       </div>
       <dl className="mt-1.5 divide-y divide-border/70">

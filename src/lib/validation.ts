@@ -3,6 +3,9 @@ import { CATEGORIES, type Category, ROLES } from "./domain";
 import type { FieldErrors } from "./errors";
 import { CURRENCY_CODES, type CurrencyCode } from "./money";
 
+// Validators without a custom message fall back to Zod's own text.
+z.config(z.locales.es());
+
 /**
  * Input schemas shared by forms (for instant feedback) and by the server
  * (as the authority). Nothing is trusted because the browser validated it.
@@ -14,27 +17,27 @@ const email = z
   .string()
   .trim()
   .toLowerCase()
-  .min(1, "Enter your email address.")
-  .max(254, "Email address is too long.")
-  .email("Enter a valid email address.");
+  .min(1, "Ingresa tu correo electrónico.")
+  .max(254, "El correo electrónico es demasiado largo.")
+  .email("Ingresa un correo electrónico válido.");
 
 const password = z
   .string()
-  .min(PASSWORD_MIN_LENGTH, `Use at least ${PASSWORD_MIN_LENGTH} characters.`)
-  .max(128, "Password is too long.")
+  .min(PASSWORD_MIN_LENGTH, `Usa al menos ${PASSWORD_MIN_LENGTH} caracteres.`)
+  .max(128, "La contraseña es demasiado larga.")
   .refine((value) => /[a-zA-Z]/.test(value) && /\d/.test(value), {
-    message: "Include at least one letter and one number.",
+    message: "Incluye al menos una letra y un número.",
   });
 
 const personName = z
   .string()
   .trim()
-  .min(2, "Enter your full name.")
-  .max(80, "Name is too long.");
+  .min(2, "Ingresa tu nombre completo.")
+  .max(80, "El nombre es demasiado largo.");
 
 export const loginSchema = z.object({
   email,
-  password: z.string().min(1, "Enter your password.").max(128),
+  password: z.string().min(1, "Ingresa tu contraseña.").max(128),
 });
 
 export const registerSchema = z.object({
@@ -47,28 +50,28 @@ export const forgotPasswordSchema = z.object({ email });
 
 export const profileSchema = z.object({
   name: personName,
-  company: z.string().trim().max(80, "Company name is too long.").optional(),
+  company: z.string().trim().max(80, "El nombre de la empresa es demasiado largo.").optional(),
   phone: z
     .string()
     .trim()
-    .max(32, "Phone number is too long.")
-    .regex(/^[+()\-.\s\d]*$/, "Enter a valid phone number.")
+    .max(32, "El número de teléfono es demasiado largo.")
+    .regex(/^[+()\-.\s\d]*$/, "Ingresa un número de teléfono válido.")
     .optional(),
 });
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Enter your current password.").max(128),
+    currentPassword: z.string().min(1, "Ingresa tu contraseña actual.").max(128),
     newPassword: password,
     confirmPassword: z.string(),
   })
   .refine((value) => value.newPassword === value.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords do not match.",
+    message: "Las contraseñas no coinciden.",
   })
   .refine((value) => value.newPassword !== value.currentPassword, {
     path: ["newPassword"],
-    message: "Choose a password you have not used before.",
+    message: "Elige una contraseña distinta de la actual.",
   });
 
 const id = z.string().trim().min(4).max(64);
@@ -76,22 +79,22 @@ const id = z.string().trim().min(4).max(64);
 const idempotencyKey = z
   .string()
   .trim()
-  .min(8, "Missing idempotency key.")
+  .min(8, "Falta la clave de idempotencia.")
   .max(128);
 
 /** Amounts cross the wire as decimal strings and are parsed without floats. */
-const amountText = z.string().trim().min(1, "Enter an amount.").max(32);
+const amountText = z.string().trim().min(1, "Ingresa un monto.").max(32);
 
 const description = z
   .string()
   .trim()
-  .min(1, "Add a short description.")
-  .max(140, "Keep the description under 140 characters.");
+  .min(1, "Agrega una descripción breve.")
+  .max(140, "La descripción no puede superar los 140 caracteres.");
 
 const category = z
   .string()
   .refine((value): value is Category => value in CATEGORIES, {
-    message: "Unknown category.",
+    message: "Categoría desconocida.",
   });
 
 export const transferSchema = z.object({
@@ -118,29 +121,29 @@ export type FundingPayload = z.infer<typeof fundingSchema>;
 const currency = z
   .string()
   .refine((value): value is CurrencyCode =>
-    (CURRENCY_CODES as string[]).includes(value), { message: "Unsupported currency." });
+    (CURRENCY_CODES as string[]).includes(value), { message: "Moneda no admitida." });
 
 export const beneficiarySchema = z.object({
   kind: z.enum(["internal", "external"]),
-  name: z.string().trim().min(2, "Enter the beneficiary's name.").max(80),
+  name: z.string().trim().min(2, "Ingresa el nombre del beneficiario.").max(80),
   nickname: z.string().trim().max(40).optional(),
   email: z
-    .union([z.literal(""), z.string().trim().email("Enter a valid email address.")])
+    .union([z.literal(""), z.string().trim().email("Ingresa un correo electrónico válido.")])
     .optional(),
   bankName: z.string().trim().max(80).optional(),
   accountNumber: z
     .string()
     .trim()
-    .min(6, "Enter a valid account number or IBAN.")
-    .max(40, "Account number is too long.")
-    .regex(/^[A-Za-z0-9\s-]+$/, "Use letters, digits and spaces only."),
+    .min(6, "Ingresa un número de cuenta o IBAN válido.")
+    .max(40, "El número de cuenta es demasiado largo.")
+    .regex(/^[A-Za-z0-9\s-]+$/, "Usa solo letras, números y espacios."),
   routingCode: z
     .string()
     .trim()
     .max(20)
-    .regex(/^[A-Za-z0-9\s-]*$/, "Use letters and digits only.")
+    .regex(/^[A-Za-z0-9\s-]*$/, "Usa solo letras y números.")
     .optional(),
-  country: z.string().trim().length(2, "Select a country.").toUpperCase(),
+  country: z.string().trim().length(2, "Selecciona un país.").toUpperCase(),
   currency,
 });
 export type BeneficiaryPayload = z.infer<typeof beneficiarySchema>;
@@ -148,8 +151,8 @@ export type BeneficiaryPayload = z.infer<typeof beneficiarySchema>;
 export const reasonSchema = z
   .string()
   .trim()
-  .min(3, "Enter a reason.")
-  .max(280, "Keep the reason under 280 characters.");
+  .min(3, "Ingresa un motivo.")
+  .max(280, "El motivo no puede superar los 280 caracteres.");
 
 export const roleSchema = z.enum(ROLES);
 

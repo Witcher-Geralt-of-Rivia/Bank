@@ -118,10 +118,10 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
     const problems: FieldErrors = parsed.success ? {} : fieldErrorsOf(parsed.error);
     if (internal) {
       // The shared message mentions IBANs, which do not apply to an Aldera account.
-      if (values.accountNumber.trim().length < 6) problems.accountNumber = "Enter their Aldera account number.";
+      if (values.accountNumber.trim().length < 6) problems.accountNumber = "Ingresa su número de cuenta de Aldera.";
     } else if (values.bankName.trim().length < 2) {
       // The schema leaves the bank optional because Aldera beneficiaries have none to enter.
-      problems.bankName ??= "Enter the name of the bank.";
+      problems.bankName ??= "Ingresa el nombre del banco.";
     }
     if (Object.keys(problems).length > 0) {
       setErrors(problems);
@@ -138,7 +138,7 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
         setFormError(Object.keys(fieldErrors).length > 0 ? null : result.error.message);
         return;
       }
-      toast.success(`${result.data.name} added to your beneficiaries`);
+      toast.success(`${result.data.name} se agregó a tus beneficiarios`);
       setOpen(false);
       router.refresh();
     });
@@ -146,9 +146,9 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
 
   const currencyField = (
     <Field
-      label="Currency"
+      label="Moneda"
       error={errors.currency}
-      hint={internal ? "Must match the currency of their account." : undefined}
+      hint={internal ? "Debe coincidir con la moneda de su cuenta." : undefined}
     >
       {(props) => (
         <NativeSelect {...props} {...bind("currency")}>
@@ -174,8 +174,8 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add a beneficiary</DialogTitle>
-          <DialogDescription>Save a person or business you pay. You can send them money as soon as they are added.</DialogDescription>
+          <DialogTitle>Agregar un beneficiario</DialogTitle>
+          <DialogDescription>Guarda a una persona o empresa a la que le pagas. Podrás enviarle dinero en cuanto la agregues.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={submit} className="grid gap-4" noValidate>
@@ -189,29 +189,29 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
           >
             <TabsList className="w-full">
               <TabsTrigger value="external" className="px-2 sm:px-3">
-                <Landmark className="size-3.5" /> Another bank
+                <Landmark className="size-3.5" /> Otro banco
               </TabsTrigger>
               <TabsTrigger value="internal" className="px-2 sm:px-3">
-                <Zap className="size-3.5" /> Aldera customer
+                <Zap className="size-3.5" /> Cliente de Aldera
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Name" error={errors.name}>
+            <Field label="Nombre" error={errors.name}>
               {(props) => (
-                <Input {...props} {...bind("name")} autoComplete="off" maxLength={80} placeholder="Person or business" />
+                <Input {...props} {...bind("name")} autoComplete="off" maxLength={80} placeholder="Persona o empresa" />
               )}
             </Field>
-            <Field label="Nickname" optional error={errors.nickname}>
+            <Field label="Alias" optional error={errors.nickname}>
               {(props) => (
-                <Input {...props} {...bind("nickname")} autoComplete="off" maxLength={40} placeholder="e.g. Studio rent" />
+                <Input {...props} {...bind("nickname")} autoComplete="off" maxLength={40} placeholder="p. ej., Alquiler del estudio" />
               )}
             </Field>
 
             {internal ? (
               <>
-                <Field label="Aldera account number" error={errors.accountNumber} hint="The 12-digit number of their account.">
+                <Field label="Número de cuenta de Aldera" error={errors.accountNumber} hint="El número de 12 dígitos de su cuenta.">
                   {(props) => (
                     <Input
                       {...props}
@@ -228,10 +228,10 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
               </>
             ) : (
               <>
-                <Field label="Bank name" error={errors.bankName}>
+                <Field label="Nombre del banco" error={errors.bankName}>
                   {(props) => <Input {...props} {...bind("bankName")} autoComplete="off" maxLength={80} />}
                 </Field>
-                <Field label="Country" error={errors.country}>
+                <Field label="País" error={errors.country}>
                   {(props) => (
                     <NativeSelect {...props} {...bind("country")} autoComplete="off">
                       {BENEFICIARY_COUNTRIES.map((country) => (
@@ -242,7 +242,7 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
                     </NativeSelect>
                   )}
                 </Field>
-                <Field label="Account number or IBAN" error={errors.accountNumber} className="sm:col-span-2">
+                <Field label="Número de cuenta o IBAN" error={errors.accountNumber} className="sm:col-span-2">
                   {(props) => (
                     <Input
                       {...props}
@@ -255,7 +255,7 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
                     />
                   )}
                 </Field>
-                <Field label="Routing or SWIFT code" optional error={errors.routingCode}>
+                <Field label="Código de ruta o SWIFT" optional error={errors.routingCode}>
                   {(props) => (
                     <Input
                       {...props}
@@ -269,7 +269,7 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
                   )}
                 </Field>
                 {currencyField}
-                <Field label="Email" optional error={errors.email} className="sm:col-span-2">
+                <Field label="Correo electrónico" optional error={errors.email} className="sm:col-span-2">
                   {(props) => (
                     <Input
                       {...props}
@@ -278,7 +278,7 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
                       inputMode="email"
                       autoComplete="off"
                       maxLength={254}
-                      placeholder="name@company.com"
+                      placeholder="nombre@empresa.com"
                     />
                   )}
                 </Field>
@@ -288,14 +288,14 @@ export function AddBeneficiaryDialog({ children }: { children: React.ReactNode }
 
           {internal ? (
             <Callout tone="info" icon={Zap}>
-              Transfers to Aldera customers settle instantly.
+              Las transferencias a clientes de Aldera se liquidan al instante.
             </Callout>
           ) : null}
 
           {formError ? <Callout tone="danger">{formError}</Callout> : null}
 
-          <SubmitButton size="lg" pending={pending} pendingLabel="Adding…">
-            Add beneficiary
+          <SubmitButton size="lg" pending={pending} pendingLabel="Agregando…">
+            Agregar beneficiario
           </SubmitButton>
         </form>
       </DialogContent>

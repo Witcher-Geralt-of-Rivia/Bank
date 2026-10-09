@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 
-export const metadata: Metadata = { title: "Page not found" };
+export const metadata: Metadata = { title: "Página no encontrada" };
 
 export default function NotFound() {
   return (
@@ -19,16 +19,16 @@ export default function NotFound() {
           <Compass className="size-6" />
         </span>
         <p className="eyebrow text-muted-foreground">Error 404</p>
-        <h1 className="display mt-3 text-5xl">We couldn&apos;t find that page.</h1>
+        <h1 className="display mt-3 text-5xl">No encontramos esa página.</h1>
         <p className="mt-4 max-w-md text-sm text-pretty text-muted-foreground">
-          The page may have moved, or the record you asked for doesn&apos;t exist or isn&apos;t available to your profile.
+          Es posible que la página se haya movido, o que el registro que buscas no exista o no esté disponible para tu perfil.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">
-            <Link href="/dashboard">Go to overview</Link>
+            <Link href="/dashboard">Ir al resumen</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/">Back to home</Link>
+            <Link href="/">Volver al inicio</Link>
           </Button>
         </div>
       </main>

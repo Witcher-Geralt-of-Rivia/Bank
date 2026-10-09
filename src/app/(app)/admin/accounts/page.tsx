@@ -9,19 +9,19 @@ import { AccountStatusBadge } from "@/components/shared/status";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDb } from "@/db/client";
 import { ACCOUNT_TYPE_LABELS, type AccountType, isStaff, maskAccountNumber } from "@/lib/domain";
-import { formatCount, pluralize } from "@/lib/format";
+import { pluralize } from "@/lib/format";
 import { CURRENCY_CODES } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
 import { type AdminAccountRow, listAllAccounts } from "@/server/queries/admin";
 
-export const metadata: Metadata = { title: "Accounts" };
+export const metadata: Metadata = { title: "Cuentas" };
 
 /** What each of the bank's own accounts is for, in plain words. */
 const LEDGER_PURPOSES: Partial<Record<AccountType, string>> = {
-  clearing: "Money that has entered or left Aldera through other banks",
-  transit: "Outgoing transfers that have left a customer account but not yet settled",
-  fees: "Fees charged to customers",
-  interest: "Interest paid to customers",
+  clearing: "Dinero que ha entrado a Aldera o salido de ella a través de otros bancos",
+  transit: "Transferencias enviadas que ya salieron de la cuenta de un cliente pero aún no se han liquidado",
+  fees: "Comisiones cobradas a los clientes",
+  interest: "Intereses pagados a los clientes",
 };
 
 function Balance({ account }: { account: AdminAccountRow }) {
@@ -30,7 +30,7 @@ function Balance({ account }: { account: AdminAccountRow }) {
       <Money minor={account.postedMinor} currency={account.currency} className="block font-medium" />
       {account.heldMinor > 0n ? (
         <span className="block text-xs text-muted-foreground">
-          <Money minor={account.heldMinor} currency={account.currency} /> reserved
+          <Money minor={account.heldMinor} currency={account.currency} /> retenidos
         </span>
       ) : null}
     </>
@@ -59,28 +59,28 @@ export default async function AdminAccountsPage() {
   return (
     <>
       <PageHeader
-        title="Accounts"
-        description="Every account on the platform: the accounts customers hold, and the bank's own ledger accounts that sit on the other side of each movement."
+        title="Cuentas"
+        description="Todas las cuentas de la plataforma: las que tienen los clientes y las cuentas propias del banco en el libro mayor, que son la contrapartida de cada movimiento."
       />
 
       <Section
-        title="Customer accounts"
-        description={`${pluralize(customerAccounts.length, "account")} held by ${pluralize(holders, "customer")}${frozen > 0 ? `, ${formatCount(frozen)} frozen` : ""}. A frozen account cannot send or receive funds; its balance is not affected.`}
+        title="Cuentas de clientes"
+        description={`${pluralize(customerAccounts.length, "cuenta")} de ${pluralize(holders, "cliente")}${frozen > 0 ? `, ${pluralize(frozen, "congelada")}` : ""}. Una cuenta congelada no puede enviar ni recibir fondos; su saldo no se ve afectado.`}
         flush
       >
         {customerAccounts.length === 0 ? (
-          <EmptyState icon={Wallet} title="No customer accounts yet" description="Accounts appear here as soon as a customer opens one." />
+          <EmptyState icon={Wallet} title="Aún no hay cuentas de clientes" description="Las cuentas aparecen aquí en cuanto un cliente abre una." />
         ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="hidden md:table-cell">Customer</TableHead>
-                <TableHead className="pl-5 md:pl-4">Account</TableHead>
-                <TableHead className="hidden xl:table-cell">Status</TableHead>
-                <TableHead className="hidden text-right md:table-cell">Balance</TableHead>
+                <TableHead className="hidden md:table-cell">Cliente</TableHead>
+                <TableHead className="pl-5 md:pl-4">Cuenta</TableHead>
+                <TableHead className="hidden xl:table-cell">Estado</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Saldo</TableHead>
                 <TableHead className="text-right">
-                  <span className="md:hidden">Balance</span>
-                  <span className="sr-only">Actions</span>
+                  <span className="md:hidden">Saldo</span>
+                  <span className="sr-only">Acciones</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -88,12 +88,12 @@ export default async function AdminAccountsPage() {
               {customerAccounts.map((account) => (
                 <TableRow key={account.id}>
                   <TableCell className="hidden max-w-[12rem] md:table-cell xl:max-w-[16rem]">
-                    <span className="block truncate font-medium">{account.ownerName ?? "No owner"}</span>
+                    <span className="block truncate font-medium">{account.ownerName ?? "Sin titular"}</span>
                     <span className="block truncate text-xs text-muted-foreground">{account.ownerEmail}</span>
                   </TableCell>
                   <TableCell className="w-full max-w-0 pl-5 md:pl-4">
                     <span className="block truncate font-medium">{account.name}</span>
-                    <span className="block truncate text-xs text-muted-foreground md:hidden">{account.ownerName ?? "No owner"}</span>
+                    <span className="block truncate text-xs text-muted-foreground md:hidden">{account.ownerName ?? "Sin titular"}</span>
                     <span className="tabular hidden truncate text-xs text-muted-foreground md:block">
                       {ACCOUNT_TYPE_LABELS[account.type]} · {account.currency} · {maskAccountNumber(account.number)}
                     </span>
@@ -125,13 +125,13 @@ export default async function AdminAccountsPage() {
       </Section>
 
       <Section
-        title="Ledger accounts"
-        description="Aldera's own side of the books. Every movement has a bank-side leg posted to one of these accounts, which is why they can run negative and why all balances in a currency add up to zero."
+        title="Cuentas del libro mayor"
+        description="El lado de Aldera en los libros contables. Cada movimiento tiene una contrapartida del banco registrada en una de estas cuentas; por eso pueden tener saldo negativo y por eso todos los saldos de una misma moneda suman cero."
         flush
         className="mt-6"
       >
         {ledgerAccounts.length === 0 ? (
-          <EmptyState icon={Landmark} title="No ledger accounts" description="The bank's own accounts are created when the ledger is first set up." />
+          <EmptyState icon={Landmark} title="No hay cuentas del libro mayor" description="Las cuentas propias del banco se crean al configurar el libro mayor por primera vez." />
         ) : (
           <>
             <div className="grid gap-4 px-5 pb-5 sm:grid-cols-2">
@@ -140,10 +140,10 @@ export default async function AdminAccountsPage() {
                   key={sum.currency}
                   currency={sum.currency}
                   rows={[
-                    { label: "Customer accounts", minor: sum.customerMinor },
-                    { label: "Ledger accounts", minor: sum.ledgerMinor },
+                    { label: "Cuentas de clientes", minor: sum.customerMinor },
+                    { label: "Cuentas del libro mayor", minor: sum.ledgerMinor },
                   ]}
-                  result={{ label: "All balances combined", minor: sum.customerMinor + sum.ledgerMinor }}
+                  result={{ label: "Suma de todos los saldos", minor: sum.customerMinor + sum.ledgerMinor }}
                   passed={sum.customerMinor + sum.ledgerMinor === 0n}
                 />
               ))}
@@ -152,10 +152,10 @@ export default async function AdminAccountsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>Ledger account</TableHead>
-                    <TableHead className="hidden md:table-cell">Type</TableHead>
-                    <TableHead className="hidden md:table-cell">Currency</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
+                    <TableHead>Cuenta del libro mayor</TableHead>
+                    <TableHead className="hidden md:table-cell">Tipo</TableHead>
+                    <TableHead className="hidden md:table-cell">Moneda</TableHead>
+                    <TableHead className="text-right">Saldo</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

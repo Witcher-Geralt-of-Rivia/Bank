@@ -34,7 +34,7 @@ export function SettingSwitch({
       </div>
       <div className="flex shrink-0 items-center gap-2.5">
         <span aria-hidden="true" className="tabular w-6 text-right text-xs font-medium text-muted-foreground">
-          {checked ? "On" : "Off"}
+          {checked ? "Sí" : "No"}
         </span>
         <Switch
           id={id}

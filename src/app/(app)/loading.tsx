@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AppLoading() {
   return (
     <div aria-busy="true" aria-live="polite" className="grid gap-6">
-      <span className="sr-only">Loading</span>
+      <span className="sr-only">Cargando</span>
       <div className="grid gap-2">
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-8 w-64" />

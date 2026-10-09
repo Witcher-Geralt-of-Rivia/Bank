@@ -30,10 +30,10 @@ export function ReasonDialog({
   title,
   description,
   confirmLabel,
-  pendingLabel = "Working…",
+  pendingLabel = "Procesando…",
   destructive = false,
-  reasonLabel = "Reason",
-  reasonPlaceholder = "Recorded in the audit log",
+  reasonLabel = "Motivo",
+  reasonPlaceholder = "Queda anotado en el registro de auditoría",
   reasonRequired = true,
   successMessage,
   onConfirm,
@@ -65,7 +65,7 @@ export function ReasonDialog({
     event.preventDefault();
     const value = reason.trim();
     if (reasonRequired && value.length < 3) {
-      setFieldError("Enter a reason of at least 3 characters.");
+      setFieldError("Ingresa un motivo de al menos 3 caracteres.");
       return;
     }
     setFieldError(undefined);
@@ -122,9 +122,14 @@ export function ReasonDialog({
           {formError ? <Callout tone="danger">{formError}</Callout> : null}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={pending}>
-              Cancel
+              Cancelar
             </Button>
-            <SubmitButton variant={destructive ? "destructive" : "default"} pending={pending} pendingLabel={pendingLabel}>
+            <SubmitButton
+              variant={destructive ? "destructive" : "default"}
+              pending={pending}
+              pendingLabel={pendingLabel}
+              className="h-auto min-h-9 shrink py-1.5 text-balance whitespace-normal"
+            >
               {confirmLabel}
             </SubmitButton>
           </DialogFooter>

@@ -106,11 +106,11 @@ export function AccountStatusBadge({ status }: { status: AccountStatus }) {
 export function UserStatusBadge({ status }: { status: UserStatus }) {
   return status === "active" ? (
     <Pill tone="success" icon={CircleCheck}>
-      Active
+      Activo
     </Pill>
   ) : (
     <Pill tone="danger" icon={UserX}>
-      Suspended
+      Suspendido
     </Pill>
   );
 }

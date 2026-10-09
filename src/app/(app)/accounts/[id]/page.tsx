@@ -15,7 +15,7 @@ import { CURRENCIES } from "@/lib/money";
 import { requireCustomer } from "@/server/auth/session";
 import { accountFlow, getAccountForUser, listStatementLines } from "@/server/queries/accounts";
 
-export const metadata: Metadata = { title: "Account" };
+export const metadata: Metadata = { title: "Cuenta" };
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -54,7 +54,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
   return (
     <>
       <PageHeader
-        back={{ href: "/accounts", label: "Accounts" }}
+        back={{ href: "/accounts", label: "Cuentas" }}
         eyebrow={`${ACCOUNT_TYPE_LABELS[account.type]} · ${account.currency}`}
         title={account.name}
         actions={
@@ -62,17 +62,17 @@ export default async function AccountPage({ params, searchParams }: Props) {
             <>
               <FundingDialog accounts={fundingAccount} defaultAccountId={account.id}>
                 <Button variant="outline" size="lg">
-                  <Plus /> Add money
+                  <Plus /> Agregar dinero
                 </Button>
               </FundingDialog>
               <FundingDialog accounts={fundingAccount} defaultAccountId={account.id} defaultMode="withdraw">
                 <Button variant="outline" size="lg">
-                  <Minus /> Withdraw
+                  <Minus /> Retirar
                 </Button>
               </FundingDialog>
               <Button asChild size="lg">
                 <Link href={`/transfers/new?from=${account.id}`}>
-                  <Send /> Send
+                  <Send /> Enviar
                 </Link>
               </Button>
             </>
@@ -81,17 +81,17 @@ export default async function AccountPage({ params, searchParams }: Props) {
       />
 
       {account.status === "frozen" ? (
-        <Callout tone="info" icon={Snowflake} title="This account is frozen" className="mb-6">
-          It cannot send or receive funds until our operations team restores it. Your balance is safe and your history remains available.
+        <Callout tone="info" icon={Snowflake} title="Esta cuenta está congelada" className="mb-6">
+          No puede enviar ni recibir fondos hasta que nuestro equipo de operaciones la restablezca. Tu saldo está seguro y tu historial sigue disponible.
         </Callout>
       ) : null}
 
       <div className="grid items-start gap-6 xl:grid-cols-3">
         <div className="grid gap-6 xl:col-span-2">
-          <section aria-label="Balance" className="rounded-xl bg-card p-6 shadow-card ring-1 ring-foreground/[0.07]">
+          <section aria-label="Saldo" className="rounded-xl bg-card p-6 shadow-card ring-1 ring-foreground/[0.07]">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="eyebrow text-muted-foreground">Current balance</p>
+                <p className="eyebrow text-muted-foreground">Saldo actual</p>
                 <p className="mt-2 text-[2.5rem] leading-none font-semibold tracking-[-0.03em] sm:text-5xl">
                   <Money minor={account.postedMinor} currency={account.currency} className="font-[inherit]" />
                 </p>
@@ -100,20 +100,20 @@ export default async function AccountPage({ params, searchParams }: Props) {
             </div>
             <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border/70 pt-5 sm:grid-cols-4">
               <div>
-                <dt className="text-xs text-muted-foreground">Available</dt>
+                <dt className="text-xs text-muted-foreground">Disponible</dt>
                 <dd className="mt-1 font-medium">
                   <Money minor={account.availableMinor} currency={account.currency} />
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Reserved</dt>
+                <dt className="text-xs text-muted-foreground">Retenido</dt>
                 <dd className="mt-1 font-medium">
                   <Money minor={account.heldMinor} currency={account.currency} />
                 </dd>
               </div>
               <div>
                 <dt className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <ArrowDownLeft className="size-3.5 text-success" /> In · 30 days
+                  <ArrowDownLeft className="size-3.5 text-success" /> Ingresos · 30 días
                 </dt>
                 <dd className="mt-1 font-medium">
                   <Money minor={flow.inMinor} currency={account.currency} />
@@ -121,7 +121,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
               </div>
               <div>
                 <dt className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <ArrowUpRight className="size-3.5" /> Out · 30 days
+                  <ArrowUpRight className="size-3.5" /> Egresos · 30 días
                 </dt>
                 <dd className="mt-1 font-medium">
                   <Money minor={flow.outMinor} currency={account.currency} />
@@ -131,15 +131,15 @@ export default async function AccountPage({ params, searchParams }: Props) {
           </section>
 
           <Section
-            title="Statement"
-            description="Every entry posted to this account, with the balance it produced"
+            title="Estado de cuenta"
+            description="Cada asiento registrado en esta cuenta, con el saldo resultante"
             flush
           >
             {statement.lines.length === 0 ? (
               <EmptyState
                 icon={ReceiptText}
-                title="No entries yet"
-                description="Once money moves in or out of this account, each ledger entry will be listed here."
+                title="Aún no hay asientos"
+                description="Cuando entre o salga dinero de esta cuenta, cada asiento contable aparecerá aquí."
               />
             ) : (
               <>
@@ -147,12 +147,12 @@ export default async function AccountPage({ params, searchParams }: Props) {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border/70 text-xs text-muted-foreground">
-                        <th scope="col" className="h-10 pr-4 pl-5 text-left font-medium">Date</th>
-                        <th scope="col" className="h-10 px-4 text-left font-medium">Description</th>
-                        <th scope="col" className="hidden h-10 px-4 text-right font-medium sm:table-cell">Debit</th>
-                        <th scope="col" className="hidden h-10 px-4 text-right font-medium sm:table-cell">Credit</th>
-                        <th scope="col" className="h-10 px-4 text-right font-medium sm:hidden">Amount</th>
-                        <th scope="col" className="h-10 pr-5 pl-4 text-right font-medium">Balance</th>
+                        <th scope="col" className="h-10 pr-4 pl-5 text-left font-medium">Fecha</th>
+                        <th scope="col" className="h-10 px-4 text-left font-medium">Descripción</th>
+                        <th scope="col" className="hidden h-10 px-4 text-right font-medium sm:table-cell">Débito</th>
+                        <th scope="col" className="hidden h-10 px-4 text-right font-medium sm:table-cell">Crédito</th>
+                        <th scope="col" className="h-10 px-4 text-right font-medium sm:hidden">Monto</th>
+                        <th scope="col" className="h-10 pr-5 pl-4 text-right font-medium">Saldo</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -198,7 +198,7 @@ export default async function AccountPage({ params, searchParams }: Props) {
                   page={statement.page}
                   pageCount={statement.pageCount}
                   total={statement.total}
-                  noun="entries"
+                  noun="asientos"
                   hrefFor={(p) => `/accounts/${account.id}?page=${p}`}
                 />
               </>
@@ -206,27 +206,27 @@ export default async function AccountPage({ params, searchParams }: Props) {
           </Section>
         </div>
 
-        <Section title="Account details">
+        <Section title="Detalles de la cuenta">
           <dl className="-my-2.5 divide-y divide-border/70">
-            <DetailRow label="Account holder">{user.name}</DetailRow>
-            <DetailRow label="Account number">
+            <DetailRow label="Titular de la cuenta">{user.name}</DetailRow>
+            <DetailRow label="Número de cuenta">
               <span className="inline-flex items-center gap-1.5">
                 <span className="tabular font-mono text-[0.8125rem]">{maskAccountNumber(account.number)}</span>
-                <CopyButton value={account.number} label="Copy full account number" />
+                <CopyButton value={account.number} label="Copiar el número de cuenta completo" />
               </span>
             </DetailRow>
-            <DetailRow label="Type">{ACCOUNT_TYPE_LABELS[account.type]}</DetailRow>
-            <DetailRow label="Currency">
+            <DetailRow label="Tipo">{ACCOUNT_TYPE_LABELS[account.type]}</DetailRow>
+            <DetailRow label="Moneda">
               {CURRENCIES[account.currency].name} ({account.currency})
             </DetailRow>
-            <DetailRow label="Status">
+            <DetailRow label="Estado">
               <AccountStatusBadge status={account.status} />
             </DetailRow>
-            <DetailRow label="Opened">{formatDate(account.createdAt)}</DetailRow>
-            <DetailRow label="Ledger entries">{statement.total.toLocaleString("en-US")}</DetailRow>
+            <DetailRow label="Fecha de apertura">{formatDate(account.createdAt)}</DetailRow>
+            <DetailRow label="Asientos contables">{statement.total.toLocaleString("en-US")}</DetailRow>
           </dl>
           <p className="mt-5 rounded-lg bg-muted px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
-            The full number is hidden on screen. Use the copy button to share it with someone who needs to pay you.
+            El número completo está oculto en pantalla. Usa el botón de copiar para compartirlo con quien necesite pagarte.
           </p>
         </Section>
       </div>

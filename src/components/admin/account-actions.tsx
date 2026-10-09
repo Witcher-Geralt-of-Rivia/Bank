@@ -22,21 +22,21 @@ export function AccountStatusAction({
   ownerName: string | null;
   status: "active" | "frozen";
 }) {
-  const holder = ownerName ?? "The account holder";
+  const holder = ownerName ?? "El titular de la cuenta";
 
   if (status === "frozen") {
     return (
       <ReasonDialog
         trigger={
-          <Button variant="outline" size="sm" aria-label={`Unfreeze ${name}`}>
-            <RotateCcw /> Unfreeze
+          <Button variant="outline" size="sm" aria-label={`Descongelar ${name}`}>
+            <RotateCcw /> Descongelar
           </Button>
         }
-        title={`Unfreeze ${name}?`}
-        description={`The account will be able to send and receive funds again. ${holder} is notified.`}
-        confirmLabel="Unfreeze account"
-        pendingLabel="Unfreezing…"
-        successMessage={`${name} is active again`}
+        title={`¿Descongelar ${name}?`}
+        description={`La cuenta podrá volver a enviar y recibir fondos. ${holder} recibe una notificación.`}
+        confirmLabel="Descongelar cuenta"
+        pendingLabel="Descongelando…"
+        successMessage={`Cuenta activa de nuevo: ${name}`}
         onConfirm={(reason) => setAccountStatusAction({ id, status: "active", reason })}
       />
     );
@@ -45,16 +45,16 @@ export function AccountStatusAction({
   return (
     <ReasonDialog
       trigger={
-        <Button variant="outline" size="sm" aria-label={`Freeze ${name}`}>
-          <Snowflake /> Freeze
+        <Button variant="outline" size="sm" aria-label={`Congelar ${name}`}>
+          <Snowflake /> Congelar
         </Button>
       }
-      title={`Freeze ${name}?`}
-      description={`The account will not be able to send or receive funds until it is unfrozen. ${holder} is notified, and the balance and history stay as they are.`}
-      confirmLabel="Freeze account"
-      pendingLabel="Freezing…"
+      title={`¿Congelar ${name}?`}
+      description={`La cuenta no podrá enviar ni recibir fondos hasta que se descongele. ${holder} recibe una notificación, y el saldo y el historial se mantienen como están.`}
+      confirmLabel="Congelar cuenta"
+      pendingLabel="Congelando…"
       destructive
-      successMessage={`${name} frozen`}
+      successMessage={`Cuenta congelada: ${name}`}
       onConfirm={(reason) => setAccountStatusAction({ id, status: "frozen", reason })}
     />
   );

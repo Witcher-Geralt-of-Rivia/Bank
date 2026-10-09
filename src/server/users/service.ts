@@ -28,7 +28,7 @@ async function generateAccountNumber(tx: Tx): Promise<string> {
       .limit(1);
     if (!taken) return number;
   }
-  throw new DomainError("internal_error", "Could not allocate an account number.", 500);
+  throw new DomainError("internal_error", "No se pudo asignar un número de cuenta.", 500);
 }
 
 export async function openAccount(
@@ -56,7 +56,7 @@ export async function openAccount(
     action: "account.opened",
     entityType: "account",
     entityId: id,
-    summary: `${params.name} (${params.currency}) opened.`,
+    summary: `Cuenta abierta: ${params.name} (${params.currency}).`,
     metadata: { type: params.type, currency: params.currency },
   });
   return id;
@@ -77,8 +77,8 @@ export async function registerCustomer(
       .where(eq(users.email, input.email))
       .limit(1);
     if (existing) {
-      throw new ConflictError("An account with this email already exists.", {
-        email: "An account with this email already exists.",
+      throw new ConflictError("Ya existe una cuenta con este correo electrónico.", {
+        email: "Ya existe una cuenta con este correo electrónico.",
       });
     }
 
@@ -105,11 +105,11 @@ export async function registerCustomer(
       action: "auth.registered",
       entityType: "user",
       entityId: user.id,
-      summary: `${user.name} registered.`,
+      summary: `${user.name} se registró.`,
     });
     await openAccount(tx, actorCtx, {
       ownerId: user.id,
-      name: "Primary Account",
+      name: "Cuenta principal",
       type: "checking",
       currency: "USD",
     });
@@ -118,8 +118,8 @@ export async function registerCustomer(
       actorCtx,
       user.id,
       "account",
-      "Welcome to Aldera",
-      "Your Primary Account is open. Add funds to make your first transfer.",
+      "Te damos la bienvenida a Aldera",
+      "Tu cuenta principal ya está abierta. Agrega fondos para hacer tu primera transferencia.",
       "/accounts",
     );
     return user;
@@ -145,10 +145,10 @@ export async function authenticate(
       entityType: "user",
       entityId: user?.id ?? null,
       actorLabel: email,
-      summary: `Failed sign-in attempt for ${email}.`,
+      summary: `Intento fallido de inicio de sesión para ${email}.`,
       metadata: { reason: user ? "wrong_password" : "unknown_email" },
     });
-    throw new DomainError("unauthenticated", "Incorrect email or password.", 401);
+    throw new DomainError("unauthenticated", "Correo electrónico o contraseña incorrectos.", 401);
   }
 
   if (user.status !== "active") {
@@ -157,11 +157,11 @@ export async function authenticate(
       entityType: "user",
       entityId: user.id,
       actorLabel: email,
-      summary: `Sign-in blocked for suspended user ${email}.`,
+      summary: `Inicio de sesión bloqueado para el usuario suspendido ${email}.`,
       metadata: { reason: "suspended" },
     });
     throw new ForbiddenError(
-      "This account is suspended. Contact support to restore access.",
+      "Esta cuenta está suspendida. Comunícate con soporte para recuperar el acceso.",
     );
   }
 
@@ -174,11 +174,18 @@ export async function authenticate(
       action: "auth.login",
       entityType: "user",
       entityId: user.id,
-      summary: `${user.name} signed in.`,
+      summary: `${user.name} inició sesión.`,
     },
   );
   return { ...user, lastLoginAt: at };
 }
+
+/** How profile fields are named in audit summaries. */
+const PROFILE_FIELD_LABELS = {
+  name: "nombre",
+  company: "empresa",
+  phone: "teléfono",
+} as const;
 
 export async function updateProfile(
   db: DbOrTx,
@@ -188,7 +195,7 @@ export async function updateProfile(
   const userId = requireUserId(ctx);
   await db.transaction(async (tx) => {
     const [current] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
-    if (!current) throw new NotFoundError("User");
+    if (!current) throw new NotFoundError("el usuario");
 
     const next = {
       name: input.name,
@@ -208,7 +215,7 @@ export async function updateProfile(
       action: "profile.updated",
       entityType: "user",
       entityId: userId,
-      summary: `Profile updated (${changed.join(", ")}).`,
+      summary: `Perfil actualizado (${changed.map((key) => PROFILE_FIELD_LABELS[key]).join(", ")}).`,
       metadata: { fields: changed },
     });
   });
@@ -221,11 +228,11 @@ export async function changePassword(
 ): Promise<void> {
   const userId = requireUserId(ctx);
   const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-  if (!user) throw new NotFoundError("User");
+  if (!user) throw new NotFoundError("el usuario");
 
   if (!(await verifyPassword(input.currentPassword, user.passwordHash))) {
-    throw new ValidationError("Your current password is incorrect.", {
-      currentPassword: "Your current password is incorrect.",
+    throw new ValidationError("Tu contraseña actual es incorrecta.", {
+      currentPassword: "Tu contraseña actual es incorrecta.",
     });
   }
 
@@ -239,15 +246,15 @@ export async function changePassword(
       action: "auth.password_changed",
       entityType: "user",
       entityId: userId,
-      summary: "Password changed.",
+      summary: "Contraseña cambiada.",
     });
     await notify(
       tx,
       ctx,
       userId,
       "security",
-      "Your password was changed",
-      "If you did not make this change, contact support immediately.",
+      "Se cambió tu contraseña",
+      "Si no hiciste este cambio, comunícate con soporte de inmediato.",
       "/settings?tab=security",
     );
   });
@@ -268,7 +275,7 @@ export async function setTwoFactor(
       action: enabled ? "security.two_factor_enabled" : "security.two_factor_disabled",
       entityType: "user",
       entityId: userId,
-      summary: `Two-step verification ${enabled ? "enabled" : "disabled"}.`,
+      summary: `Verificación en dos pasos ${enabled ? "activada" : "desactivada"}.`,
     });
   });
 }
@@ -305,7 +312,7 @@ export async function requestPasswordReset(
     entityType: "user",
     entityId: user?.id ?? null,
     actorLabel: email,
-    summary: `Password reset requested for ${email}.`,
+    summary: `Restablecimiento de contraseña solicitado para ${email}.`,
   });
 }
 
@@ -315,7 +322,7 @@ export async function recordLogout(db: DbOrTx, ctx: RequestContext): Promise<voi
     action: "auth.logout",
     entityType: "user",
     entityId: ctx.actor.id,
-    summary: `${ctx.actor.label} signed out.`,
+    summary: `${ctx.actor.label} cerró sesión.`,
   });
 }
 

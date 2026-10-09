@@ -23,63 +23,63 @@ import { Button } from "@/components/ui/button";
 const CAPABILITIES = [
   {
     icon: Wallet,
-    title: "Accounts and balances",
-    body: "Multi-currency accounts with current and available balances, each backed by a statement read straight from the ledger.",
+    title: "Cuentas y saldos",
+    body: "Cuentas multimoneda con saldo actual y saldo disponible, cada una respaldada por un estado de cuenta leído directamente del libro mayor.",
   },
   {
     icon: Send,
-    title: "Transfers with safeguards",
-    body: "A guided flow that checks funds and limits, holds high-value payments for review and issues a receipt for every movement.",
+    title: "Transferencias con salvaguardas",
+    body: "Un flujo guiado que verifica fondos y límites, retiene los pagos de alto valor para su revisión y emite un comprobante por cada movimiento.",
   },
   {
     icon: CircleDashed,
-    title: "Status you can follow",
-    body: "Pending, processing, completed, failed or reversed: every transaction shows where it is and how it got there.",
+    title: "Estados que puedes seguir",
+    body: "Pendiente, en proceso, completada, fallida o revertida: cada transacción muestra dónde está y cómo llegó hasta ahí.",
   },
   {
     icon: ListChecks,
-    title: "An operations console",
-    body: "Operators approve, settle and return payments. Administrators manage users, freeze accounts and reverse transactions.",
+    title: "Una consola de operaciones",
+    body: "Los operadores aprueban, liquidan y devuelven pagos. Los administradores gestionan usuarios, congelan cuentas y revierten transacciones.",
   },
   {
     icon: ScrollText,
-    title: "A complete audit trail",
-    body: "Sign-ins, transfers and administrative actions are written to an append-only, tamper-evident log.",
+    title: "Un registro de auditoría completo",
+    body: "Los inicios de sesión, las transferencias y las acciones administrativas quedan en un registro de solo adición, donde cualquier alteración se hace evidente.",
   },
   {
     icon: Lock,
-    title: "Access by role",
-    body: "Customers, operators and administrators each see only what their role allows, enforced on the server for every request.",
+    title: "Acceso por rol",
+    body: "Clientes, operadores y administradores ven solo lo que su rol permite, y el servidor lo verifica en cada solicitud.",
   },
 ];
 
 const PRINCIPLES = [
   {
     icon: Scale,
-    title: "Double-entry ledger",
-    body: "Balances are never edited. They are the sum of immutable entries, and the database refuses any transaction whose debits and credits differ.",
+    title: "Libro mayor de partida doble",
+    body: "Los saldos nunca se editan. Son la suma de asientos inmutables, y la base de datos rechaza cualquier transacción cuyos débitos y créditos no coincidan.",
   },
   {
     icon: Fingerprint,
-    title: "Idempotent by design",
-    body: "Each request carries a unique key. A retry after a timeout or a double click returns the original result instead of paying twice.",
+    title: "Idempotente por diseño",
+    body: "Cada solicitud lleva una clave única. Un reintento tras un tiempo de espera agotado o un doble clic devuelve el resultado original en lugar de pagar dos veces.",
   },
   {
     icon: Landmark,
-    title: "Exact arithmetic",
-    body: "Money is stored and calculated as whole minor units. Floating-point numbers never touch an amount.",
+    title: "Aritmética exacta",
+    body: "El dinero se guarda y se calcula en unidades menores enteras. Los números de punto flotante nunca tocan un monto.",
   },
   {
     icon: ShieldCheck,
-    title: "History that cannot be rewritten",
-    body: "Corrections are made with reversing transactions. Ledger entries and audit records can be added, never changed or removed.",
+    title: "Un historial que no se puede reescribir",
+    body: "Las correcciones se hacen con transacciones de reversión. Los asientos contables y los registros de auditoría se pueden agregar, pero nunca modificar ni eliminar.",
   },
 ];
 
 const ROLES = [
-  { icon: User, role: "Customer", body: "Check balances, move money, manage beneficiaries and review spending." },
-  { icon: Building2, role: "Operator", body: "Work the review queue, track settlement and freeze accounts when something looks wrong." },
-  { icon: ShieldCheck, role: "Administrator", body: "Oversee users and roles, reverse transactions and verify the audit trail." },
+  { icon: User, role: "Cliente", body: "Consulta saldos, transfiere dinero, administra beneficiarios y revisa tus gastos." },
+  { icon: Building2, role: "Operador", body: "Atiende la cola de revisión, da seguimiento a la liquidación y congela cuentas cuando algo no se ve bien." },
+  { icon: ShieldCheck, role: "Administrador", body: "Supervisa usuarios y roles, revierte transacciones y verifica el registro de auditoría." },
 ];
 
 function PreviewRow({
@@ -114,7 +114,7 @@ function ProductPreview() {
   return (
     <div aria-hidden="true" className="relative mx-auto w-full max-w-[34rem] select-none lg:mx-0">
       <div className="rounded-2xl bg-sidebar p-6 text-sidebar-foreground shadow-raised">
-        <p className="eyebrow text-sidebar-muted">Total balance</p>
+        <p className="eyebrow text-sidebar-muted">Saldo total</p>
         <p className="mt-2 text-4xl font-semibold tracking-[-0.03em]">$184,250.18</p>
         <div className="mt-5 flex items-end gap-1.5">
           {[38, 52, 44, 66, 58, 80].map((height, index) => (
@@ -127,16 +127,16 @@ function ProductPreview() {
       </div>
 
       <div className="relative -mt-4 ml-6 rounded-2xl bg-card p-5 shadow-raised ring-1 ring-foreground/[0.07] sm:ml-12">
-        <div className="flex items-center justify-between">
-          <p className="text-[0.8125rem] font-semibold">Recent activity</p>
-          <span className="inline-flex h-5 items-center gap-1 rounded-full bg-success-soft px-1.5 text-[0.6875rem] font-medium text-success">
-            <CircleCheck className="size-3" /> Ledger balanced
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[0.8125rem] font-semibold">Actividad reciente</p>
+          <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full bg-success-soft px-1.5 text-[0.6875rem] font-medium whitespace-nowrap text-success">
+            <CircleCheck className="size-3" /> Libro mayor cuadrado
           </span>
         </div>
         <ul className="mt-2 divide-y divide-border/70">
-          <PreviewRow icon={ArrowDownLeft} title="Halcyon Retail Group" meta="Invoice payment" amount="+$14,250.00" positive />
-          <PreviewRow icon={ArrowUpRight} title="Tomás Herrera" meta="Processing · in transit" amount="−$2,950.00" />
-          <PreviewRow icon={ArrowUpRight} title="Greenfield Print Co." meta="Pending review" amount="−$12,500.00" />
+          <PreviewRow icon={ArrowDownLeft} title="Halcyon Retail Group" meta="Pago de factura" amount="+$14,250.00" positive />
+          <PreviewRow icon={ArrowUpRight} title="Tomás Herrera" meta="En proceso · en tránsito" amount="−$2,950.00" />
+          <PreviewRow icon={ArrowUpRight} title="Greenfield Print Co." meta="Pendiente de revisión" amount="−$12,500.00" />
         </ul>
       </div>
     </div>
@@ -151,11 +151,11 @@ export default function LandingPage() {
           <Logo />
         </Link>
         <nav className="flex items-center gap-2">
-          <Button asChild variant="ghost">
-            <Link href="/register">Open an account</Link>
+          <Button asChild variant="ghost" className="hidden sm:inline-flex">
+            <Link href="/register">Abrir una cuenta</Link>
           </Button>
           <Button asChild>
-            <Link href="/login">Sign in</Link>
+            <Link href="/login">Iniciar sesión</Link>
           </Button>
         </nav>
       </header>
@@ -165,34 +165,34 @@ export default function LandingPage() {
           <div className="animate-rise">
             <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
               <span className="size-1.5 rounded-full bg-chart-in" />
-              Digital banking and financial operations platform
+              Banca digital y operaciones financieras
             </p>
-            <h1 className="display mt-6 text-[2.75rem] text-balance sm:text-6xl lg:text-[4.25rem]">
-              Banking built on a ledger you can <em className="text-primary">audit</em>.
+            <h1 className="display mt-6 text-[2.75rem] text-balance sm:text-6xl lg:text-[4rem]">
+              Banca construida sobre un libro mayor que puedes <em className="text-primary">auditar</em>.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
-              Aldera brings accounts, transfers and real-time transaction tracking together on a double-entry ledger, where every cent is
-              accounted for and every sensitive action leaves a record.
+              Aldera reúne cuentas, transferencias y seguimiento de transacciones en tiempo real sobre un libro mayor de partida doble, donde
+              cada centavo está contabilizado y cada acción sensible deja registro.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="xl">
                 <Link href="/login">
-                  Explore the live demo <ArrowRight />
+                  Explorar la demostración <ArrowRight />
                 </Link>
               </Button>
               <Button asChild size="xl" variant="outline">
-                <Link href="/register">Open an account</Link>
+                <Link href="/register">Abrir una cuenta</Link>
               </Button>
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">Sample customer, operator and administrator profiles are ready to use.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Hay perfiles de ejemplo de cliente, operador y administrador listos para usar.</p>
           </div>
           <ProductPreview />
         </section>
 
         <section className="border-y border-border/70 bg-card">
           <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
-            <p className="eyebrow text-accent-foreground">The platform</p>
-            <h2 className="display mt-3 max-w-2xl text-4xl text-balance sm:text-[2.75rem]">Everything a modern financial product needs to run day to day.</h2>
+            <p className="eyebrow text-accent-foreground">La plataforma</p>
+            <h2 className="display mt-3 max-w-2xl text-4xl text-balance sm:text-[2.75rem]">Todo lo que un producto financiero moderno necesita para operar día a día.</h2>
             <ul className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {CAPABILITIES.map((item) => (
                 <li key={item.title}>
@@ -209,11 +209,11 @@ export default function LandingPage() {
 
         <section className="bg-sidebar text-sidebar-foreground">
           <div className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
-            <p className="eyebrow text-sidebar-primary">Financial integrity</p>
-            <h2 className="display mt-3 max-w-2xl text-4xl text-balance sm:text-[2.75rem]">Correct by construction, not by convention.</h2>
+            <p className="eyebrow text-sidebar-primary">Integridad financiera</p>
+            <h2 className="display mt-3 max-w-2xl text-4xl text-balance sm:text-[2.75rem]">Correcto por construcción, no por convención.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-pretty text-sidebar-muted sm:text-base">
-              The rules that keep money safe are enforced in the data model and the database itself, so they hold even when application
-              code changes.
+              Las reglas que protegen el dinero se aplican en el modelo de datos y en la propia base de datos, así que se mantienen aunque
+              cambie el código de la aplicación.
             </p>
             <ul className="mt-12 grid gap-4 sm:grid-cols-2">
               {PRINCIPLES.map((item) => (
@@ -230,12 +230,12 @@ export default function LandingPage() {
         <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="eyebrow text-accent-foreground">Three views, one platform</p>
-              <h2 className="display mt-3 max-w-xl text-4xl text-balance sm:text-[2.75rem]">See it from every seat.</h2>
+              <p className="eyebrow text-accent-foreground">Tres vistas, una plataforma</p>
+              <h2 className="display mt-3 max-w-xl text-4xl text-balance sm:text-[2.75rem]">Conócela desde cada rol.</h2>
             </div>
             <Button asChild size="lg">
               <Link href="/login">
-                Open the demo <ArrowRight />
+                Abrir la demostración <ArrowRight />
               </Link>
             </Button>
           </div>
@@ -257,8 +257,8 @@ export default function LandingPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-5 py-8 text-xs leading-relaxed text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Logo className="[&>span]:text-sm" />
           <p className="max-w-xl sm:text-right">
-            Aldera is a fictional institution created to demonstrate financial software engineering. It is not a bank, holds no licence and
-            moves no real money.
+            Aldera es una institución ficticia creada para demostrar ingeniería de software financiero. No es un banco, no tiene licencia y
+            no mueve dinero real.
           </p>
         </div>
       </footer>

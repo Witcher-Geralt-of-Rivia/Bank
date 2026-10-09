@@ -40,10 +40,10 @@ import { getFlowComparison, getMonthlyCashFlow } from "@/server/queries/analytic
 import { getOpenTransferCounts, listBeneficiaries, listSignInActivity } from "@/server/queries/misc";
 import { recentTransactionsForUser } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Overview" };
+export const metadata: Metadata = { title: "Resumen" };
 
 function Delta({ bps, upIsGood }: { bps: bigint | null; upIsGood: boolean }) {
-  if (bps === null) return <span className="text-xs text-muted-foreground">No earlier period to compare</span>;
+  if (bps === null) return <span className="text-xs text-muted-foreground">Sin datos del periodo anterior</span>;
   const up = bps > 0n;
   const flat = bps === 0n;
   const good = flat ? null : up === upIsGood;
@@ -54,7 +54,7 @@ function Delta({ bps, upIsGood }: { bps: bigint | null; upIsGood: boolean }) {
         {flat ? null : <Icon className="size-3.5" />}
         <span className="tabular">{formatBasisPoints(bps)}</span>
       </span>
-      vs previous 30 days
+      vs. 30 días previos
     </span>
   );
 }
@@ -122,15 +122,15 @@ export default async function DashboardPage() {
   // --- notices ---
   const notices: Notice[] = [];
   if (open.pending > 0) {
-    const held = [...open.pendingByCurrency].map(([currency, total]) => formatMoney(total, currency)).join(" and ");
+    const held = [...open.pendingByCurrency].map(([currency, total]) => formatMoney(total, currency)).join(" y ");
     notices.push({
       key: "pending",
       tone: "warning",
       icon: Clock,
-      title: `${pluralize(open.pending, "transfer")} awaiting review`,
-      body: `${held} is reserved until our operations team makes a decision.`,
+      title: `${pluralize(open.pending, "transferencia")} en espera de revisión`,
+      body: `Retenemos ${held} hasta que nuestro equipo de operaciones tome una decisión.`,
       href: "/transactions?status=pending",
-      action: "View",
+      action: "Ver",
     });
   }
   if (open.processing > 0) {
@@ -138,10 +138,10 @@ export default async function DashboardPage() {
       key: "processing",
       tone: "info",
       icon: CircleDashed,
-      title: `${pluralize(open.processing, "transfer")} in transit`,
-      body: "On the way to the receiving bank. External transfers usually settle within one business day.",
+      title: `${pluralize(open.processing, "transferencia")} en tránsito`,
+      body: "En camino al banco receptor. Las transferencias externas suelen liquidarse en un día hábil.",
       href: "/transactions?status=processing",
-      action: "Track",
+      action: "Dar seguimiento",
     });
   }
   const frozen = accounts.filter((a) => a.status === "frozen");
@@ -150,10 +150,10 @@ export default async function DashboardPage() {
       key: "frozen",
       tone: "info",
       icon: Snowflake,
-      title: `${frozen[0].name} is frozen`,
-      body: "This account cannot send or receive funds. Contact support for details.",
+      title: `Cuenta congelada: ${frozen[0].name}`,
+      body: "Esta cuenta no puede enviar ni recibir fondos. Comunícate con soporte para más detalles.",
       href: `/accounts/${frozen[0].id}`,
-      action: "Details",
+      action: "Ver detalles",
     });
   }
   const failedSignIn = signIns.find((s) => !s.success && now.getTime() - s.at.getTime() < 7 * 24 * 60 * 60 * 1000);
@@ -162,10 +162,10 @@ export default async function DashboardPage() {
       key: "signin",
       tone: "danger",
       icon: ShieldAlert,
-      title: "Blocked sign-in attempt",
-      body: `Someone entered a wrong password for your profile ${formatRelative(failedSignIn.at, now).toLowerCase()}. If this wasn't you, change your password.`,
+      title: "Intento de inicio de sesión bloqueado",
+      body: `Alguien ingresó una contraseña incorrecta para tu perfil ${formatRelative(failedSignIn.at, now).toLowerCase()}. Si no fuiste tú, cambia tu contraseña.`,
       href: "/settings?tab=security",
-      action: "Review",
+      action: "Revisar",
     });
   }
   if (!user.twoFactorEnabled) {
@@ -173,10 +173,10 @@ export default async function DashboardPage() {
       key: "2fa",
       tone: "warning",
       icon: ShieldCheck,
-      title: "Two-step verification is off",
-      body: "Add a second layer of protection to your sign-in.",
+      title: "La verificación en dos pasos está desactivada",
+      body: "Agrega una segunda capa de protección a tu inicio de sesión.",
       href: "/settings?tab=security",
-      action: "Turn on",
+      action: "Activar",
     });
   }
 
@@ -186,17 +186,17 @@ export default async function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{formatLongDate(now)}</p>
-          <h1 className="heading mt-1 text-2xl sm:text-[1.75rem] sm:leading-9">Welcome back, {user.name.split(" ")[0]}</h1>
+          <h1 className="heading mt-1 text-2xl sm:text-[1.75rem] sm:leading-9">Hola de nuevo, {user.name.split(" ")[0]}</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <FundingDialog accounts={fundingAccounts}>
             <Button variant="outline" size="lg" className="flex-1 sm:flex-none">
-              <Plus /> Add money
+              <Plus /> Agregar dinero
             </Button>
           </FundingDialog>
           <Button asChild size="lg" className="flex-1 sm:flex-none">
             <Link href="/transfers/new">
-              <Send /> Send money
+              <Send /> Enviar dinero
             </Link>
           </Button>
         </div>
@@ -204,7 +204,7 @@ export default async function DashboardPage() {
 
       {/* Total balance */}
       <section
-        aria-label="Total balance"
+        aria-label="Saldo total"
         className="relative overflow-hidden rounded-2xl bg-sidebar p-6 text-sidebar-foreground shadow-raised sm:p-8"
       >
         <div
@@ -213,17 +213,17 @@ export default async function DashboardPage() {
         />
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="eyebrow text-sidebar-muted">Total balance{multiCurrency ? ` · ${BASE_CURRENCY} equivalent` : ""}</p>
+            <p className="eyebrow text-sidebar-muted">Saldo total{multiCurrency ? ` · equivalente en ${BASE_CURRENCY}` : ""}</p>
             <p className="mt-3 text-[2.75rem] leading-none font-semibold tracking-[-0.03em] sm:text-[3.5rem]">
               {formatMoney(summary.totalBaseMinor, BASE_CURRENCY)}
             </p>
             <p className="mt-3 text-sm text-sidebar-muted">
-              Across {pluralize(accounts.length, "account")}
+              En {pluralize(accounts.length, "cuenta")}
               {summary.heldBaseMinor > 0n ? (
                 <>
                   {" "}
-                  · <span className="text-sidebar-foreground">{formatMoney(summary.heldBaseMinor, BASE_CURRENCY)}</span> reserved for pending
-                  transfers
+                  · <span className="text-sidebar-foreground">{formatMoney(summary.heldBaseMinor, BASE_CURRENCY)}</span> en fondos retenidos por
+                  transferencias pendientes
                 </>
               ) : null}
             </p>
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
             {summary.byCurrency.map((bucket) => (
               <div key={bucket.currency}>
                 <dt className="text-xs text-sidebar-muted">
-                  {bucket.currency} · {pluralize(bucket.accounts, "account")}
+                  {bucket.currency} · {pluralize(bucket.accounts, "cuenta")}
                 </dt>
                 <dd className="tabular mt-1 text-lg font-medium">{formatMoney(bucket.postedMinor, bucket.currency)}</dd>
               </div>
@@ -245,30 +245,30 @@ export default async function DashboardPage() {
       {/* Key figures */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
-          label="Available balance"
+          label="Saldo disponible"
           icon={ArrowDownToLine}
           value={formatMoney(summary.availableBaseMinor, BASE_CURRENCY)}
-          footer={<span className="text-xs text-muted-foreground">Ready to spend or transfer now</span>}
+          footer={<span className="text-xs text-muted-foreground">Listo para gastar o transferir</span>}
         />
         <StatTile
-          label="Money in · 30 days"
+          label="Ingresos · 30 días"
           icon={ArrowDownLeft}
           value={formatMoney(flow.current.inMinor, BASE_CURRENCY)}
           footer={<Delta bps={changeInBasisPoints(flow.current.inMinor, flow.previous.inMinor)} upIsGood />}
         />
         <StatTile
-          label="Money out · 30 days"
+          label="Egresos · 30 días"
           icon={ArrowUpRight}
           value={formatMoney(flow.current.outMinor, BASE_CURRENCY)}
           footer={<Delta bps={changeInBasisPoints(flow.current.outMinor, flow.previous.outMinor)} upIsGood={false} />}
         />
         <StatTile
-          label="Transactions · 30 days"
+          label="Transacciones · 30 días"
           icon={CircleDashed}
           value={flow.current.count.toLocaleString("en-US")}
           footer={
             <span className="text-xs text-muted-foreground">
-              <span className="tabular">{formatMoney(flow.current.volumeMinor, BASE_CURRENCY)}</span> total volume
+              <span className="tabular">{formatMoney(flow.current.volumeMinor, BASE_CURRENCY)}</span> de volumen total
             </span>
           }
         />
@@ -278,10 +278,10 @@ export default async function DashboardPage() {
       <section aria-labelledby="accounts-heading">
         <div className="mb-3 flex items-center justify-between">
           <h2 id="accounts-heading" className="text-[0.9375rem] font-semibold tracking-[-0.01em]">
-            Accounts
+            Cuentas
           </h2>
           <Button asChild variant="link" size="sm" className="h-auto p-0">
-            <Link href="/accounts">View all</Link>
+            <Link href="/accounts">Ver todo</Link>
           </Button>
         </div>
         <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-4">
@@ -295,11 +295,11 @@ export default async function DashboardPage() {
         <div className="grid gap-6 xl:col-span-2">
         {/* Cash flow */}
         <Section
-          title="Cash flow"
-          description="Money entering and leaving your accounts, last 6 months"
+          title="Flujo de caja"
+          description="Dinero que entra y sale de tus cuentas, últimos 6 meses"
           action={
             <Button asChild variant="link" size="sm" className="h-auto p-0">
-              <Link href="/insights">Insights</Link>
+              <Link href="/insights">Análisis</Link>
             </Button>
           }
         >
@@ -309,30 +309,30 @@ export default async function DashboardPage() {
               formatTick={tickLabels}
               currencyNote={
                 multiCurrency
-                  ? `Shown in ${BASE_CURRENCY}. EUR converted at an indicative 1 EUR = ${formatIndicativeRate("EUR")} USD. Transfers between your own accounts are excluded.`
-                  : "Transfers between your own accounts are excluded."
+                  ? `Se muestra en ${BASE_CURRENCY}. Los montos en EUR se convierten a un tipo de cambio indicativo de 1 EUR = ${formatIndicativeRate("EUR")} USD. No se incluyen las transferencias entre tus propias cuentas.`
+                  : "No se incluyen las transferencias entre tus propias cuentas."
               }
             />
           ) : (
-            <EmptyState icon={CircleDashed} title="No activity yet" description="Your cash flow will appear here once money starts moving through your accounts." />
+            <EmptyState icon={CircleDashed} title="Aún no hay actividad" description="Tu flujo de caja aparecerá aquí cuando empiece a moverse dinero en tus cuentas." />
           )}
         </Section>
 
         {/* Recent transactions */}
         <Section
-          title="Recent transactions"
+          title="Transacciones recientes"
           flush
           action={
             <Button asChild variant="link" size="sm" className="h-auto p-0">
-              <Link href="/transactions">View all</Link>
+              <Link href="/transactions">Ver todo</Link>
             </Button>
           }
         >
           {recent.length === 0 ? (
             <EmptyState
               icon={ArrowDownToLine}
-              title="No transactions yet"
-              description="Add money to your account to get started. Every movement will be listed here."
+              title="Aún no hay transacciones"
+              description="Agrega dinero a tu cuenta para comenzar. Cada movimiento aparecerá aquí."
             />
           ) : (
             <TransactionList rows={recent} showYear={false} compact />
@@ -342,9 +342,9 @@ export default async function DashboardPage() {
         </div>
         <div className="grid gap-6">
         {/* Notices */}
-        <Section title="Needs your attention" description="Security and account notices">
+        <Section title="Requiere tu atención" description="Avisos de seguridad y de tus cuentas">
           {notices.length === 0 ? (
-            <EmptyState icon={ShieldCheck} title="You're all set" description="No transfers are waiting and your security settings look good." className="py-8" />
+            <EmptyState icon={ShieldCheck} title="Todo en orden" description="No hay transferencias en espera y tu configuración de seguridad se ve bien." className="py-8" />
           ) : (
             <ul className="-my-1 divide-y divide-border/70">
               {notices.map((notice) => (
@@ -368,16 +368,16 @@ export default async function DashboardPage() {
           )}
         </Section>
         {/* Quick transfer */}
-        <Section title="Quick transfer" description="Send to someone you pay often">
+        <Section title="Transferencia rápida" description="Envía a alguien a quien le pagas con frecuencia">
           {beneficiaries.length === 0 ? (
             <EmptyState
               icon={Send}
-              title="No beneficiaries yet"
-              description="Save the people and businesses you pay to send money in a couple of taps."
+              title="Aún no hay beneficiarios"
+              description="Guarda a las personas y empresas a las que les pagas para enviar dinero en un par de toques."
               className="py-8"
               action={
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/beneficiaries">Add a beneficiary</Link>
+                  <Link href="/beneficiaries">Agregar un beneficiario</Link>
                 </Button>
               }
             />
@@ -405,7 +405,7 @@ export default async function DashboardPage() {
                 ))}
               </ul>
               <Button asChild variant="outline" className="mt-4 w-full">
-                <Link href="/transfers/new">New transfer</Link>
+                <Link href="/transfers/new">Nueva transferencia</Link>
               </Button>
             </>
           )}

@@ -59,7 +59,7 @@ async function currencyOfOwnAccount(
     .from(accounts)
     .where(eq(accounts.id, accountId))
     .limit(1);
-  if (!account || account.ownerId !== userId) throw new NotFoundError("Account");
+  if (!account || account.ownerId !== userId) throw new NotFoundError("la cuenta");
   return account.currency;
 }
 
@@ -121,7 +121,7 @@ export const refreshTransferStatusAction = defineAction(
   { roles: CUSTOMER, schema: z.object({ id: z.string().min(4).max(64) }) },
   async ({ id }, { db, user }): Promise<{ status: TransactionStatus }> => {
     const detail = await getTransactionForUser(db, user.id, id);
-    if (!detail) throw new NotFoundError("Transaction");
+    if (!detail) throw new NotFoundError("la transacción");
 
     const [row] = await db
       .select({ status: transactions.status, metadata: transactions.metadata, createdAt: transactions.createdAt })
@@ -139,7 +139,7 @@ export const refreshTransferStatusAction = defineAction(
     if (!eligible) return { status: row.status };
 
     try {
-      const settled = await settleTransfer(db, systemContext(), id, "Settlement confirmed by the receiving bank (simulated network).");
+      const settled = await settleTransfer(db, systemContext(), id, "Liquidación confirmada por el banco receptor (red simulada).");
       return { status: settled.status };
     } catch {
       // Another request settled it first; report whatever is now true.

@@ -38,10 +38,10 @@ export function AccountCard({ account, className }: { account: AccountView; clas
           <AccountStatusBadge status={account.status} />
         ) : hasHold ? (
           <span>
-            <Money minor={account.availableMinor} currency={account.currency} /> available
+            Disponible: <Money minor={account.availableMinor} currency={account.currency} />
           </span>
         ) : (
-          <span>Fully available</span>
+          <span>Totalmente disponible</span>
         )}
         <ChevronRight className="size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
       </div>

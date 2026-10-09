@@ -42,29 +42,29 @@ export class ValidationError extends DomainError {
 }
 
 export class UnauthenticatedError extends DomainError {
-  constructor(message = "Sign in to continue.") {
+  constructor(message = "Inicia sesión para continuar.") {
     super("unauthenticated", message, 401);
     this.name = "UnauthenticatedError";
   }
 }
 
 export class ForbiddenError extends DomainError {
-  constructor(message = "You do not have permission to do that.") {
+  constructor(message = "No tienes permiso para realizar esta acción.") {
     super("forbidden", message, 403);
     this.name = "ForbiddenError";
   }
 }
 
 export class NotFoundError extends DomainError {
-  constructor(what = "Resource") {
-    super("not_found", `${what} was not found.`, 404);
+  constructor(what = "el recurso") {
+    super("not_found", `No se encontró ${what}.`, 404);
     this.name = "NotFoundError";
   }
 }
 
 export class InsufficientFundsError extends DomainError {
   constructor(
-    message = "The available balance is not enough to cover this amount.",
+    message = "El saldo disponible no alcanza para cubrir este monto.",
   ) {
     super("insufficient_funds", message, 422, { amount: message });
     this.name = "InsufficientFundsError";
@@ -80,7 +80,7 @@ export class AccountUnavailableError extends DomainError {
 
 export class CurrencyMismatchError extends DomainError {
   constructor(
-    message = "Source and destination must be in the same currency.",
+    message = "El origen y el destino deben estar en la misma moneda.",
   ) {
     super("currency_mismatch", message, 422);
     this.name = "CurrencyMismatchError";
@@ -98,7 +98,7 @@ export class IdempotencyConflictError extends DomainError {
   constructor() {
     super(
       "idempotency_conflict",
-      "This idempotency key was already used for a different request.",
+      "Esta clave de idempotencia ya se usó para una solicitud distinta.",
       409,
     );
     this.name = "IdempotencyConflictError";
@@ -116,7 +116,7 @@ export class RateLimitedError extends DomainError {
   constructor(public readonly retryAfterSeconds: number) {
     super(
       "rate_limited",
-      `Too many attempts. Try again in ${retryAfterSeconds} seconds.`,
+      `Demasiados intentos. Intenta de nuevo en ${retryAfterSeconds} ${retryAfterSeconds === 1 ? "segundo" : "segundos"}.`,
       429,
     );
     this.name = "RateLimitedError";
@@ -166,7 +166,7 @@ export function toActionError(error: unknown): ActionResult<never> {
     ok: false,
     error: {
       code: "internal_error",
-      message: `Something went wrong on our side. Please try again. (ref ${correlationId})`,
+      message: `Algo salió mal de nuestro lado. Intenta de nuevo. (ref. ${correlationId})`,
     },
   };
 }

@@ -102,7 +102,7 @@ describe("transfers between accounts on the platform", () => {
     expect(transaction.destinationAccountId).toBe(theirs);
     expect((await balances(db, theirs)).posted).toBe(12_000n);
     const inbox = await db.select().from(notifications).where(eq(notifications.userId, receiver.id));
-    expect(inbox.map((n) => n.title)).toContain("Payment received");
+    expect(inbox.map((n) => n.title)).toContain("Pago recibido");
   });
 
   it("allows the exact available balance and not one cent more", async () => {

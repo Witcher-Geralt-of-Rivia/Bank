@@ -55,7 +55,7 @@ export function PasswordForm({ email }: { email: string }) {
       }
       setValues(EMPTY);
       setRevision((current) => current + 1);
-      toast.success("Password changed");
+      toast.success("Contraseña cambiada");
       router.refresh();
     });
   }
@@ -65,24 +65,24 @@ export function PasswordForm({ email }: { email: string }) {
       {/* Tells password managers which sign-in the new password belongs to. */}
       <input type="text" name="username" autoComplete="username" value={email} readOnly hidden />
 
-      <Field label="Current password" error={errors.currentPassword}>
+      <Field label="Contraseña actual" error={errors.currentPassword}>
         {(props) => <PasswordInput {...props} {...bind("currentPassword")} autoComplete="current-password" required />}
       </Field>
       <Field
-        label="New password"
+        label="Nueva contraseña"
         error={errors.newPassword}
-        hint={`At least ${PASSWORD_MIN_LENGTH} characters, with a letter and a number.`}
+        hint={`Al menos ${PASSWORD_MIN_LENGTH} caracteres, con una letra y un número.`}
       >
         {(props) => <PasswordInput {...props} {...bind("newPassword")} autoComplete="new-password" required />}
       </Field>
-      <Field label="Confirm new password" error={errors.confirmPassword}>
+      <Field label="Confirmar nueva contraseña" error={errors.confirmPassword}>
         {(props) => <PasswordInput {...props} {...bind("confirmPassword")} autoComplete="new-password" required />}
       </Field>
 
       {formError ? <Callout tone="danger">{formError}</Callout> : null}
 
-      <SubmitButton pending={pending} pendingLabel="Changing…" className="w-full justify-self-start sm:w-auto">
-        Change password
+      <SubmitButton pending={pending} pendingLabel="Cambiando…" className="w-full justify-self-start sm:w-auto">
+        Cambiar contraseña
       </SubmitButton>
     </form>
   );

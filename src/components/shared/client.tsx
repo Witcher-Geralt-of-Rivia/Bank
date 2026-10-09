@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 /** Copies a value to the clipboard and confirms it briefly. */
 export function CopyButton({
   value,
-  label = "Copy",
+  label = "Copiar",
   className,
 }: {
   value: string;
@@ -22,7 +22,7 @@ export function CopyButton({
   return (
     <button
       type="button"
-      aria-label={copied ? "Copied" : label}
+      aria-label={copied ? "Copiado" : label}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value);
@@ -87,7 +87,7 @@ export function Field({
     <div className={cn("grid gap-1.5", className)}>
       <Label htmlFor={id} className="flex items-baseline justify-between">
         <span>{label}</span>
-        {optional ? <span className="text-xs font-normal text-muted-foreground">Optional</span> : null}
+        {optional ? <span className="text-xs font-normal text-muted-foreground">Opcional</span> : null}
       </Label>
       {children({ id, "aria-invalid": Boolean(error), "aria-describedby": describedBy })}
       {error ? (
@@ -112,7 +112,7 @@ export function PasswordInput(props: React.ComponentProps<typeof Input>) {
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? "Hide password" : "Show password"}
+        aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
         className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

@@ -44,7 +44,7 @@ function configurationFailure(error: unknown): FormState | null {
     ok: false,
     error: {
       code: "internal_error",
-      message: "This environment is not fully configured: the SESSION_SECRET variable is missing.",
+      message: "Este entorno no está completamente configurado: falta la variable SESSION_SECRET.",
     },
   };
 }
@@ -68,7 +68,7 @@ export async function loginAction(_previous: FormState, formData: FormData): Pro
       password: formData.get("password"),
     });
     if (!parsed.success) {
-      throw new ValidationError("Check your details and try again.", fieldErrorsOf(parsed.error));
+      throw new ValidationError("Revisa tus datos e intenta de nuevo.", fieldErrorsOf(parsed.error));
     }
     role = await signIn(parsed.data.email, parsed.data.password);
   } catch (error) {
@@ -81,11 +81,11 @@ export async function loginAction(_previous: FormState, formData: FormData): Pro
 export async function demoLoginAction(_previous: FormState, formData: FormData): Promise<FormState> {
   let role: Role;
   try {
-    if (!env.demoMode) throw new ForbiddenError("Demo access is disabled in this environment.");
+    if (!env.demoMode) throw new ForbiddenError("El acceso de demostración está desactivado en este entorno.");
     const requested = String(formData.get("role") ?? "");
     const account = DEMO_ACCOUNTS.find((a) => a.role === requested);
     if (!account || !(ROLES as readonly string[]).includes(requested)) {
-      throw new DomainError("validation_failed", "Unknown demo profile.");
+      throw new DomainError("validation_failed", "Perfil de demostración desconocido.");
     }
     role = await signIn(account.email, DEMO_PASSWORD);
   } catch (error) {
@@ -105,11 +105,11 @@ export async function registerAction(_previous: FormState, formData: FormData): 
       password: formData.get("password"),
     });
     if (!parsed.success) {
-      throw new ValidationError("Check the highlighted fields.", fieldErrorsOf(parsed.error));
+      throw new ValidationError("Revisa los campos marcados.", fieldErrorsOf(parsed.error));
     }
     if (formData.get("terms") !== "on") {
-      throw new ValidationError("Accept the terms to continue.", {
-        terms: "You need to accept the terms to open an account.",
+      throw new ValidationError("Acepta los términos para continuar.", {
+        terms: "Debes aceptar los términos para abrir una cuenta.",
       });
     }
 
@@ -129,7 +129,7 @@ export async function forgotPasswordAction(_previous: FormState, formData: FormD
 
     const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") });
     if (!parsed.success) {
-      throw new ValidationError("Enter a valid email address.", fieldErrorsOf(parsed.error));
+      throw new ValidationError("Ingresa un correo electrónico válido.", fieldErrorsOf(parsed.error));
     }
 
     const db = await getDb();
@@ -138,7 +138,7 @@ export async function forgotPasswordAction(_previous: FormState, formData: FormD
     return {
       ok: true,
       data: {
-        message: `If ${parsed.data.email} is registered, password reset instructions are on their way.`,
+        message: `Si ${parsed.data.email} está registrado, las instrucciones para restablecer la contraseña van en camino.`,
       },
     };
   } catch (error) {

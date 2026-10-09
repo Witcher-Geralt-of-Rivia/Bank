@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { requireUser } from "@/server/auth/session";
 import { type AdminUserRow, listUsers } from "@/server/queries/admin";
 
-export const metadata: Metadata = { title: "Users" };
+export const metadata: Metadata = { title: "Usuarios" };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -33,7 +33,7 @@ function Identity({ row, self }: { row: AdminUserRow; self: boolean }) {
           <span className="truncate">{row.name}</span>
           {self ? (
             <span className="rounded-md bg-muted px-1.5 py-0.5 text-[0.6875rem] leading-4 font-semibold tracking-wide text-muted-foreground">
-              You
+              Tú
             </span>
           ) : null}
         </p>
@@ -52,7 +52,7 @@ function TwoStep({ enabled }: { enabled: boolean }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5", !enabled && "text-muted-foreground")}>
       <Icon className={cn("size-4", enabled && "text-success")} />
-      {enabled ? "On" : "Off"}
+      {enabled ? "Activada" : "Desactivada"}
     </span>
   );
 }
@@ -70,18 +70,18 @@ export default async function AdminUsersPage({ searchParams }: Props) {
   const isAdmin = user.role === "admin";
   // Staff normally hold no accounts, but someone whose role was changed may.
   const holdsAccounts = (row: AdminUserRow) => row.role === "customer" || row.accountCount > 0;
-  const lastSignIn = (row: AdminUserRow) => (row.lastLoginAt ? formatRelative(row.lastLoginAt, now) : "Never");
+  const lastSignIn = (row: AdminUserRow) => (row.lastLoginAt ? formatRelative(row.lastLoginAt, now) : "Nunca");
 
   return (
     <>
       <PageHeader
-        title="Users"
-        description="Everyone who can sign in to Aldera: customers, and the operators and administrators who run the platform."
+        title="Usuarios"
+        description="Todas las personas que pueden iniciar sesión en Aldera: los clientes, y los operadores y administradores que gestionan la plataforma."
       />
 
       {!isAdmin ? (
-        <Callout tone="info" icon={Lock} title="User management is restricted to administrators" className="mb-6">
-          You can look up any user here. Suspending, reactivating or changing the role of a user has to be done by an administrator.
+        <Callout tone="info" icon={Lock} title="La gestión de usuarios está restringida a los administradores" className="mb-6">
+          Aquí puedes consultar a cualquier usuario. Solo un administrador puede suspender o reactivar a un usuario, o cambiar su rol.
         </Callout>
       ) : null}
 
@@ -94,17 +94,17 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             name="q"
             defaultValue={q ?? ""}
             maxLength={80}
-            placeholder="Search name, email or company"
-            aria-label="Search users"
+            placeholder="Buscar por nombre, correo o empresa"
+            aria-label="Buscar usuarios"
             className="pl-9"
           />
         </div>
         <Button type="submit" variant="outline" size="lg">
-          Search
+          Buscar
         </Button>
         {q ? (
           <Button asChild variant="ghost" size="lg">
-            <Link href="/admin/users">Clear</Link>
+            <Link href="/admin/users">Limpiar</Link>
           </Button>
         ) : null}
       </form>
@@ -113,36 +113,38 @@ export default async function AdminUsersPage({ searchParams }: Props) {
         {rows.length === 0 ? (
           <EmptyState
             icon={SearchX}
-            title="No users match this search"
-            description="Check the spelling, or search by a different name, email address or company."
+            title="Ningún usuario coincide con esta búsqueda"
+            description="Revisa la ortografía o busca por otro nombre, correo electrónico o empresa."
             action={
               <Button asChild variant="outline" size="sm">
-                <Link href="/admin/users">Clear search</Link>
+                <Link href="/admin/users">Limpiar búsqueda</Link>
               </Button>
             }
           />
         ) : (
           <>
             <p className="px-5 pt-4 pb-1 text-xs text-muted-foreground" aria-live="polite">
-              {pluralize(rows.length, "user")}
-              {q ? (rows.length === 1 ? " matches your search" : " match your search") : ""}
+              {pluralize(rows.length, "usuario")}
+              {q ? (rows.length === 1 ? " coincide con tu búsqueda" : " coinciden con tu búsqueda") : ""}
             </p>
 
             <div className="hidden md:block">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>Usuario</TableHead>
+                    <TableHead>Rol</TableHead>
+                    <TableHead>Estado</TableHead>
                     <TableHead className="hidden xl:table-cell">
-                      Two-step<span className="sr-only"> verification</span>
+                      <span className="sr-only">Verificación en </span>Dos pasos
                     </TableHead>
-                    <TableHead className="hidden text-right xl:table-cell">Balance · {BASE_CURRENCY}</TableHead>
-                    <TableHead className="hidden xl:table-cell">Last sign-in</TableHead>
+                    <TableHead className="hidden text-right xl:table-cell">Saldo · {BASE_CURRENCY}</TableHead>
+                    <TableHead className="hidden xl:table-cell">
+                      Último inicio<span className="sr-only"> de sesión</span>
+                    </TableHead>
                     {isAdmin ? (
                       <TableHead>
-                        <span className="sr-only">Actions</span>
+                        <span className="sr-only">Acciones</span>
                       </TableHead>
                     ) : null}
                   </TableRow>
@@ -166,7 +168,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         {holdsAccounts(row) ? (
                           <>
                             <Money minor={row.balanceBaseMinor} currency={BASE_CURRENCY} className="font-medium" />
-                            <span className="block text-xs text-muted-foreground">{pluralize(row.accountCount, "account")}</span>
+                            <span className="block text-xs text-muted-foreground">{pluralize(row.accountCount, "cuenta")}</span>
                           </>
                         ) : (
                           <span className="text-muted-foreground/50">—</span>
@@ -196,23 +198,23 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   </div>
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                     <div>
-                      <dt className="text-xs text-muted-foreground">Two-step verification</dt>
+                      <dt className="text-xs text-muted-foreground">Verificación en dos pasos</dt>
                       <dd className="mt-1 font-medium">
                         <TwoStep enabled={row.twoFactorEnabled} />
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-muted-foreground">Last sign-in</dt>
+                      <dt className="text-xs text-muted-foreground">Último inicio de sesión</dt>
                       <dd className="tabular mt-1 font-medium">{lastSignIn(row)}</dd>
                     </div>
                     {holdsAccounts(row) ? (
                       <>
                         <div>
-                          <dt className="text-xs text-muted-foreground">Accounts</dt>
+                          <dt className="text-xs text-muted-foreground">Cuentas</dt>
                           <dd className="tabular mt-1 font-medium">{formatCount(row.accountCount)}</dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted-foreground">Balance · {BASE_CURRENCY}</dt>
+                          <dt className="text-xs text-muted-foreground">Saldo · {BASE_CURRENCY}</dt>
                           <dd className="mt-1 font-medium">
                             <Money minor={row.balanceBaseMinor} currency={BASE_CURRENCY} />
                           </dd>
@@ -229,8 +231,8 @@ export default async function AdminUsersPage({ searchParams }: Props) {
 
             {rows.some(holdsAccounts) ? (
               <p className="border-t border-border/70 px-5 py-3 text-xs text-pretty text-muted-foreground md:max-xl:hidden">
-                Balances combine every account a user holds, shown in {BASE_CURRENCY}. EUR converted at an indicative 1 EUR ={" "}
-                {formatIndicativeRate("EUR")} USD.
+                Los saldos suman todas las cuentas de cada usuario y se muestran en {BASE_CURRENCY}. Los montos en EUR se convierten a
+                un tipo de cambio indicativo de 1 EUR = {formatIndicativeRate("EUR")} USD.
               </p>
             ) : null}
           </>

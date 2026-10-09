@@ -41,7 +41,7 @@ export function defineAction<Schema extends z.ZodType, Output>(
 
       const parsed = options.schema.safeParse(input);
       if (!parsed.success) {
-        throw new ValidationError("Check the highlighted fields.", fieldErrorsOf(parsed.error));
+        throw new ValidationError("Revisa los campos marcados.", fieldErrorsOf(parsed.error));
       }
 
       const scope: Scope = { db: await getDb(), user, ctx: await requestContext(user) };

@@ -9,7 +9,7 @@ import { formatRelative, pluralize } from "@/lib/format";
 import { requireUser } from "@/server/auth/session";
 import { countUnreadNotifications, listNotifications } from "@/server/queries/misc";
 
-export const metadata: Metadata = { title: "Notifications" };
+export const metadata: Metadata = { title: "Notificaciones" };
 
 export default async function NotificationsPage() {
   const user = await requireUser();
@@ -24,15 +24,15 @@ export default async function NotificationsPage() {
   const staff = isStaff(user.role);
 
   const groups = [
-    { title: "New", items: notifications.filter((n) => !n.readAt) },
-    { title: "Earlier", items: notifications.filter((n) => n.readAt) },
+    { title: "Nuevas", items: notifications.filter((n) => !n.readAt) },
+    { title: "Anteriores", items: notifications.filter((n) => n.readAt) },
   ].filter((group) => group.items.length > 0);
 
   return (
     <>
       <PageHeader
-        title="Notifications"
-        description={unread > 0 ? `You have ${pluralize(unread, "unread notification")}.` : "You're all caught up."}
+        title="Notificaciones"
+        description={unread > 0 ? `Tienes ${pluralize(unread, "notificación", "notificaciones")} sin leer.` : "Estás al día."}
         actions={<MarkAllReadButton disabled={unread === 0} />}
       />
 
@@ -40,8 +40,8 @@ export default async function NotificationsPage() {
         <Section flush>
           <EmptyState
             icon={Bell}
-            title="No notifications yet"
-            description="Updates about activity and security on your profile will appear here."
+            title="Aún no tienes notificaciones"
+            description="Aquí aparecerán las novedades sobre la actividad y la seguridad de tu perfil."
           />
         </Section>
       ) : (

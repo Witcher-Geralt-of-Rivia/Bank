@@ -16,7 +16,7 @@ import { requireUser } from "@/server/auth/session";
 import { SESSION_TTL_SECONDS } from "@/server/auth/token";
 import { listSignInActivity } from "@/server/queries/misc";
 
-export const metadata: Metadata = { title: "Settings" };
+export const metadata: Metadata = { title: "Configuración" };
 
 const TABS = ["profile", "security", "notifications"] as const;
 
@@ -34,20 +34,20 @@ export default async function SettingsPage({ searchParams }: Props) {
 
   return (
     <>
-      <PageHeader title="Settings" description="Manage your profile, sign-in security and notification preferences." />
+      <PageHeader title="Configuración" description="Administra tu perfil, la seguridad de tu inicio de sesión y tus preferencias de notificaciones." />
 
       <Tabs defaultValue={tab} className="max-w-3xl gap-6">
         {/* Scrolls sideways instead of wrapping when the screen is narrower than the tabs. */}
         <div className="-mx-4 -my-1 overflow-x-auto px-4 py-1 [scrollbar-width:none] sm:mx-0 sm:px-0">
           <TabsList>
             <TabsTrigger value="profile">
-              <UserRound className="size-3.5" /> Profile
+              <UserRound className="size-3.5" /> Perfil
             </TabsTrigger>
             <TabsTrigger value="security">
-              <ShieldCheck className="size-3.5" /> Security
+              <ShieldCheck className="size-3.5" /> Seguridad
             </TabsTrigger>
             <TabsTrigger value="notifications">
-              <Bell className="size-3.5" /> Notifications
+              <Bell className="size-3.5" /> Notificaciones
             </TabsTrigger>
           </TabsList>
         </div>
@@ -67,49 +67,49 @@ export default async function SettingsPage({ searchParams }: Props) {
             </div>
             <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border/70 pt-5">
               <div>
-                <dt className="text-xs text-muted-foreground">Role</dt>
+                <dt className="text-xs text-muted-foreground">Rol</dt>
                 <dd className="mt-1 text-sm font-medium">{ROLE_LABELS[user.role]}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Member since</dt>
+                <dt className="text-xs text-muted-foreground">Miembro desde</dt>
                 <dd className="mt-1 text-sm font-medium">{formatDate(user.createdAt)}</dd>
               </div>
             </dl>
           </Section>
 
-          <Section title="Personal details" description="How you are identified across Aldera">
+          <Section title="Datos personales" description="Así se te identifica en Aldera">
             <ProfileForm name={user.name} email={user.email} company={user.company} phone={user.phone} />
           </Section>
         </TabsContent>
 
         <TabsContent value="security" className="grid gap-6">
-          <Section title="Password" description="You will need your current password to choose a new one">
+          <Section title="Contraseña" description="Necesitarás tu contraseña actual para elegir una nueva">
             <PasswordForm email={user.email} />
           </Section>
 
-          <Section title="Sign-in protection">
+          <Section title="Protección del inicio de sesión">
             <TwoFactorToggle enabled={user.twoFactorEnabled} />
           </Section>
 
           <Section
-            title="Recent sign-in activity"
-            description="The latest attempts to sign in to your profile, successful or not"
+            title="Actividad reciente de inicio de sesión"
+            description="Los últimos intentos de iniciar sesión en tu perfil, exitosos o no"
             flush
           >
             {signIns.length === 0 ? (
               <EmptyState
                 icon={History}
-                title="No sign-ins recorded yet"
-                description="Each time someone signs in to your profile, or tries to, it will be listed here."
+                title="Aún no hay inicios de sesión registrados"
+                description="Cada vez que alguien inicie sesión en tu perfil, o lo intente, aparecerá aquí."
               />
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>Result</TableHead>
-                    <TableHead>When</TableHead>
-                    <TableHead className="hidden sm:table-cell">Device</TableHead>
-                    <TableHead className="hidden sm:table-cell">IP address</TableHead>
+                    <TableHead>Resultado</TableHead>
+                    <TableHead>Fecha y hora</TableHead>
+                    <TableHead className="hidden sm:table-cell">Dispositivo</TableHead>
+                    <TableHead className="hidden sm:table-cell">Dirección IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -118,18 +118,18 @@ export default async function SettingsPage({ searchParams }: Props) {
                       <TableCell>
                         {signIn.success ? (
                           <Pill tone="success" icon={CircleCheck}>
-                            Successful
+                            Exitoso
                           </Pill>
                         ) : (
                           <Pill tone="danger" icon={CircleX}>
-                            Failed
+                            Fallido
                           </Pill>
                         )}
                       </TableCell>
                       <TableCell className="whitespace-normal">
                         <span className="tabular block">{formatDateTime(signIn.at)}</span>
                         <span className="mt-0.5 block text-xs text-muted-foreground sm:hidden">
-                          {describeUserAgent(signIn.userAgent)} · {signIn.ip ?? "Unknown address"}
+                          {describeUserAgent(signIn.userAgent)} · {signIn.ip ?? "Dirección desconocida"}
                         </span>
                       </TableCell>
                       <TableCell className="hidden text-muted-foreground sm:table-cell">
@@ -145,20 +145,21 @@ export default async function SettingsPage({ searchParams }: Props) {
             )}
           </Section>
 
-          <Section title="Session">
+          <Section title="Sesión">
             <p className="max-w-xl text-sm text-pretty text-muted-foreground">
-              Sessions expire after {pluralize(SESSION_TTL_SECONDS / 3600, "hour")} and are stored in an HTTP-only cookie,
-              which scripts running in the page cannot read. Signing out ends the session on this device.
+              Las sesiones expiran después de {pluralize(SESSION_TTL_SECONDS / 3600, "hora")} y se guardan en una cookie
+              HTTP-only, que los scripts que se ejecutan en la página no pueden leer. Al cerrar sesión, la sesión termina en
+              este dispositivo.
             </p>
           </Section>
         </TabsContent>
 
         <TabsContent value="notifications" className="grid gap-6">
-          <Section title="Notification preferences" description="Choose the updates you want to hear about">
+          <Section title="Preferencias de notificaciones" description="Elige las novedades que quieres recibir">
             <PreferencesForm notifyTransfers={user.notifyTransfers} notifySecurity={user.notifySecurity} />
             <p className="mt-5 rounded-lg bg-muted px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
-              Changes are saved as you make them and apply to new notifications inside Aldera. This demonstration does
-              not send email or text messages.
+              Los cambios se guardan al momento y se aplican a las nuevas notificaciones dentro de Aldera. Esta demostración
+              no envía correos electrónicos ni mensajes de texto.
             </p>
           </Section>
         </TabsContent>

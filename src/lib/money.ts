@@ -18,7 +18,7 @@ export type CurrencyInfo = {
 };
 
 export const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
-  USD: { code: "USD", name: "US Dollar", symbol: "$", exponent: 2 },
+  USD: { code: "USD", name: "Dólar estadounidense", symbol: "$", exponent: 2 },
   EUR: { code: "EUR", name: "Euro", symbol: "€", exponent: 2 },
 };
 
@@ -60,19 +60,19 @@ export function parseAmount(input: string, currency: CurrencyCode): bigint {
   const { exponent, symbol } = CURRENCIES[currency];
   const raw = input.trim().replace(symbol, "").trim();
 
-  if (raw === "") throw new MoneyError("empty", "Enter an amount.");
+  if (raw === "") throw new MoneyError("empty", "Ingresa un monto.");
   if (raw.startsWith("-")) {
-    throw new MoneyError("negative", "Amount must be greater than zero.");
+    throw new MoneyError("negative", "El monto debe ser mayor que cero.");
   }
 
   const match = AMOUNT_PATTERN.exec(raw);
-  if (!match) throw new MoneyError("malformed", "Enter a valid amount.");
+  if (!match) throw new MoneyError("malformed", "Ingresa un monto válido.");
 
   const fraction = match[1] ?? "";
   if (fraction.length > exponent) {
     throw new MoneyError(
       "too_many_decimals",
-      `${currency} amounts can have at most ${exponent} decimal places.`,
+      `Los montos en ${currency} admiten como máximo ${exponent} decimales.`,
     );
   }
 
@@ -80,7 +80,7 @@ export function parseAmount(input: string, currency: CurrencyCode): bigint {
   const minor = BigInt(whole + fraction.padEnd(exponent, "0"));
 
   if (minor > MAX_INPUT_MINOR) {
-    throw new MoneyError("too_large", "Amount is too large.");
+    throw new MoneyError("too_large", "El monto es demasiado grande.");
   }
   return minor;
 }

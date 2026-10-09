@@ -18,16 +18,16 @@ import { cn } from "@/lib/utils";
 
 /** The areas of the product that write audit records, in filter order. */
 export const AUDIT_AREAS = [
-  { value: "auth", label: "Sign-in" },
-  { value: "transfer", label: "Transfers" },
-  { value: "transaction", label: "Transactions" },
-  { value: "deposit", label: "Deposits" },
-  { value: "withdrawal", label: "Withdrawals" },
-  { value: "beneficiary", label: "Beneficiaries" },
-  { value: "account", label: "Accounts" },
-  { value: "user", label: "Users" },
-  { value: "profile", label: "Profile" },
-  { value: "security", label: "Security" },
+  { value: "auth", label: "Inicio de sesión" },
+  { value: "transfer", label: "Transferencias" },
+  { value: "transaction", label: "Transacciones" },
+  { value: "deposit", label: "Depósitos" },
+  { value: "withdrawal", label: "Retiros" },
+  { value: "beneficiary", label: "Beneficiarios" },
+  { value: "account", label: "Cuentas" },
+  { value: "user", label: "Usuarios" },
+  { value: "profile", label: "Perfil" },
+  { value: "security", label: "Seguridad" },
 ] as const;
 
 export type AuditAreaValue = (typeof AUDIT_AREAS)[number]["value"];

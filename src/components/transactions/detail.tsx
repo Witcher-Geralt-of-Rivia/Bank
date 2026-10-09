@@ -71,10 +71,10 @@ export function LedgerEntriesTable({
       <table className="w-full min-w-[30rem] text-sm">
         <thead>
           <tr className="border-b border-border/70 text-xs text-muted-foreground">
-            <th scope="col" className="py-2 pr-4 pl-5 text-left font-medium">Account</th>
-            <th scope="col" className="px-4 py-2 text-right font-medium">Debit</th>
-            <th scope="col" className="px-4 py-2 text-right font-medium">Credit</th>
-            <th scope="col" className="py-2 pr-5 pl-4 text-right font-medium">Balance after</th>
+            <th scope="col" className="py-2 pr-4 pl-5 text-left font-medium">Cuenta</th>
+            <th scope="col" className="px-4 py-2 text-right font-medium">Débito</th>
+            <th scope="col" className="px-4 py-2 text-right font-medium">Crédito</th>
+            <th scope="col" className="py-2 pr-5 pl-4 text-right font-medium">Saldo posterior</th>
           </tr>
         </thead>
         <tbody>
@@ -83,7 +83,7 @@ export function LedgerEntriesTable({
               <td className="py-3 pr-4 pl-5">
                 <span className="block font-medium">{entry.accountName}</span>
                 <span className="tabular block text-xs text-muted-foreground">
-                  {entry.accountKind === "system" ? "Aldera ledger account" : maskAccountNumber(entry.accountNumber)}
+                  {entry.accountKind === "system" ? "Cuenta del libro mayor de Aldera" : maskAccountNumber(entry.accountNumber)}
                   {entry.memo ? ` · ${entry.memo}` : ""}
                 </span>
               </td>
@@ -105,7 +105,7 @@ export function LedgerEntriesTable({
               <th scope="row" className="py-3 pr-4 pl-5 text-left font-medium">
                 Total
                 <span className={cn("ml-2 text-xs font-normal", debits === credits ? "text-success" : "text-danger")}>
-                  {debits === credits ? "Balanced" : "Out of balance"}
+                  {debits === credits ? "Cuadrado" : "Descuadrado"}
                 </span>
               </th>
               <td className="px-4 py-3 text-right">

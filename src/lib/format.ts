@@ -3,21 +3,10 @@
  * server render and the client hydration always produce identical strings.
  */
 
-const LOCALE = "en-US";
+const LOCALE = "es-MX";
+/** Counts keep the same digit grouping as money ("1,250"). */
+const NUMBER_LOCALE = "en-US";
 const TIME_ZONE = "UTC";
-
-const dateFmt = new Intl.DateTimeFormat(LOCALE, {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  timeZone: TIME_ZONE,
-});
-
-const shortDateFmt = new Intl.DateTimeFormat(LOCALE, {
-  month: "short",
-  day: "numeric",
-  timeZone: TIME_ZONE,
-});
 
 const timeFmt = new Intl.DateTimeFormat(LOCALE, {
   hour: "2-digit",
@@ -26,30 +15,45 @@ const timeFmt = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIME_ZONE,
 });
 
-const monthFmt = new Intl.DateTimeFormat(LOCALE, {
-  month: "short",
-  timeZone: TIME_ZONE,
-});
-
-const monthYearFmt = new Intl.DateTimeFormat(LOCALE, {
+const monthNameFmt = new Intl.DateTimeFormat(LOCALE, {
   month: "long",
-  year: "numeric",
   timeZone: TIME_ZONE,
 });
 
-const weekdayFmt = new Intl.DateTimeFormat(LOCALE, {
+const weekdayNameFmt = new Intl.DateTimeFormat(LOCALE, {
   weekday: "long",
-  month: "long",
-  day: "numeric",
   timeZone: TIME_ZONE,
 });
 
-export function formatDate(date: Date): string {
-  return dateFmt.format(date);
+/*
+ * Dates are assembled from the full month and weekday names rather than taken
+ * from the locale's own patterns. Abbreviations and connecting words differ
+ * between JavaScript engines ("sep", "sept."), which would let the server and
+ * the browser disagree; the full names do not.
+ */
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/** "octubre" */
+function monthName(date: Date): string {
+  return monthNameFmt.format(date);
+}
+
+/** "oct" */
+function shortMonthName(date: Date): string {
+  return monthName(date).slice(0, 3);
+}
+
+/** "9 oct 2026" */
+export function formatDate(date: Date): string {
+  return `${formatShortDate(date)} ${date.getUTCFullYear()}`;
+}
+
+/** "9 oct" */
 export function formatShortDate(date: Date): string {
-  return shortDateFmt.format(date);
+  return `${date.getUTCDate()} ${shortMonthName(date)}`;
 }
 
 export function formatTime(date: Date): string {
@@ -57,19 +61,22 @@ export function formatTime(date: Date): string {
 }
 
 export function formatDateTime(date: Date): string {
-  return `${dateFmt.format(date)}, ${timeFmt.format(date)} UTC`;
+  return `${formatDate(date)}, ${timeFmt.format(date)} UTC`;
 }
 
+/** "Oct" */
 export function formatMonth(date: Date): string {
-  return monthFmt.format(date);
+  return capitalize(shortMonthName(date));
 }
 
+/** "Octubre de 2026" */
 export function formatMonthYear(date: Date): string {
-  return monthYearFmt.format(date);
+  return `${capitalize(monthName(date))} de ${date.getUTCFullYear()}`;
 }
 
+/** "Viernes, 9 de octubre" */
 export function formatLongDate(date: Date): string {
-  return weekdayFmt.format(date);
+  return `${capitalize(weekdayNameFmt.format(date))}, ${date.getUTCDate()} de ${monthName(date)}`;
 }
 
 /** "2026-10-08" in UTC, used for date inputs and day bucketing. */
@@ -81,14 +88,14 @@ const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-/** "just now", "12 min ago", "3 h ago", "Yesterday", then a calendar date. */
+/** "Hace un momento", "Hace 12 min", "Hace 3 h", "Ayer", "Hace 3 días", then a calendar date. */
 export function formatRelative(date: Date, now: Date = new Date()): string {
   const diff = now.getTime() - date.getTime();
-  if (diff < MINUTE) return "Just now";
-  if (diff < HOUR) return `${Math.floor(diff / MINUTE)} min ago`;
-  if (diff < DAY) return `${Math.floor(diff / HOUR)} h ago`;
-  if (diff < 2 * DAY) return "Yesterday";
-  if (diff < 7 * DAY) return `${Math.floor(diff / DAY)} days ago`;
+  if (diff < MINUTE) return "Hace un momento";
+  if (diff < HOUR) return `Hace ${Math.floor(diff / MINUTE)} min`;
+  if (diff < DAY) return `Hace ${Math.floor(diff / HOUR)} h`;
+  if (diff < 2 * DAY) return "Ayer";
+  if (diff < 7 * DAY) return `Hace ${Math.floor(diff / DAY)} días`;
   return formatDate(date);
 }
 
@@ -109,16 +116,16 @@ export function formatBasisPoints(bps: bigint): string {
 }
 
 export function formatCount(value: number): string {
-  return new Intl.NumberFormat(LOCALE).format(value);
+  return new Intl.NumberFormat(NUMBER_LOCALE).format(value);
 }
 
 export function pluralize(count: number, singular: string, plural?: string) {
   return `${formatCount(count)} ${count === 1 ? singular : (plural ?? `${singular}s`)}`;
 }
 
-/** "Chrome on Windows" from a raw User-Agent header. */
+/** "Chrome en Windows" from a raw User-Agent header. */
 export function describeUserAgent(userAgent: string | null | undefined): string {
-  if (!userAgent) return "Unknown device";
+  if (!userAgent) return "Dispositivo desconocido";
   const browser = userAgent.includes("Edg/")
     ? "Edge"
     : userAgent.includes("Firefox/")
@@ -127,7 +134,7 @@ export function describeUserAgent(userAgent: string | null | undefined): string 
         ? "Chrome"
         : userAgent.includes("Safari/")
           ? "Safari"
-          : "Browser";
+          : "Navegador";
   const system = /iPhone|iPad/.test(userAgent)
     ? "iOS"
     : /Android/.test(userAgent)
@@ -138,6 +145,6 @@ export function describeUserAgent(userAgent: string | null | undefined): string 
           ? "macOS"
           : /Linux/.test(userAgent)
             ? "Linux"
-            : "unknown device";
-  return `${browser} on ${system}`;
+            : "un dispositivo desconocido";
+  return `${browser} en ${system}`;
 }

@@ -136,11 +136,11 @@ export function Pagination({
   if (total === 0) return null;
   return (
     <nav
-      aria-label="Pagination"
+      aria-label="Paginación"
       className="no-print flex items-center justify-between gap-4 border-t border-border/70 px-5 py-3 text-sm"
     >
       <p className="text-muted-foreground">
-        Page <span className="font-medium text-foreground">{page}</span> of {pageCount}
+        Página <span className="font-medium text-foreground">{page}</span> de {pageCount}
         <span className="hidden sm:inline">
           {" "}
           · {total.toLocaleString("en-US")} {noun}
@@ -150,23 +150,23 @@ export function Pagination({
         {page > 1 ? (
           <Button asChild variant="outline" size="sm">
             <Link href={hrefFor(page - 1)} scroll={false}>
-              <ChevronLeft /> Previous
+              <ChevronLeft /> Anterior
             </Link>
           </Button>
         ) : (
           <Button variant="outline" size="sm" disabled>
-            <ChevronLeft /> Previous
+            <ChevronLeft /> Anterior
           </Button>
         )}
         {page < pageCount ? (
           <Button asChild variant="outline" size="sm">
             <Link href={hrefFor(page + 1)} scroll={false}>
-              Next <ChevronRight />
+              Siguiente <ChevronRight />
             </Link>
           </Button>
         ) : (
           <Button variant="outline" size="sm" disabled>
-            Next <ChevronRight />
+            Siguiente <ChevronRight />
           </Button>
         )}
       </div>

@@ -18,7 +18,7 @@ export function MarkAllReadButton({ disabled }: { disabled: boolean }) {
         toast.error(result.error.message);
         return;
       }
-      toast.success("All notifications marked as read");
+      toast.success("Todas las notificaciones se marcaron como leídas");
       router.refresh();
     });
   }
@@ -29,11 +29,11 @@ export function MarkAllReadButton({ disabled }: { disabled: boolean }) {
       variant="outline"
       size="lg"
       pending={pending}
-      pendingLabel="Mark all as read"
+      pendingLabel="Marcar todas como leídas"
       disabled={disabled || pending}
       onClick={markAll}
     >
-      <CheckCheck /> Mark all as read
+      <CheckCheck /> Marcar todas como leídas
     </SubmitButton>
   );
 }

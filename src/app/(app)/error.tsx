@@ -18,9 +18,9 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
     <div className="rounded-xl bg-card shadow-card ring-1 ring-foreground/[0.07]">
       <EmptyState
         icon={TriangleAlert}
-        title="Something went wrong"
-        description={`We couldn't load this page. Your accounts and balances are not affected.${error.digest ? ` Reference: ${error.digest}` : ""}`}
-        action={<Button onClick={reset}>Try again</Button>}
+        title="Algo salió mal"
+        description={`No pudimos cargar esta página. Tus cuentas y saldos no se vieron afectados.${error.digest ? ` Referencia: ${error.digest}` : ""}`}
+        action={<Button onClick={reset}>Intentar de nuevo</Button>}
         className="py-20"
       />
     </div>

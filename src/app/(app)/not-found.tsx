@@ -8,11 +8,11 @@ export default function AppNotFound() {
     <div className="rounded-xl bg-card shadow-card ring-1 ring-foreground/[0.07]">
       <EmptyState
         icon={Compass}
-        title="We couldn't find that"
-        description="The record doesn't exist, or it isn't available to your profile."
+        title="No encontramos lo que buscas"
+        description="El registro no existe o no está disponible para tu perfil."
         action={
           <Button asChild>
-            <Link href="/dashboard">Back to overview</Link>
+            <Link href="/dashboard">Volver al resumen</Link>
           </Button>
         }
         className="py-20"

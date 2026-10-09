@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 import { setUserRoleAction, setUserStatusAction } from "@/server/actions/admin";
 
 const ROLE_SUMMARIES: Record<Role, string> = {
-  customer: "Banking only. No access to the operations console.",
-  operator: "Reviews and settles transfers, and can freeze accounts.",
-  admin: "Everything an operator can do, plus reversals and user management.",
+  customer: "Solo banca. Sin acceso a la consola de operaciones.",
+  operator: "Revisa y liquida transferencias, y puede congelar cuentas.",
+  admin: "Todo lo que puede hacer un operador, además de reversiones y gestión de usuarios.",
 };
 
 /**
@@ -76,7 +76,7 @@ export function UserActions({
 
   async function changeRole(reason: string): Promise<ActionResult<unknown>> {
     if (!nextRole) {
-      return { ok: false, error: { code: "validation_failed", message: "Choose a new role." } };
+      return { ok: false, error: { code: "validation_failed", message: "Elige un nuevo rol." } };
     }
     const result = await setUserRoleAction({ id, role: nextRole, reason });
     if (result.ok) setNextRole(null);
@@ -87,23 +87,23 @@ export function UserActions({
     <div className={cn("flex", compact ? "justify-end gap-0.5" : "flex-wrap gap-2")}>
       {suspended ? (
         <ReasonDialog
-          trigger={<ActionButton compact={compact} icon={UserCheck} label="Reactivate" aria-label={`Reactivate ${name}`} />}
-          title={`Reactivate ${name}?`}
-          description={`${firstName} will be able to sign in again straight away, with the same role and accounts as before.`}
-          confirmLabel="Reactivate user"
-          pendingLabel="Reactivating…"
-          successMessage={`${name} reactivated`}
+          trigger={<ActionButton compact={compact} icon={UserCheck} label="Reactivar" aria-label={`Reactivar a ${name}`} />}
+          title={`¿Reactivar a ${name}?`}
+          description={`${firstName} podrá volver a iniciar sesión de inmediato, con el mismo rol y las mismas cuentas que antes.`}
+          confirmLabel="Reactivar usuario"
+          pendingLabel="Reactivando…"
+          successMessage={`Se reactivó a ${name}`}
           onConfirm={(reason) => setUserStatusAction({ id, status: "active", reason })}
         />
       ) : (
         <ReasonDialog
-          trigger={<ActionButton compact={compact} icon={UserX} label="Suspend" aria-label={`Suspend ${name}`} />}
-          title={`Suspend ${name}?`}
-          description={`${firstName} will be signed out and will not be able to sign in again until reactivated. Their accounts, balances and transaction history are not changed.`}
-          confirmLabel="Suspend user"
-          pendingLabel="Suspending…"
+          trigger={<ActionButton compact={compact} icon={UserX} label="Suspender" aria-label={`Suspender a ${name}`} />}
+          title={`¿Suspender a ${name}?`}
+          description={`Se cerrará la sesión de ${firstName} y no podrá volver a iniciarla hasta que se reactive su usuario. Sus cuentas, saldos e historial de transacciones no cambian.`}
+          confirmLabel="Suspender usuario"
+          pendingLabel="Suspendiendo…"
           destructive
-          successMessage={`${name} suspended`}
+          successMessage={`Se suspendió a ${name}`}
           onConfirm={(reason) => setUserStatusAction({ id, status: "suspended", reason })}
         />
       )}
@@ -113,22 +113,22 @@ export function UserActions({
           <ActionButton
             compact={compact}
             icon={UserCog}
-            label="Change role"
-            aria-label={`Change role for ${name}`}
+            label="Cambiar rol"
+            aria-label={`Cambiar el rol de ${name}`}
             // Start from a clean choice each time the dialog opens.
             onClick={() => setNextRole(null)}
           />
         }
-        title={`Change role for ${name}`}
-        description={`${firstName} is currently ${role === "customer" ? "a" : "an"} ${ROLE_LABELS[role].toLowerCase()}. The new role applies from the next page they open.`}
-        confirmLabel="Change role"
-        pendingLabel="Updating…"
-        successMessage="Role updated"
+        title={`Cambiar el rol de ${name}`}
+        description={`Actualmente, ${firstName} tiene el rol de ${ROLE_LABELS[role].toLowerCase()}. El nuevo rol se aplica a partir de la próxima página que abra.`}
+        confirmLabel="Cambiar rol"
+        pendingLabel="Actualizando…"
+        successMessage="Rol actualizado"
         onConfirm={changeRole}
       >
         <div className="grid gap-1.5">
           <p id={`${groupId}-label`} className="text-sm leading-none font-medium">
-            New role
+            Nuevo rol
           </p>
           <div role="radiogroup" aria-labelledby={`${groupId}-label`} className="grid gap-2">
             {ROLES.filter((option) => option !== role).map((option) => {

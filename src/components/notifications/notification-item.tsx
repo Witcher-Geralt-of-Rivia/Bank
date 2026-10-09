@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 import { markNotificationReadAction } from "@/server/actions/banking";
 
 const KINDS: Record<NotificationKind, { label: string; icon: ComponentType<{ className?: string }>; tone: string }> = {
-  transaction: { label: "Transaction", icon: ArrowLeftRight, tone: "bg-accent text-accent-foreground" },
-  security: { label: "Security", icon: ShieldAlert, tone: "bg-warning-soft text-warning" },
-  account: { label: "Account", icon: Wallet, tone: "bg-info-soft text-info" },
-  system: { label: "System", icon: Megaphone, tone: "bg-neutral-soft text-neutral" },
+  transaction: { label: "Transacción", icon: ArrowLeftRight, tone: "bg-accent text-accent-foreground" },
+  security: { label: "Seguridad", icon: ShieldAlert, tone: "bg-warning-soft text-warning" },
+  account: { label: "Cuenta", icon: Wallet, tone: "bg-info-soft text-info" },
+  system: { label: "Sistema", icon: Megaphone, tone: "bg-neutral-soft text-neutral" },
 };
 
 /** Destinations that exist only in customer banking. */
@@ -76,7 +76,7 @@ export function NotificationItem({
       {unread ? (
         <span className="mt-1.5 flex shrink-0">
           <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
-          <span className="sr-only">Unread</span>
+          <span className="sr-only">Sin leer</span>
         </span>
       ) : null}
       {target ? (

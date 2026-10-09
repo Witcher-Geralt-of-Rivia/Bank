@@ -86,7 +86,7 @@ export function homeFor(role: Role): string {
 /** For Server Actions and route handlers: throws instead of redirecting. */
 export async function requireActionUser(roles?: readonly Role[]): Promise<SessionUser> {
   const user = await getCurrentUser();
-  if (!user) throw new UnauthenticatedError("Your session has expired. Sign in again.");
+  if (!user) throw new UnauthenticatedError("Tu sesión expiró. Inicia sesión de nuevo.");
   if (roles && !roles.includes(user.role)) throw new ForbiddenError();
   return user;
 }
@@ -105,7 +105,7 @@ export async function requestContext(user: SessionUser | null): Promise<RequestC
   return {
     actor: user
       ? { id: user.id, label: user.name, role: user.role }
-      : { id: null, label: "Anonymous", role: "system" },
+      : { id: null, label: "Anónimo", role: "system" },
     channel: "web",
     ...(await clientInfo()),
   };

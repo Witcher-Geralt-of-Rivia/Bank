@@ -13,7 +13,7 @@ import { BASE_CURRENCY, CURRENCIES, formatIndicativeRate, formatMoney } from "@/
 import { requireCustomer } from "@/server/auth/session";
 import { listAccountsForUser, summariseBalances } from "@/server/queries/accounts";
 
-export const metadata: Metadata = { title: "Accounts" };
+export const metadata: Metadata = { title: "Cuentas" };
 
 export default async function AccountsPage() {
   const user = await requireCustomer();
@@ -34,18 +34,18 @@ export default async function AccountsPage() {
   return (
     <>
       <PageHeader
-        title="Accounts"
-        description="Balances are calculated from the ledger: the current balance is every posted entry, and the available balance subtracts funds reserved for transfers under review."
+        title="Cuentas"
+        description="Los saldos se calculan a partir del libro mayor: el saldo actual suma todos los asientos registrados y el saldo disponible descuenta los fondos retenidos por transferencias en revisión."
         actions={
           <>
             <FundingDialog accounts={fundingAccounts}>
               <Button variant="outline" size="lg">
-                <Plus /> Add money
+                <Plus /> Agregar dinero
               </Button>
             </FundingDialog>
             <Button asChild size="lg">
               <Link href="/transfers/new">
-                <Send /> Send money
+                <Send /> Enviar dinero
               </Link>
             </Button>
           </>
@@ -54,19 +54,19 @@ export default async function AccountsPage() {
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07]">
-          <p className="text-sm text-muted-foreground">Total balance{multiCurrency ? ` · ${BASE_CURRENCY} equivalent` : ""}</p>
+          <p className="text-sm text-muted-foreground">Saldo total{multiCurrency ? ` · equivalente en ${BASE_CURRENCY}` : ""}</p>
           <p className="heading mt-2 text-2xl">{formatMoney(summary.totalBaseMinor, BASE_CURRENCY)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{pluralize(accounts.length, "account")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{pluralize(accounts.length, "cuenta")}</p>
         </div>
         <div className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07]">
-          <p className="text-sm text-muted-foreground">Available now</p>
+          <p className="text-sm text-muted-foreground">Disponible ahora</p>
           <p className="heading mt-2 text-2xl">{formatMoney(summary.availableBaseMinor, BASE_CURRENCY)}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {summary.heldBaseMinor > 0n ? `${formatMoney(summary.heldBaseMinor, BASE_CURRENCY)} reserved for pending transfers` : "Nothing reserved"}
+            {summary.heldBaseMinor > 0n ? `${formatMoney(summary.heldBaseMinor, BASE_CURRENCY)} en fondos retenidos por transferencias pendientes` : "Sin fondos retenidos"}
           </p>
         </div>
         <div className="rounded-xl bg-card p-5 shadow-card ring-1 ring-foreground/[0.07]">
-          <p className="text-sm text-muted-foreground">By currency</p>
+          <p className="text-sm text-muted-foreground">Por moneda</p>
           <dl className="mt-2 grid gap-1">
             {summary.byCurrency.map((bucket) => (
               <div key={bucket.currency} className="flex items-baseline justify-between gap-3">
@@ -76,14 +76,14 @@ export default async function AccountsPage() {
             ))}
           </dl>
           {multiCurrency ? (
-            <p className="mt-2 text-xs text-muted-foreground">Indicative rate: 1 EUR = {formatIndicativeRate("EUR")} USD</p>
+            <p className="mt-2 text-xs text-muted-foreground">Tipo de cambio indicativo: 1 EUR = {formatIndicativeRate("EUR")} USD</p>
           ) : null}
         </div>
       </div>
 
       <Section flush>
         {accounts.length === 0 ? (
-          <EmptyState icon={Wallet} title="No accounts yet" description="Your accounts will appear here once they are opened." />
+          <EmptyState icon={Wallet} title="Aún no hay cuentas" description="Tus cuentas aparecerán aquí cuando se abran." />
         ) : (
           <ul className="divide-y divide-border/70">
             {accounts.map((account) => (
@@ -100,7 +100,7 @@ export default async function AccountsPage() {
                       <span className="block truncate font-medium">{account.name}</span>
                       <span className="tabular block truncate text-xs text-muted-foreground">
                         {ACCOUNT_TYPE_LABELS[account.type]} · {maskAccountNumber(account.number)}
-                        <span className="hidden lg:inline"> · Opened {formatDate(account.createdAt)}</span>
+                        <span className="hidden lg:inline"> · Apertura: {formatDate(account.createdAt)}</span>
                       </span>
                     </span>
                   </div>
@@ -110,19 +110,19 @@ export default async function AccountsPage() {
                   </div>
 
                   <div className="hidden text-right md:block">
-                    <p className="text-xs text-muted-foreground">Available</p>
+                    <p className="text-xs text-muted-foreground">Disponible</p>
                     <Money minor={account.availableMinor} currency={account.currency} className="text-sm" />
                   </div>
 
                   <div className="text-right">
-                    <p className="hidden text-xs text-muted-foreground md:block">Current balance</p>
+                    <p className="hidden text-xs text-muted-foreground md:block">Saldo actual</p>
                     <Money minor={account.postedMinor} currency={account.currency} className="font-semibold md:text-sm" />
                     <div className="mt-0.5 md:hidden">
                       {account.status !== "active" ? (
                         <AccountStatusBadge status={account.status} />
                       ) : account.heldMinor > 0n ? (
                         <span className="text-xs text-muted-foreground">
-                          <Money minor={account.availableMinor} currency={account.currency} /> available
+                          Disponible: <Money minor={account.availableMinor} currency={account.currency} />
                         </span>
                       ) : null}
                     </div>

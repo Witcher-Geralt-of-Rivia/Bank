@@ -8,6 +8,8 @@ import { listTransactionsForUser, parseTransactionFilters } from "@/server/queri
 
 const MAX_ROWS = 1000;
 
+const DIRECTION_LABELS = { in: "Ingreso", out: "Egreso", internal: "Interna" } as const;
+
 /** Quotes a CSV field and neutralises spreadsheet formula injection. */
 function cell(value: string | null | undefined): string {
   let text = value ?? "";
@@ -36,7 +38,7 @@ export async function GET(request: NextRequest) {
   const db = await getDb();
 
   const lines = [
-    ["Date (UTC)", "Reference", "Type", "Status", "Counterparty", "Description", "Account", "Direction", "Amount", "Currency"].join(","),
+    ["Fecha (UTC)", "Referencia", "Tipo", "Estado", "Contraparte", "Descripción", "Cuenta", "Sentido", "Monto", "Moneda"].join(","),
   ];
   for (let page = 1; lines.length <= MAX_ROWS; page++) {
     const result = await listTransactionsForUser(db, user.id, { ...filters, page, pageSize: 100 });
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
           cell(row.counterparty),
           cell(row.description),
           cell(row.ownAccount?.name),
-          cell(row.direction),
+          cell(DIRECTION_LABELS[row.direction]),
           // Exact decimal string from integer minor units.
           toDecimalString(signed, row.currency),
           row.currency,
@@ -65,7 +67,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(`﻿${lines.join("\r\n")}\r\n`, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="aldera-transactions-${stamp}.csv"`,
+      "Content-Disposition": `attachment; filename="aldera-transacciones-${stamp}.csv"`,
       "Cache-Control": "private, no-store",
     },
   });

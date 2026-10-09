@@ -12,7 +12,7 @@ import { requireCustomer } from "@/server/auth/session";
 import { listAccountsForUser } from "@/server/queries/accounts";
 import { listTransactionsForUser, parseTransactionFilters } from "@/server/queries/transactions";
 
-export const metadata: Metadata = { title: "Transactions" };
+export const metadata: Metadata = { title: "Transacciones" };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -44,18 +44,18 @@ export default async function TransactionsPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="Transactions"
-        description="Every movement across your accounts. Select a transaction to see its receipt, status history and ledger entries."
+        title="Transacciones"
+        description="Todos los movimientos de tus cuentas. Selecciona una transacción para ver su comprobante, su historial de estados y sus asientos contables."
         actions={
           <>
             <Button asChild variant="outline" size="lg">
               <a href={`/api/transactions/export${queryString(params)}`} download>
-                <Download /> Export CSV
+                <Download /> Exportar CSV
               </a>
             </Button>
             <Button asChild size="lg">
               <Link href="/transfers/new">
-                <Send /> Send money
+                <Send /> Enviar dinero
               </Link>
             </Button>
           </>
@@ -73,33 +73,33 @@ export default async function TransactionsPage({ searchParams }: Props) {
           filtered ? (
             <EmptyState
               icon={SearchX}
-              title="No transactions match these filters"
-              description="Try a different search term, widen the date range or clear the filters."
+              title="Ninguna transacción coincide con estos filtros"
+              description="Prueba con otro término de búsqueda, amplía el rango de fechas o limpia los filtros."
               action={
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/transactions">Clear filters</Link>
+                  <Link href="/transactions">Limpiar filtros</Link>
                 </Button>
               }
             />
           ) : (
             <EmptyState
               icon={Send}
-              title="No transactions yet"
-              description="Add money to an account or send your first transfer and it will appear here."
+              title="Aún no hay transacciones"
+              description="Agrega dinero a una cuenta o envía tu primera transferencia y aparecerá aquí."
             />
           )
         ) : (
           <>
             <p className="px-5 pt-4 pb-1 text-xs text-muted-foreground" aria-live="polite">
-              {result.total.toLocaleString("en-US")} {result.total === 1 ? "transaction" : "transactions"}
-              {filtered ? " match your filters" : ""}
+              {result.total.toLocaleString("en-US")} {result.total === 1 ? "transacción" : "transacciones"}
+              {filtered ? (result.total === 1 ? " coincide con tus filtros" : " coinciden con tus filtros") : ""}
             </p>
             <TransactionList rows={result.rows} />
             <Pagination
               page={result.page}
               pageCount={result.pageCount}
               total={result.total}
-              noun="transactions"
+              noun={result.total === 1 ? "transacción" : "transacciones"}
               hrefFor={(page) => `/transactions${queryString(params, page)}`}
             />
           </>

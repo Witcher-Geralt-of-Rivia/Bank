@@ -27,36 +27,36 @@ export type NavGroup = { label: string; items: NavItem[] };
 
 const CUSTOMER_NAV: NavGroup[] = [
   {
-    label: "Banking",
+    label: "Banca",
     items: [
-      { href: "/dashboard", label: "Overview", icon: "overview" },
-      { href: "/accounts", label: "Accounts", icon: "accounts" },
-      { href: "/transactions", label: "Transactions", icon: "transactions" },
-      { href: "/transfers/new", label: "Move money", icon: "transfer" },
-      { href: "/beneficiaries", label: "Beneficiaries", icon: "beneficiaries" },
-      { href: "/insights", label: "Insights", icon: "insights" },
+      { href: "/dashboard", label: "Resumen", icon: "overview" },
+      { href: "/accounts", label: "Cuentas", icon: "accounts" },
+      { href: "/transactions", label: "Transacciones", icon: "transactions" },
+      { href: "/transfers/new", label: "Transferir", icon: "transfer" },
+      { href: "/beneficiaries", label: "Beneficiarios", icon: "beneficiaries" },
+      { href: "/insights", label: "Análisis", icon: "insights" },
     ],
   },
 ];
 
 const STAFF_NAV: NavGroup[] = [
   {
-    label: "Operations",
+    label: "Operaciones",
     items: [
-      { href: "/admin", label: "Overview", icon: "operations", exact: true },
-      { href: "/admin/transactions", label: "Monitoring", icon: "monitoring" },
-      { href: "/admin/users", label: "Users", icon: "customers" },
-      { href: "/admin/accounts", label: "Accounts", icon: "ledger" },
-      { href: "/admin/audit", label: "Audit log", icon: "audit" },
+      { href: "/admin", label: "Resumen", icon: "operations", exact: true },
+      { href: "/admin/transactions", label: "Monitoreo", icon: "monitoring" },
+      { href: "/admin/users", label: "Usuarios", icon: "customers" },
+      { href: "/admin/accounts", label: "Cuentas", icon: "ledger" },
+      { href: "/admin/audit", label: "Registro de auditoría", icon: "audit" },
     ],
   },
 ];
 
 const PERSONAL_NAV: NavGroup = {
-  label: "You",
+  label: "Tu cuenta",
   items: [
-    { href: "/notifications", label: "Notifications", icon: "notifications" },
-    { href: "/settings", label: "Settings", icon: "settings" },
+    { href: "/notifications", label: "Notificaciones", icon: "notifications" },
+    { href: "/settings", label: "Configuración", icon: "settings" },
   ],
 };
 
@@ -67,10 +67,10 @@ export function navigationFor(role: Role): NavGroup[] {
 
 /** The four destinations pinned to the bottom bar on phones. */
 export const MOBILE_TABS: NavItem[] = [
-  { href: "/dashboard", label: "Home", icon: "overview" },
-  { href: "/accounts", label: "Accounts", icon: "accounts" },
-  { href: "/transfers/new", label: "Send", icon: "transfer" },
-  { href: "/transactions", label: "Activity", icon: "transactions" },
+  { href: "/dashboard", label: "Inicio", icon: "overview" },
+  { href: "/accounts", label: "Cuentas", icon: "accounts" },
+  { href: "/transfers/new", label: "Enviar", icon: "transfer" },
+  { href: "/transactions", label: "Actividad", icon: "transactions" },
 ];
 
 export function isActivePath(pathname: string, item: NavItem): boolean {

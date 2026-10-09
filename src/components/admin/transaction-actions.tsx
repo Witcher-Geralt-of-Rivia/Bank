@@ -14,8 +14,8 @@ import {
 
 // Notes and reasons end up in the status history and in the customer's
 // notifications, so staff are told before they type.
-const NOTE_HINT = "Visible to the customer in the status history";
-const REASON_HINT = "Shared with the customer and recorded in the audit log";
+const NOTE_HINT = "Visible para el cliente en el historial de estados";
+const REASON_HINT = "Se comparte con el cliente y queda anotado en el registro de auditoría";
 
 function Actions({ lead, children }: { lead: string; children: React.ReactNode }) {
   return (
@@ -57,36 +57,36 @@ export function TransactionActions({
 }) {
   if (status === "pending") {
     return (
-      <Actions lead="This transfer is on hold for review. Approve it to send the money, or reject it to release the hold.">
+      <Actions lead="Esta transferencia está retenida para revisión. Apruébala para enviar el dinero o recházala para liberar los fondos retenidos.">
         <ReasonDialog
           trigger={
             <Button className="flex-1 sm:flex-none">
-              <Check /> Approve
+              <Check /> Aprobar
             </Button>
           }
-          title="Approve this transfer?"
-          description={`The reserved ${amount} will leave the customer's account and be submitted to the payment network. The transfer stays in processing until the receiving bank confirms it.`}
-          confirmLabel="Approve transfer"
-          pendingLabel="Approving…"
-          reasonLabel="Note"
+          title="¿Aprobar esta transferencia?"
+          description={`Los ${amount} retenidos saldrán de la cuenta del cliente y se enviarán a la red de pagos. La transferencia seguirá en proceso hasta que el banco receptor la confirme.`}
+          confirmLabel="Aprobar transferencia"
+          pendingLabel="Aprobando…"
+          reasonLabel="Nota"
           reasonPlaceholder={NOTE_HINT}
           reasonRequired={false}
-          successMessage="Transfer approved"
+          successMessage="Transferencia aprobada"
           onConfirm={(note) => approveTransferAction({ id, note: note || undefined })}
         />
         <ReasonDialog
           trigger={
             <Button variant="destructive" className="flex-1 sm:flex-none">
-              <X /> Reject
+              <X /> Rechazar
             </Button>
           }
-          title="Reject this transfer?"
-          description={`No money will move. The reserved ${amount} will be released back to the customer's available balance and the transfer will be marked as failed.`}
-          confirmLabel="Reject transfer"
-          pendingLabel="Rejecting…"
+          title="¿Rechazar esta transferencia?"
+          description={`No se moverá dinero. Los ${amount} retenidos se liberarán y volverán al saldo disponible del cliente, y la transferencia quedará marcada como fallida.`}
+          confirmLabel="Rechazar transferencia"
+          pendingLabel="Rechazando…"
           destructive
           reasonPlaceholder={REASON_HINT}
-          successMessage="Transfer rejected"
+          successMessage="Transferencia rechazada"
           onConfirm={(reason) => rejectTransferAction({ id, reason })}
         />
       </Actions>
@@ -95,36 +95,36 @@ export function TransactionActions({
 
   if (status === "processing") {
     return (
-      <Actions lead="The money has left the customer's account and is in transit. Mark the transfer as settled once the receiving bank confirms it, or fail it to return the funds.">
+      <Actions lead="El dinero ya salió de la cuenta del cliente y está en tránsito. Marca la transferencia como liquidada cuando el banco receptor la confirme, o márcala como fallida para devolver los fondos.">
         <ReasonDialog
           trigger={
             <Button className="flex-1 sm:flex-none">
-              <CircleCheck /> Mark as settled
+              <CircleCheck /> Marcar como liquidada
             </Button>
           }
-          title="Mark this transfer as settled?"
-          description={`This confirms that the receiving bank has the ${amount}. The funds leave payments in transit and the transfer becomes final. The customer's balance does not change, because the money was debited when the transfer was sent.`}
-          confirmLabel="Mark as settled"
-          pendingLabel="Settling…"
-          reasonLabel="Note"
+          title="¿Marcar esta transferencia como liquidada?"
+          description={`Con esto se confirma la liquidación: el banco receptor ya tiene los ${amount}. Los fondos salen de la cuenta de pagos en tránsito y la transferencia pasa a ser definitiva. El saldo del cliente no cambia, porque el dinero se debitó cuando se envió la transferencia.`}
+          confirmLabel="Marcar como liquidada"
+          pendingLabel="Liquidando…"
+          reasonLabel="Nota"
           reasonPlaceholder={NOTE_HINT}
           reasonRequired={false}
-          successMessage="Transfer marked as settled"
+          successMessage="Transferencia marcada como liquidada"
           onConfirm={(note) => settleTransferAction({ id, note: note || undefined })}
         />
         <ReasonDialog
           trigger={
-            <Button variant="destructive" className="flex-1 sm:flex-none">
-              <CircleX /> Fail and return funds
+            <Button variant="destructive" className="h-auto min-h-9 flex-1 basis-full py-1.5 text-balance whitespace-normal sm:flex-none">
+              <CircleX /> Marcar como fallida y devolver los fondos
             </Button>
           }
-          title="Fail this transfer and return the funds?"
-          description={`The transfer will be marked as failed and the ${amount} held in transit will be credited back to the customer's account.`}
-          confirmLabel="Fail and return funds"
-          pendingLabel="Returning funds…"
+          title="¿Marcar como fallida y devolver los fondos?"
+          description={`La transferencia quedará marcada como fallida y los ${amount} que están en tránsito se acreditarán de vuelta en la cuenta del cliente.`}
+          confirmLabel="Marcar como fallida y devolver los fondos"
+          pendingLabel="Devolviendo los fondos…"
           destructive
           reasonPlaceholder={REASON_HINT}
-          successMessage="Transfer failed and funds returned"
+          successMessage="Transferencia marcada como fallida y fondos devueltos"
           onConfirm={(reason) => failTransferAction({ id, reason })}
         />
       </Actions>
@@ -133,23 +133,23 @@ export function TransactionActions({
 
   if (status === "completed" && type !== "reversal") {
     if (role !== "admin") {
-      return <Note>Reversing a completed transaction requires an administrator.</Note>;
+      return <Note>Solo un administrador puede revertir una transacción completada.</Note>;
     }
     return (
-      <Actions lead="This transaction is settled. It can only be undone by a reversal, which posts an opposite transaction and keeps this one on record.">
+      <Actions lead="Esta transacción ya está liquidada. Solo puede deshacerse con una reversión, que registra una transacción compensatoria y conserva esta en el historial.">
         <ReasonDialog
           trigger={
             <Button variant="destructive" className="flex-1 sm:flex-none">
-              <Undo2 /> Reverse
+              <Undo2 /> Revertir
             </Button>
           }
-          title="Reverse this transaction?"
-          description={`A new reversal transaction will post the opposite of every ledger entry, so the ${amount} goes back to where it came from. The original stays on record and is marked as reversed. A reversal cannot itself be reversed.`}
-          confirmLabel="Reverse transaction"
-          pendingLabel="Reversing…"
+          title="¿Revertir esta transacción?"
+          description={`Se registrará una transacción compensatoria (una reversión) con el asiento opuesto a cada asiento contable original, de modo que los ${amount} vuelvan al lugar de donde salieron. La transacción original se conserva y queda marcada como revertida. Una reversión no puede revertirse a su vez.`}
+          confirmLabel="Revertir transacción"
+          pendingLabel="Revirtiendo…"
           destructive
           reasonPlaceholder={REASON_HINT}
-          successMessage="Transaction reversed"
+          successMessage="Transacción revertida"
           onConfirm={(reason) => reverseTransactionAction({ id, reason })}
         />
       </Actions>
@@ -159,8 +159,8 @@ export function TransactionActions({
   return (
     <Note>
       {status === "completed"
-        ? "This reversal is final. A reversal cannot itself be reversed."
-        : "This transaction is final. No further actions are available."}
+        ? "Esta reversión es definitiva. Una reversión no puede revertirse a su vez."
+        : "Esta transacción es definitiva. No hay más acciones disponibles."}
     </Note>
   );
 }

@@ -24,24 +24,24 @@ export function PreferencesForm({ notifyTransfers, notifySecurity }: Preferences
         toast.error(result.error.message);
         return;
       }
-      toast.success("Notification preferences saved");
+      toast.success("Preferencias de notificaciones guardadas");
       router.refresh();
     });
   }
 
   return (
-    <div role="group" aria-label="Notification preferences" className="divide-y divide-border/70">
+    <div role="group" aria-label="Preferencias de notificaciones" className="divide-y divide-border/70">
       <SettingSwitch
-        label="Transfer updates"
-        hint="Transfers that are sent, received, held for review or returned."
+        label="Novedades de transferencias"
+        hint="Transferencias enviadas, recibidas, retenidas para revisión o devueltas."
         checked={preferences.notifyTransfers}
         disabled={pending}
         onCheckedChange={(checked) => save({ ...preferences, notifyTransfers: checked })}
         className="pb-4"
       />
       <SettingSwitch
-        label="Security alerts"
-        hint="Password changes and other activity that affects access to your profile."
+        label="Alertas de seguridad"
+        hint="Cambios de contraseña y otra actividad que afecta el acceso a tu perfil."
         checked={preferences.notifySecurity}
         disabled={pending}
         onCheckedChange={(checked) => save({ ...preferences, notifySecurity: checked })}

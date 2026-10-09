@@ -41,20 +41,20 @@ export function LoginForm() {
 
   return (
     <form action={action} className="grid gap-4" noValidate>
-      <Field label="Email" error={errors.email}>
-        {(props) => <Input {...props} name="email" type="email" autoComplete="username" placeholder="you@company.com" required />}
+      <Field label="Correo electrónico" error={errors.email}>
+        {(props) => <Input {...props} name="email" type="email" autoComplete="username" placeholder="tu@empresa.com" required />}
       </Field>
-      <Field label="Password" error={errors.password}>
+      <Field label="Contraseña" error={errors.password}>
         {(props) => <PasswordInput {...props} name="password" autoComplete="current-password" required />}
       </Field>
       <div className="-mt-1 flex justify-end">
         <Link href="/forgot-password" className="text-sm font-medium text-accent-foreground underline-offset-4 outline-none hover:underline focus-visible:underline">
-          Forgot password?
+          ¿Olvidaste tu contraseña?
         </Link>
       </div>
       <FormError state={state} />
-      <SubmitButton size="xl" pendingLabel="Signing in…">
-        Sign in <ArrowRight />
+      <SubmitButton size="xl" pendingLabel="Iniciando sesión…">
+        Iniciar sesión <ArrowRight />
       </SubmitButton>
     </form>
   );
@@ -80,11 +80,11 @@ export function DemoAccess({
     <section aria-labelledby="demo-heading" className="rounded-xl border border-border bg-card p-4 shadow-card">
       <div className="flex items-center justify-between gap-3">
         <h2 id="demo-heading" className="text-sm font-semibold">
-          Explore the demo
+          Explora la demostración
         </h2>
-        <span className="rounded-full bg-accent px-2 py-0.5 text-[0.6875rem] font-semibold text-accent-foreground">One click</span>
+        <span className="rounded-full bg-accent px-2 py-0.5 text-[0.6875rem] font-semibold text-accent-foreground">Un clic</span>
       </div>
-      <p className="mt-1 text-[0.8125rem] text-muted-foreground">Sign in as a sample user to see each side of the platform.</p>
+      <p className="mt-1 text-[0.8125rem] text-muted-foreground">Inicia sesión como un usuario de ejemplo para ver cada lado de la plataforma.</p>
 
       <form action={action} className="mt-3 grid gap-2">
         {accounts.map((account) => {
@@ -123,7 +123,7 @@ export function DemoAccess({
 
       <details className="mt-3 text-xs text-muted-foreground">
         <summary className="cursor-pointer rounded outline-none select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60">
-          Prefer to type the credentials?
+          ¿Prefieres escribir las credenciales?
         </summary>
         <dl className="mt-2 grid gap-1 rounded-lg bg-muted px-3 py-2.5 font-mono text-[0.75rem]">
           {accounts.map((account) => (
@@ -133,7 +133,7 @@ export function DemoAccess({
             </div>
           ))}
           <div className="mt-1 flex justify-between gap-3 border-t border-border pt-1.5">
-            <dt className="font-sans">Password</dt>
+            <dt className="font-sans">Contraseña</dt>
             <dd className="text-foreground">{password}</dd>
           </div>
         </dl>
@@ -149,16 +149,16 @@ export function RegisterForm() {
 
   return (
     <form action={action} className="grid gap-4" noValidate>
-      <Field label="Full name" error={errors.name}>
+      <Field label="Nombre completo" error={errors.name}>
         {(props) => <Input {...props} name="name" autoComplete="name" placeholder="Ada Lovelace" required />}
       </Field>
-      <Field label="Work email" error={errors.email}>
-        {(props) => <Input {...props} name="email" type="email" autoComplete="email" placeholder="you@company.com" required />}
+      <Field label="Correo electrónico de trabajo" error={errors.email}>
+        {(props) => <Input {...props} name="email" type="email" autoComplete="email" placeholder="tu@empresa.com" required />}
       </Field>
       <Field
-        label="Password"
+        label="Contraseña"
         error={errors.password}
-        hint={`At least ${PASSWORD_MIN_LENGTH} characters, with a letter and a number.`}
+        hint={`Al menos ${PASSWORD_MIN_LENGTH} caracteres, con una letra y un número.`}
       >
         {(props) => <PasswordInput {...props} name="password" autoComplete="new-password" required />}
       </Field>
@@ -170,7 +170,7 @@ export function RegisterForm() {
             aria-invalid={Boolean(errors.terms)}
             className="mt-0.5 size-4 shrink-0 rounded border-input accent-primary"
           />
-          <span>I understand this is a demonstration environment and that no real account will be opened.</span>
+          <span>Entiendo que este es un entorno de demostración y que no se abrirá ninguna cuenta real.</span>
         </label>
         {errors.terms ? (
           <p role="alert" className="text-[0.8125rem] text-danger">
@@ -179,8 +179,8 @@ export function RegisterForm() {
         ) : null}
       </div>
       <FormError state={state} />
-      <SubmitButton size="xl" pendingLabel="Opening your account…">
-        Open account <ArrowRight />
+      <SubmitButton size="xl" pendingLabel="Abriendo tu cuenta…">
+        Abrir cuenta <ArrowRight />
       </SubmitButton>
     </form>
   );
@@ -196,10 +196,10 @@ export function ForgotPasswordForm() {
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
           <CircleCheck className="size-6" />
         </span>
-        <p className="font-medium">Check your inbox</p>
+        <p className="font-medium">Revisa tu bandeja de entrada</p>
         <p className="mt-1.5 text-sm text-pretty text-muted-foreground">{state.data.message}</p>
         <p className="mt-4 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-          This demo does not send email. The request has been recorded in the audit log.
+          Esta demostración no envía correos. La solicitud se guardó en el registro de auditoría.
         </p>
       </div>
     );
@@ -207,12 +207,12 @@ export function ForgotPasswordForm() {
 
   return (
     <form action={action} className="grid gap-4" noValidate>
-      <Field label="Email" error={errors.email}>
-        {(props) => <Input {...props} name="email" type="email" autoComplete="email" placeholder="you@company.com" required />}
+      <Field label="Correo electrónico" error={errors.email}>
+        {(props) => <Input {...props} name="email" type="email" autoComplete="email" placeholder="tu@empresa.com" required />}
       </Field>
       <FormError state={state} />
-      <SubmitButton size="xl" pendingLabel="Sending…">
-        Send reset instructions
+      <SubmitButton size="xl" pendingLabel="Enviando…">
+        Enviar instrucciones
       </SubmitButton>
     </form>
   );

@@ -29,7 +29,7 @@ import {
   getTopCounterparties,
 } from "@/server/queries/analytics";
 
-export const metadata: Metadata = { title: "Insights" };
+export const metadata: Metadata = { title: "Análisis" };
 
 function Figure({
   label,
@@ -56,7 +56,7 @@ function Figure({
 
 function CounterpartyList({ rows, sign }: { rows: CounterpartyTotal[]; sign: "in" | "out" }) {
   if (rows.length === 0) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">Nothing in this period.</p>;
+    return <p className="py-6 text-center text-sm text-muted-foreground">Sin movimientos en este periodo.</p>;
   }
   return (
     <ul className="-my-1 divide-y divide-border/70">
@@ -68,7 +68,7 @@ function CounterpartyList({ rows, sign }: { rows: CounterpartyTotal[]; sign: "in
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{row.name}</p>
             <p className="text-xs text-muted-foreground">
-              {pluralize(row.count, "payment")} · last {formatShortDate(row.lastAt)}
+              {pluralize(row.count, "pago")} · último: {formatShortDate(row.lastAt)}
             </p>
           </div>
           <Money
@@ -103,8 +103,8 @@ export default async function InsightsPage() {
   const hasActivity = months.some((m) => m.inMinor > 0n || m.outMinor > 0n);
   const net = flow.current.inMinor - flow.current.outMinor;
   const note = multiCurrency
-    ? `All figures in ${BASE_CURRENCY}; EUR converted at an indicative 1 EUR = ${formatIndicativeRate("EUR")} USD. Transfers between your own accounts are excluded.`
-    : "Transfers between your own accounts are excluded.";
+    ? `Todas las cifras están en ${BASE_CURRENCY}; los montos en EUR se convierten a un tipo de cambio indicativo de 1 EUR = ${formatIndicativeRate("EUR")} USD. No se incluyen las transferencias entre tus propias cuentas.`
+    : "No se incluyen las transferencias entre tus propias cuentas.";
 
   // --- cash-flow chart ---
   const flowMax = Math.max(1, ...months.map((m) => Math.max(toApproximateNumber(m.inMinor, BASE_CURRENCY), toApproximateNumber(m.outMinor, BASE_CURRENCY))));
@@ -152,12 +152,12 @@ export default async function InsightsPage() {
   if (!hasActivity && trend.every((p) => p.balanceMinor === 0n)) {
     return (
       <>
-        <PageHeader title="Insights" description="Where your money comes from and where it goes." />
+        <PageHeader title="Análisis" description="De dónde viene tu dinero y a dónde va." />
         <Section>
           <EmptyState
             icon={ChartColumn}
-            title="Nothing to analyse yet"
-            description="Once money starts moving through your accounts, you will see your cash flow, spending by category and balance trend here."
+            title="Aún no hay nada que analizar"
+            description="Cuando empiece a moverse dinero en tus cuentas, aquí verás tu flujo de caja, tus gastos por categoría y la evolución de tu saldo."
           />
         </Section>
       </>
@@ -166,38 +166,38 @@ export default async function InsightsPage() {
 
   return (
     <>
-      <PageHeader title="Insights" description="Where your money comes from and where it goes, based on settled and in-transit transactions." />
+      <PageHeader title="Análisis" description="De dónde viene tu dinero y a dónde va, según las transacciones liquidadas y en tránsito." />
 
       <div className="grid gap-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Figure
-            label="Money in · 90 days"
+            label="Ingresos · 90 días"
             icon={ArrowDownLeft}
             value={formatMoney(flow.current.inMinor, BASE_CURRENCY)}
-            note={`${formatMoney(flow.previous.inMinor, BASE_CURRENCY)} in the 90 days before`}
+            note={`${formatMoney(flow.previous.inMinor, BASE_CURRENCY)} en los 90 días anteriores`}
           />
           <Figure
-            label="Money out · 90 days"
+            label="Egresos · 90 días"
             icon={ArrowUpRight}
             value={formatMoney(flow.current.outMinor, BASE_CURRENCY)}
-            note={`${formatMoney(flow.previous.outMinor, BASE_CURRENCY)} in the 90 days before`}
+            note={`${formatMoney(flow.previous.outMinor, BASE_CURRENCY)} en los 90 días anteriores`}
           />
           <Figure
-            label="Net cash flow · 90 days"
+            label="Flujo de caja neto · 90 días"
             icon={Scale}
             value={formatMoney(net, BASE_CURRENCY, { sign: "always" })}
-            note={net >= 0n ? "More came in than went out" : "More went out than came in"}
+            note={net >= 0n ? "Entró más de lo que salió" : "Salió más de lo que entró"}
           />
         </div>
 
         <Section
-          title="Balance trend"
-          description="Combined end-of-day balance across your accounts, last 90 days"
+          title="Evolución del saldo"
+          description="Saldo combinado de tus cuentas al cierre de cada día, últimos 90 días"
           action={
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               {change === 0n ? null : change > 0n ? <TrendingUp className="size-3.5 text-success" /> : <TrendingDown className="size-3.5 text-danger" />}
               <span className="tabular font-medium text-foreground">{formatMoney(change, BASE_CURRENCY, { sign: "always" })}</span>
-              <span className="hidden sm:inline">over the period</span>
+              <span className="hidden sm:inline">en el periodo</span>
             </span>
           }
         >
@@ -205,13 +205,13 @@ export default async function InsightsPage() {
         </Section>
 
         <div className="grid items-start gap-6 xl:grid-cols-2">
-          <Section title="Cash flow by month" description="Money in against money out, last 6 months">
+          <Section title="Flujo de caja por mes" description="Ingresos frente a egresos, últimos 6 meses">
             <CashFlowChart data={flowData} formatTick={flowTicks} />
           </Section>
 
-          <Section title="Spending by category" description="Outgoing payments, last 90 days">
+          <Section title="Gastos por categoría" description="Pagos enviados, últimos 90 días">
             {categories.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">No outgoing payments in this period.</p>
+              <p className="py-10 text-center text-sm text-muted-foreground">No hay pagos enviados en este periodo.</p>
             ) : (
               <ul className="grid gap-3.5">
                 {categories.slice(0, 9).map((category) => {
@@ -239,10 +239,10 @@ export default async function InsightsPage() {
         </div>
 
         <div className="grid items-start gap-6 xl:grid-cols-2">
-          <Section title="Who pays you" description="Largest sources of incoming money, last 90 days">
+          <Section title="Quién te paga" description="Tus principales fuentes de ingresos, últimos 90 días">
             <CounterpartyList rows={payers} sign="in" />
           </Section>
-          <Section title="Who you pay" description="Largest recipients of outgoing money, last 90 days">
+          <Section title="A quién le pagas" description="Los principales destinatarios de tus pagos, últimos 90 días">
             <CounterpartyList rows={payees} sign="out" />
           </Section>
         </div>
