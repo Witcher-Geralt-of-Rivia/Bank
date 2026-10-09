@@ -11,6 +11,7 @@ import {
   notifications,
   transactionEvents,
   transactions,
+  users,
 } from "@/db/schema";
 import {
   type AuditAction,
@@ -231,6 +232,16 @@ export async function notify(
   href?: string,
 ): Promise<void> {
   if (!userId) return;
+
+  // Respect the recipient's notification preferences.
+  if (kind === "transaction" || kind === "security") {
+    const [preferences] = await tx
+      .select({ transfers: users.notifyTransfers, security: users.notifySecurity })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (preferences && !(kind === "transaction" ? preferences.transfers : preferences.security)) return;
+  }
   await tx.insert(notifications).values({
     id: makeId(ctx, "ntf"),
     userId,

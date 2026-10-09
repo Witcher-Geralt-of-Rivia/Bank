@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, Copy, LoaderCircle } from "lucide-react";
+import { Check, Copy, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useId, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +52,7 @@ export function SubmitButton({
   const status = useFormStatus();
   const pending = pendingOverride ?? status.pending;
   return (
-    <Button type="submit" disabled={pending || props.disabled} aria-busy={pending} {...props}>
+    <Button type="submit" aria-busy={pending} {...props} disabled={pending || props.disabled}>
       {pending ? (
         <>
           <LoaderCircle className="animate-spin" />
@@ -98,6 +99,24 @@ export function Field({
           {hint}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/** Password field with a show/hide control. */
+export function PasswordInput(props: React.ComponentProps<typeof Input>) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
+      >
+        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+      </button>
     </div>
   );
 }

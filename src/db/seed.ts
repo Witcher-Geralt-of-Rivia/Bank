@@ -801,7 +801,7 @@ function buildPlan(now: Date): Planner {
   schedule(failedAt, () => {
     const m: Moment = { key: "login-failed:elena", at: failedAt, actor: { id: "", label: "elena@aldera.example", role: "system" }, client: { ip: "192.0.2.146", userAgent: UA.firefoxLinux } };
     plan.audit(m, { action: "auth.login_failed", entityType: "user", entityId: U.elena, summary: "Failed sign-in attempt for elena@aldera.example.", metadata: { reason: "wrong_password" } });
-    plan.notify(m, U.elena, "security", "Sign-in attempt blocked", "We blocked a sign-in attempt with an incorrect password from an unrecognised device. If this was not you, change your password.", "/settings");
+    plan.notify(m, U.elena, "security", "Sign-in attempt blocked", "We blocked a sign-in attempt with an incorrect password from an unrecognised device. If this was not you, change your password.", "/settings?tab=security");
   });
   const profileAt = daysAgo(16, 9, 12);
   schedule(profileAt, () => plan.audit({ key: "profile:elena", at: profileAt, actor: P.elena, client: office }, { action: "profile.updated", entityType: "user", entityId: U.elena, summary: "Profile updated (phone).", metadata: { fields: ["phone"] } }));
@@ -809,7 +809,7 @@ function buildPlan(now: Date): Planner {
   // ---- Standalone notices ----
   const notice = (key: string, at: Date, kind: "security" | "account" | "system", title: string, body: string, href: string) =>
     schedule(at, () => plan.notify({ key, at, actor: SYSTEM }, U.elena, kind, title, body, href));
-  notice("two-factor", daysAgo(2, 9, 0), "security", "Add a second layer of protection", "Two-step verification is not enabled for your profile. Turn it on in security settings.", "/settings");
+  notice("two-factor", daysAgo(2, 9, 0), "security", "Add a second layer of protection", "Two-step verification is not enabled for your profile. Turn it on in security settings.", "/settings?tab=security");
   notice("statement", daysAgo(Math.max(1, new Date(today).getUTCDate() - 1), 6, 0), "account", "Your monthly statement is ready", "The statement for last month is available for all four accounts.", "/accounts");
   notice("maintenance", daysAgo(11, 5, 30), "system", "Scheduled maintenance completed", "Payment processing was upgraded overnight with no downtime. No action is needed.", "/notifications");
 

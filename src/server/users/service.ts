@@ -248,7 +248,7 @@ export async function changePassword(
       "security",
       "Your password was changed",
       "If you did not make this change, contact support immediately.",
-      "/settings",
+      "/settings?tab=security",
     );
   });
 }

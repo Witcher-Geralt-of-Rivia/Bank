@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowRight, Building2, CircleCheck, Eye, EyeOff, LoaderCircle, ShieldCheck, User } from "lucide-react";
+import { ArrowRight, Building2, CircleCheck, LoaderCircle, ShieldCheck, User } from "lucide-react";
 import Link from "next/link";
 import { type ComponentType, useActionState, useEffect, useState } from "react";
-import { Field, SubmitButton } from "@/components/shared/client";
+import { Field, PasswordInput, SubmitButton } from "@/components/shared/client";
 import { Callout } from "@/components/shared/page";
 import { Input } from "@/components/ui/input";
 import { ROLE_LABELS, type Role } from "@/lib/domain";
@@ -25,23 +25,6 @@ function FormError({ state }: { state: FormState }) {
   // Field-level problems are shown next to their inputs.
   if (state.error.fieldErrors && Object.keys(state.error.fieldErrors).length > 0) return null;
   return <Callout tone="danger">{state.error.message}</Callout>;
-}
-
-function PasswordInput(props: React.ComponentProps<typeof Input>) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="relative">
-      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
-      <button
-        type="button"
-        onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? "Hide password" : "Show password"}
-        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60"
-      >
-        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-      </button>
-    </div>
-  );
 }
 
 /** Starts the database early so the first sign-in does not pay for a cold start. */
