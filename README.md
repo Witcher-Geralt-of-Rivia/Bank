@@ -4,6 +4,8 @@
 
 Aldera is a complete, working reference application for a high-integrity financial system: multi-currency accounts, transfers with review and settlement, real-time transaction tracking, an operations console and a tamper-evident audit trail. It is designed to show how a financial product stays correct under retries, concurrency and human error, without reaching for infrastructure it does not yet need.
 
+The interface is in Latin American Spanish; the code, comments and this document are in English.
+
 > Aldera is a fictional institution created for demonstration. It is not a bank, holds no licence, makes no claim of regulatory certification, and moves no real money.
 
 ---
@@ -44,11 +46,11 @@ Password for all demo profiles: `Aldera-Demo-2026`
 
 A suggested five-minute tour:
 
-1. Sign in as the **customer**. The overview shows total and available balance, cash flow and items needing attention.
-2. Open **Move money** and send an amount to a saved beneficiary. Watch the receipt move from *Processing* to *Completed*.
-3. Send **$10,000 or more** to an external beneficiary. It is held as *Pending review*, and the available balance drops while the current balance does not.
-4. Sign out and sign in as the **operator**. Approve or reject the held transfer from the review queue; every decision asks for a reason.
-5. Sign in as the **administrator**. Reverse a completed transaction, then open the **Audit log** and see each of those actions recorded, with the chain verified.
+1. Sign in as the **customer** (*Cliente*). The overview (*Resumen*) shows total and available balance, cash flow and items needing attention.
+2. Open **Transferir** and send an amount to a saved beneficiary. Watch the receipt move from *En proceso* to *Completada*.
+3. Send **$10,000 or more** to an external beneficiary. It is held as *Pendiente de revisión*, and the available balance drops while the current balance does not.
+4. Sign out and sign in as the **operator** (*Operador*). Approve or reject the held transfer from the review queue (*Cola de revisión*); every decision asks for a reason.
+5. Sign in as the **administrator** (*Administrador*). Reverse a completed transaction, then open **Registro de auditoría** and see each of those actions recorded, with the chain verified.
 
 ---
 
@@ -220,7 +222,8 @@ Policy values (review threshold of 10,000.00 and a per-movement limit of 250,000
 - **Input validation** – Zod schemas shared by forms and server; the server is always the authority. Search input is escaped before use in `LIKE` patterns. CSV export neutralises spreadsheet formula injection.
 - **Rate limiting** – sliding-window limits on sign-in, registration, password reset and money movements, behind a small interface that a shared store can replace.
 - **Safe errors** – domain errors carry a stable code and a user-safe message; anything unexpected is logged server-side with a correlation id and surfaced generically.
-- **Headers** – `X-Frame-Options: DENY`, `nosniff`, strict referrer policy, restrictive permissions policy, HSTS, and `no-store` on authenticated pages and API responses.
+- **Content-Security-Policy** – set per request in `src/proxy.ts` with a fresh nonce: `script-src 'self' 'nonce-…' 'strict-dynamic'`, so only scripts the server emitted can run. `object-src`, `frame-src` and `frame-ancestors` are `'none'`; `base-uri`, `form-action` and `connect-src` are `'self'`. Because of the nonce, every page is rendered per request. Styles allow `'unsafe-inline'`, which chart geometry and popover positioning need as inline style attributes. API responses carry `default-src 'none'`.
+- **Other headers** – `X-Frame-Options: DENY`, `nosniff`, strict referrer policy, a restrictive permissions policy, HSTS, `Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy: same-origin`, and `no-store` on authenticated pages and API responses.
 - **Secrets** – configuration comes from environment variables only. Nothing sensitive is committed or sent to the browser.
 
 ---
@@ -275,7 +278,7 @@ cp .env.example .env.local   # optional for local development
 npm run dev
 ```
 
-Open <http://localhost:3000>. With no `DATABASE_URL`, the app starts on the embedded PostgreSQL engine, applies migrations and loads the demo dataset automatically. Nothing else needs to be installed.
+Open <http://localhost:3000>. With no `DATABASE_URL`, the development server starts on the embedded PostgreSQL engine, applies migrations and loads the demo dataset automatically. Nothing else needs to be installed.
 
 Useful scripts:
 
@@ -283,10 +286,11 @@ Useful scripts:
 | --- | --- |
 | `npm run dev` | Development server |
 | `npm run build` | Build the schema snapshot, then the production bundle |
-| `npm start` | Serve the production build (requires `SESSION_SECRET`) |
+| `npm start` | Serve the production build (requires `SESSION_SECRET` and `DATABASE_URL`) |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript, no emit |
-| `npm test` | Test suite |
+| `npm test` | Test suite on the embedded engine |
+| `npm run test:postgres` | The same suite against `TEST_DATABASE_URL` |
 | `npm run check` | Lint, typecheck, test and build in sequence |
 
 ---
@@ -296,7 +300,8 @@ Useful scripts:
 | Variable | Required | Default | Purpose |
 | --- | --- | --- | --- |
 | `SESSION_SECRET` | **In production** | – | Key used to sign session cookies. At least 32 random characters. Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. Development falls back to a fixed, clearly-labelled value that is refused when `NODE_ENV=production`. |
-| `DATABASE_URL` | No | – | PostgreSQL connection string (Neon, Supabase, RDS, …). When unset, the embedded engine is used. |
+| `DATABASE_URL` | **In production** | – | PostgreSQL connection string (Neon, Supabase, RDS, …). In development and tests, leaving it unset runs the embedded engine. |
+| `ALLOW_EMBEDDED_DATABASE` | No | `false` | Lets a production build start on the embedded in-memory engine. Without it, production refuses to start with no `DATABASE_URL` rather than silently holding data in memory. |
 | `DEMO_MODE` | No | `true` | Seeds demo data and shows one-click demo sign-in. Set to `false` for a clean environment. |
 | `DB_AUTO_MIGRATE` | No | `true` | Apply migrations (and seed, in demo mode) on first connection to `DATABASE_URL`. Set to `false` to manage the schema with the scripts below. |
 
@@ -306,13 +311,13 @@ No variable is exposed to the browser; there are no `NEXT_PUBLIC_` values.
 
 ## Database
 
-### Embedded engine (default)
+### Embedded engine (development and tests)
 
 With no `DATABASE_URL`, Aldera runs on PGlite: real PostgreSQL, in process, in memory. The same SQL, constraints, triggers and transactions run there as on a managed instance, which is why the test suite and the zero-configuration demo can share one code path.
 
 Initialising a PostgreSQL data directory in WebAssembly takes several seconds, so `npm run build` runs `npm run db:snapshot` first: it boots the engine once, applies migrations and saves the data directory to `build/`. At runtime that snapshot is restored in about a second and the demo dataset is loaded on top. The file name includes a fingerprint of the migrations, so a stale snapshot is never used.
 
-Embedded data lives in the memory of one server process and resets when that process restarts.
+Embedded data lives in the memory of one server process and resets when that process restarts. For that reason a production build will not start on it unless `ALLOW_EMBEDDED_DATABASE=true` is set; `/api/health` answers `503` with `database_not_configured` instead.
 
 ### Managed PostgreSQL
 
@@ -337,10 +342,11 @@ It includes 8 users, 9 customer accounts in two currencies, 11 beneficiaries, ab
 ## Testing
 
 ```bash
-npm test
+npm test                                               # embedded PostgreSQL, one database per test file
+TEST_DATABASE_URL=postgres://… npm run test:postgres   # the same suite against a PostgreSQL server
 ```
 
-The suite runs the domain layer against a real PostgreSQL engine, with the production schema, constraints and triggers applied. It concentrates on the logic that would cost money if it were wrong.
+The suite runs the domain layer against a real PostgreSQL engine, with the production schema, constraints and triggers applied. It concentrates on the logic that would cost money if it were wrong. `test:postgres` runs the files one at a time against a server of your choice, which exercises true concurrent connections and row locks; it wipes the `public` schema first, so point it only at a disposable database.
 
 | File | What it proves |
 | --- | --- |
@@ -356,19 +362,18 @@ The suite runs the domain layer against a real PostgreSQL engine, with the produ
 
 ## Deployment
 
-Aldera deploys to Vercel with no configuration beyond one secret.
+Aldera deploys to Vercel with a PostgreSQL database and one secret.
 
 1. Import the repository in Vercel. The framework preset (Next.js) and build command (`npm run build`) are detected automatically.
-2. Add the environment variable **`SESSION_SECRET`** (see above) for the Production environment.
-3. Deploy.
+2. Add a PostgreSQL database, for example Neon from the Vercel Marketplace, and connect it to the project so that `DATABASE_URL` is set.
+3. Add the environment variable **`SESSION_SECRET`** (see above) for the Production environment.
+4. Deploy.
 
-That is enough for a working demo on the embedded engine, with demo data loaded on each cold start.
+On the first request the application applies its migrations under an advisory lock and, in demo mode, loads the demo dataset if the database is empty. Nothing else needs to be run.
 
-**For durable data**, add a PostgreSQL database (for example Neon from the Vercel Marketplace), make sure `DATABASE_URL` is set for the project, and redeploy. Migrations and the demo dataset are applied automatically on first connection.
+The demo dataset is loaded once, so its dates age. Run `npm run db:reset` against the database to refresh it.
 
-On a managed database the demo dataset is loaded once, so its dates age. Run `npm run db:reset` against it to refresh.
-
-`GET /api/health` reports whether the database is reachable and which engine is in use.
+`GET /api/health` reports whether the database is reachable and which engine is in use (`"database": "postgres"`).
 
 ---
 
@@ -407,12 +412,13 @@ This is a demonstration, and it is deliberate about where it stops.
 
 - **No real payment rails.** External transfers settle through a simulator: a transfer sent from the UI is confirmed a few seconds later when its receipt asks for an update, or by an operator. A production system would receive settlement events from a payment network.
 - **Single currency per transfer.** Source and destination must share a currency. Cross-currency totals on the dashboard use a fixed indicative rate and are labelled as such. The ledger already keeps per-currency system accounts, which is where FX position accounts would be added.
-- **Embedded mode is ephemeral and per-instance.** Without `DATABASE_URL`, data lives in one server process. On a serverless platform, separate instances hold separate copies and data resets on cold start. Use a managed PostgreSQL for anything beyond a walkthrough.
+- **The demo dataset ages.** Its dates are relative to the day it was loaded; refresh it with `npm run db:reset`.
+- **Embedded mode is for development.** Without `DATABASE_URL`, data lives in the memory of one server process. Production refuses to start that way unless explicitly allowed.
 - **Two-step verification is recorded, not enforced.** The setting is stored and audited, but no second factor is requested at sign-in.
 - **Password reset does not send email.** The request is validated, rate-limited and audited; delivery is out of scope.
 - **Rate limiting is per instance.** The limiter keeps its counters in memory. Its interface is intentionally small so a shared store can replace it.
-- **No Content-Security-Policy header.** A strict nonce-based policy is the appropriate next step and was left out to keep the demo dependency-free.
-- **Times are shown in UTC**, and the interface is in English.
+- **Inline styles are allowed by the Content-Security-Policy.** Scripts are locked to a per-request nonce, but `style-src` keeps `'unsafe-inline'` for chart and popover positioning.
+- **Times are shown in UTC.** The interface is in Spanish only; there is no language switcher.
 - **No compliance claims.** Aldera demonstrates engineering practice. It has not been audited or certified against any standard.
 
 ---
