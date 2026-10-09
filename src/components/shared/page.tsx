@@ -139,8 +139,9 @@ export function Pagination({
       aria-label="Paginación"
       className="no-print flex items-center justify-between gap-4 border-t border-border/70 px-5 py-3 text-sm"
     >
-      <p className="text-muted-foreground">
-        Página <span className="font-medium text-foreground">{page}</span> de {pageCount}
+      <p className="whitespace-nowrap text-muted-foreground">
+        <span className="hidden min-[26rem]:inline">Página </span>
+        <span className="font-medium text-foreground">{page}</span> de {pageCount}
         <span className="hidden sm:inline">
           {" "}
           · {total.toLocaleString("en-US")} {noun}
