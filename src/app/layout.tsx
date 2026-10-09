@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import { IBM_Plex_Mono, Instrument_Serif, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,11 +28,11 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Aldera — Banking built on a ledger you can trust",
+    default: "Aldera — Banca construida sobre un libro mayor en el que puedes confiar",
     template: "%s · Aldera",
   },
   description:
-    "Aldera is a digital banking and financial operations platform: multi-currency accounts, transfers, real-time transaction tracking and a complete audit trail on a double-entry ledger.",
+    "Aldera es una plataforma de banca digital y operaciones financieras: cuentas multimoneda, transferencias, seguimiento de transacciones en tiempo real y un registro de auditoría completo sobre un libro mayor de partida doble.",
   applicationName: "Aldera",
   robots: { index: false, follow: false },
 };
@@ -42,10 +43,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // The Content-Security-Policy carries a per-request nonce (see src/proxy.ts),
+  // so no page may be prerendered at build time.
+  await connection();
+
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${inter.variable} ${instrumentSerif.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
