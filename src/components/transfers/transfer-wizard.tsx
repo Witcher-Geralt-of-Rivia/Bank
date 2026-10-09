@@ -423,9 +423,22 @@ export function TransferWizard({
                   onSelect={() => chooseSource(account.id)}
                   leading={<CurrencyChip currency={account.currency} />}
                   title={account.name}
-                  subtitle={account.usable ? `${account.typeLabel} · ${account.maskedNumber}` : "Frozen · cannot send money"}
+                  subtitle={
+                    account.usable ? (
+                      <>
+                        <span className="tabular sm:hidden">
+                          {formatMoney(BigInt(account.availableMinor), account.currency)} available · {account.maskedNumber}
+                        </span>
+                        <span className="hidden sm:inline">
+                          {account.typeLabel} · {account.maskedNumber}
+                        </span>
+                      </>
+                    ) : (
+                      "Frozen · cannot send money"
+                    )
+                  }
                   trailing={
-                    <span className="mr-1 text-right">
+                    <span className="mr-1 hidden text-right sm:block">
                       <span className="tabular block text-sm font-medium">{formatMoney(BigInt(account.availableMinor), account.currency)}</span>
                       <span className="block text-xs text-muted-foreground">available</span>
                     </span>

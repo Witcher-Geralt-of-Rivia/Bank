@@ -7,7 +7,7 @@
     "build": "npm run db:snapshot && next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "db:migrate": "tsx --conditions=react-server scripts/db.ts migrate",
@@ -49,6 +49,6 @@
   },
   "description": "Aldera — a ledger-based digital banking and financial operations platform.",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.12"
   }
 }

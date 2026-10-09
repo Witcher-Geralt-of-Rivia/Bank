@@ -125,8 +125,8 @@ export function TransactionFilterBar({
           </Select>
         ) : null}
 
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="w-8 shrink-0 lg:w-auto">From</span>
+        <label className="flex flex-col gap-1 text-xs text-muted-foreground lg:flex-row lg:items-center lg:gap-2 lg:text-sm">
+          <span className="shrink-0">From</span>
           <Input
             type="date"
             value={params.get("from") ?? ""}
@@ -135,8 +135,8 @@ export function TransactionFilterBar({
             className="tabular w-full lg:w-[9.5rem]"
           />
         </label>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="w-8 shrink-0 lg:w-auto">To</span>
+        <label className="flex flex-col gap-1 text-xs text-muted-foreground lg:flex-row lg:items-center lg:gap-2 lg:text-sm">
+          <span className="shrink-0">To</span>
           <Input
             type="date"
             value={params.get("to") ?? ""}

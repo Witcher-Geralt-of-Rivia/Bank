@@ -16,6 +16,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   agentRules: false,
+  // Self-contained server bundle for container deployments: NEXT_OUTPUT=standalone npm run build
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   poweredByHeader: false,
   reactStrictMode: true,
 
@@ -27,7 +29,7 @@ const nextConfig: NextConfig = {
       "./node_modules/@electric-sql/pglite/dist/*.wasm",
       "./node_modules/@electric-sql/pglite/dist/*.data",
       // Pre-migrated schema snapshot produced by `npm run db:snapshot`.
-      "./.data/*.tar.gz",
+      "./build/*.tar.gz",
     ],
   },
 

@@ -180,6 +180,11 @@
   :focus-visible {
     outline-offset: 2px;
   }
+  /* Grid children may shrink below their content width, so a wide table
+     scrolls inside its own container instead of stretching the page. */
+  :where(.grid) > * {
+    min-width: 0;
+  }
   input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0.55;
     cursor: pointer;

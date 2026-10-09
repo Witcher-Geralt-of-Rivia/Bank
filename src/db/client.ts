@@ -80,7 +80,7 @@ export async function seedIfEmpty(db: Database): Promise<boolean> {
  * stale snapshot is never used; if none is found the engine falls back to a
  * full initialisation.
  */
-const SNAPSHOT_DIR = ".data";
+const SNAPSHOT_DIR = "build";
 
 export function snapshotFile(): string {
   const fingerprint = createHash("sha256")

@@ -196,7 +196,7 @@ export function TransactionList({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{primaryLabel(view, staff)}</span>
                 <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="tabular">{formatShortDate(view.createdAt)}</span>
+                  <span className="tabular shrink-0 whitespace-nowrap">{formatShortDate(view.createdAt)}</span>
                   {view.status !== "completed" ? (
                     <StatusBadge status={view.status} className="h-5 px-1.5 text-[0.6875rem]" />
                   ) : (
