@@ -34,7 +34,7 @@ The interface is in Latin American Spanish; the code, comments and this document
 
 ## Try it
 
-**Live demo: <https://cassio-aldera.vercel.app>**
+**Live demo: <https://aldera-financial-platform.vercel.app>**
 
 The sign-in page offers one-click access to three seeded profiles. The same credentials can be typed in by hand.
 
