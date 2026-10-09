@@ -178,6 +178,13 @@ export const INDICATIVE_RATES_TO_BASE: Record<CurrencyCode, bigint> = {
   EUR: 1_084_500n,
 };
 
+/** "1.0845" — the indicative rate as an exact decimal string. */
+export function formatIndicativeRate(currency: CurrencyCode): string {
+  const rate = INDICATIVE_RATES_TO_BASE[currency];
+  const fraction = (rate % RATE_SCALE).toString().padStart(6, "0").slice(0, 4);
+  return `${rate / RATE_SCALE}.${fraction}`;
+}
+
 export function toBaseCurrency(minor: bigint, currency: CurrencyCode): bigint {
   return mulDiv(minor, INDICATIVE_RATES_TO_BASE[currency], RATE_SCALE);
 }

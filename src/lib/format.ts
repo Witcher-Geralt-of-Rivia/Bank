@@ -115,3 +115,29 @@ export function formatCount(value: number): string {
 export function pluralize(count: number, singular: string, plural?: string) {
   return `${formatCount(count)} ${count === 1 ? singular : (plural ?? `${singular}s`)}`;
 }
+
+/** "Chrome on Windows" from a raw User-Agent header. */
+export function describeUserAgent(userAgent: string | null | undefined): string {
+  if (!userAgent) return "Unknown device";
+  const browser = userAgent.includes("Edg/")
+    ? "Edge"
+    : userAgent.includes("Firefox/")
+      ? "Firefox"
+      : userAgent.includes("Chrome/")
+        ? "Chrome"
+        : userAgent.includes("Safari/")
+          ? "Safari"
+          : "Browser";
+  const system = /iPhone|iPad/.test(userAgent)
+    ? "iOS"
+    : /Android/.test(userAgent)
+      ? "Android"
+      : /Windows/.test(userAgent)
+        ? "Windows"
+        : /Mac OS X/.test(userAgent)
+          ? "macOS"
+          : /Linux/.test(userAgent)
+            ? "Linux"
+            : "unknown device";
+  return `${browser} on ${system}`;
+}
