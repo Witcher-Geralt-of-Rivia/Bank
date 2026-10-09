@@ -7,12 +7,13 @@ import { TRANSACTION_STATUSES } from "@/lib/domain";
 import { verifyAuditChain } from "@/server/audit";
 import { verifyPassword } from "@/server/auth/password";
 import { checkLedgerIntegrity } from "@/server/ledger/integrity";
+import { createTestDatabase } from "./support/harness";
 
 describe("demo dataset", () => {
   let db: Database;
 
   beforeAll(async () => {
-    db = await createEmbeddedDatabase();
+    db = await createTestDatabase();
     const startedAt = Date.now();
     expect(await seedIfEmpty(db)).toBe(true);
     console.info(`seeded in ${Date.now() - startedAt}ms`);

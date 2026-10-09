@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import { type Database, createEmbeddedDatabase } from "@/db/client";
+import { eq, sql } from "drizzle-orm";
+import { type Database, connectPostgres, createEmbeddedDatabase, migrate } from "@/db/client";
 import { accounts, beneficiaries, users } from "@/db/schema";
 import type { Role } from "@/lib/domain";
 import type { CurrencyCode } from "@/lib/money";
@@ -12,6 +12,17 @@ import { recordExternalActivity } from "@/server/ledger/service";
  * production schema, constraints and triggers applied.
  */
 export async function createTestDatabase(): Promise<Database> {
+  // TEST_DATABASE_URL points the suite at a real PostgreSQL server, which
+  // exercises true concurrent connections and row locks. The schema is wiped
+  // first, so it must never be a database that holds anything of value.
+  const url = process.env.TEST_DATABASE_URL?.trim();
+  if (url) {
+    const db = await connectPostgres(url);
+    await db.execute(sql`DROP SCHEMA public CASCADE`);
+    await db.execute(sql`CREATE SCHEMA public`);
+    await migrate(db);
+    return db;
+  }
   return createEmbeddedDatabase();
 }
 

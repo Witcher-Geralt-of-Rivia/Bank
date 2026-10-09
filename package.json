@@ -15,7 +15,8 @@
     "db:reset": "tsx --conditions=react-server scripts/db.ts reset",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "db:snapshot": "tsx --conditions=react-server scripts/db.ts snapshot",
-    "pretest": "npm run db:snapshot"
+    "pretest": "npm run db:snapshot",
+    "test:postgres": "vitest run --no-file-parallelism"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

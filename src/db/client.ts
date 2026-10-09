@@ -23,6 +23,16 @@ export function rowsOf<T>(result: unknown): T[] {
   return (result as { rows: T[] }).rows;
 }
 
+export class DatabaseNotConfiguredError extends Error {
+  constructor() {
+    super(
+      "DATABASE_URL is not configured. Production requires a PostgreSQL database; " +
+        "set ALLOW_EMBEDDED_DATABASE=true only for a disposable demo.",
+    );
+    this.name = "DatabaseNotConfiguredError";
+  }
+}
+
 const MIGRATION_LOCK = 7_274_001;
 const SEED_LOCK = 7_274_002;
 
@@ -165,6 +175,13 @@ async function connect(): Promise<Database> {
     }
     console.info(`[aldera] connected to PostgreSQL in ${Date.now() - startedAt}ms`);
     return db;
+  }
+
+  // Embedded data lives in one process and is lost when it restarts. That is
+  // right for development and tests, and wrong for anything people rely on,
+  // so production refuses to start on it unless explicitly told to.
+  if (env.isProduction && !env.allowEmbeddedDatabase) {
+    throw new DatabaseNotConfiguredError();
   }
 
   const db = await createEmbeddedDatabase();

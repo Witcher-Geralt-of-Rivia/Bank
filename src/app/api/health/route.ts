@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { getDb } from "@/db/client";
+import { DatabaseNotConfiguredError, getDb } from "@/db/client";
 import { env } from "@/lib/env";
 import { isSessionConfigured } from "@/server/auth/token";
 
@@ -23,6 +23,12 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[aldera] health check failed", error);
-    return NextResponse.json({ status: "unavailable" }, { status: 503 });
+    return NextResponse.json(
+      {
+        status: "unavailable",
+        reason: error instanceof DatabaseNotConfiguredError ? "database_not_configured" : "database_unreachable",
+      },
+      { status: 503 },
+    );
   }
 }
